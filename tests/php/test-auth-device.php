@@ -121,6 +121,57 @@ class Test_Auth_Device extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Only a link on the dashboard's origin reaches the browser.
+	 *
+	 * @dataProvider verification_links
+	 * @param string $given    Link from the API.
+	 * @param string $expected Link returned.
+	 * @param bool   $replaced Whether the replacement notice fires.
+	 */
+	public function test_verification_uri_must_match_dashboard_origin( string $given, string $expected, bool $replaced ) {
+		$this->fake->on(
+			'POST',
+			'/auth/device/code',
+			201,
+			array(
+				'device_code'               => 'DC-secret',
+				'user_code'                 => 'AB CD&1',
+				'verification_uri_complete' => $given,
+				'expires_in'                => 600,
+				'interval'                  => 5,
+			)
+		);
+		$fired = 0;
+		add_action(
+			'ecomweb_verification_uri_replaced',
+			function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+		$out = $this->auth->start_device_flow( $this->uid );
+
+		$this->assertSame( $expected, $out['verification_uri_complete'] );
+		$this->assertSame( $replaced ? 1 : 0, $fired );
+	}
+
+	/**
+	 * Links and what comes back.
+	 *
+	 * @return array
+	 */
+	public function verification_links(): array {
+		$built = Config::dashboard_url() . '/device?code=AB%20CD%261';
+		$host  = (string) wp_parse_url( Config::dashboard_url(), PHP_URL_HOST );
+		return array(
+			'matching origin' => array( Config::dashboard_url() . '/device?code=X', Config::dashboard_url() . '/device?code=X', false ),
+			'other host'      => array( 'https://evil.example/device?code=X', $built, true ),
+			'lookalike host'  => array( 'https://' . $host . '.evil.example/device?code=X', $built, true ),
+			'userinfo trick'  => array( 'https://' . $host . '@evil.example/device?code=X', $built, true ),
+			'other scheme'    => array( 'javascript:alert(1)', $built, true ),
+		);
+	}
+
+	/**
 	 * A failed start gives a WP_Error and no transient.
 	 */
 	public function test_start_failure_returns_error() {

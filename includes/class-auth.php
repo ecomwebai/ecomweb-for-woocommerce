@@ -117,6 +117,7 @@ class Auth {
 		if ( ! is_string( $device_code ) || '' === $device_code || ! is_string( $user_code ) || ! is_string( $uri ) ) {
 			return $this->bad_response();
 		}
+		$uri        = $this->trusted_verification_uri( $uri, $user_code );
 		$interval   = max( 1, (int) ( $json['interval'] ?? self::DEFAULT_INTERVAL ) );
 		$expires_in = max( 1, (int) ( $json['expires_in'] ?? 0 ) );
 
@@ -137,6 +138,43 @@ class Auth {
 			'interval'                  => $interval,
 			'expires_in'                => $expires_in,
 		);
+	}
+
+	/**
+	 * The verification link the browser may open: only one on the dashboard's own origin.
+	 *
+	 * Anything else is replaced by a link built from the dashboard URL, and the replacement is
+	 * announced on `ecomweb_verification_uri_replaced` (no URL, no tokens).
+	 *
+	 * @param string $uri       Link from the API.
+	 * @param string $user_code User code.
+	 * @return string
+	 */
+	private function trusted_verification_uri( string $uri, string $user_code ): string {
+		$expected = self::origin( Config::dashboard_url() );
+		$parts    = wp_parse_url( $uri );
+		if ( is_array( $parts ) && ! isset( $parts['user'] ) && ! isset( $parts['pass'] ) && '' !== $expected && self::origin( $uri ) === $expected ) {
+			return $uri;
+		}
+		do_action( 'ecomweb_verification_uri_replaced' );
+		return Config::dashboard_url() . '/device?code=' . rawurlencode( $user_code );
+	}
+
+	/**
+	 * Scheme, host and port of a URL, lowercased, with default ports made explicit.
+	 *
+	 * @param string $url URL.
+	 * @return string Empty when it has no http(s) scheme or host.
+	 */
+	private static function origin( string $url ): string {
+		$parts  = wp_parse_url( $url );
+		$scheme = is_array( $parts ) ? strtolower( (string) ( $parts['scheme'] ?? '' ) ) : '';
+		$host   = is_array( $parts ) ? strtolower( (string) ( $parts['host'] ?? '' ) ) : '';
+		if ( '' === $host || ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
+			return '';
+		}
+		$port = (int) ( $parts['port'] ?? ( 'https' === $scheme ? 443 : 80 ) );
+		return $scheme . '://' . $host . ':' . $port;
 	}
 
 	/**
