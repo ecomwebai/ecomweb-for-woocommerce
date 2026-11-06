@@ -6,8 +6,9 @@
 # endpoint (sleep 1 s, count the call atomically, answer new tokens). The mu-plugin, the
 # session, the counter and the lock row are removed on exit.
 #
-# Prints refreshes=<n> and exits 0 only when n is 1 and every process got the new token.
-# Exits 2 when the plugin is not active in tests-cli (see .wp-env.json afterStart).
+# Prints refreshes=<n> and exits 0 only when n is 1, every process got the new token, and
+# at least one process actually waited on the lock (so the run really had contention).
+# Exits 2 when the plugin can't be activated in tests-cli.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,6 +26,10 @@ in_tests_cli() {
 	$WP_ENV run tests-cli "$@" 2>/dev/null
 }
 
+# PHPUnit's installer shares the tests-cli database and leaves the plugins inactive after
+# every `npm run test:php`, so activate them here (idempotent) before checking. Don't run
+# this script while the PHPUnit suite is running.
+in_tests_cli wp plugin activate woocommerce ecomweb-for-woocommerce >/dev/null || true
 if ! in_tests_cli wp plugin is-active ecomweb-for-woocommerce >/dev/null; then
 	echo "ecomweb-for-woocommerce is not active in tests-cli." >&2
 	echo "Run: $WP_ENV run tests-cli wp plugin activate woocommerce ecomweb-for-woocommerce" >&2
@@ -130,6 +135,12 @@ echo "$RESULTS"
 echo "refreshes=$REFRESHES"
 
 OK_COUNT="$(printf '%s\n' "$RESULTS" | grep -c '^token=RACE-AT-1 ' || true)"
+WAITED="$(printf '%s\n' "$RESULTS" | grep -c ' waited=yes$' || true)"
+echo "waited=$WAITED"
+if [ "$WAITED" -lt 1 ]; then
+	echo "FAIL: no process waited on the lock, so the run proved nothing about contention. Run it again." >&2
+	exit 1
+fi
 if [ "$REFRESHES" = "1" ] && [ "$OK_COUNT" = "$PROCESSES" ]; then
 	exit 0
 fi

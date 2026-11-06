@@ -169,6 +169,107 @@ class Test_Auth_Refresh extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Runs $during once, while the refresh request is in flight (before its answer arrives).
+	 *
+	 * @param callable $during Callback.
+	 */
+	private function while_refreshing( callable $during ) {
+		$done = false;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( $during, &$done ) {
+				if ( ! $done && '/auth/session/refresh' === substr( (string) wp_parse_url( $url, PHP_URL_PATH ), -21 ) ) {
+					$done = true;
+					$during();
+				}
+				return $pre;
+			},
+			5,
+			3
+		);
+	}
+
+	/**
+	 * A sign-out landing between the refresh request and its answer leaves no session.
+	 */
+	public function test_sign_out_during_refresh_leaves_no_session() {
+		$this->seed( time() + 30 );
+		$this->fake->on( 'POST', '/auth/session/refresh', 200, $this->tokens() )->on( 'POST', '/auth/logout', 200 );
+		$auth = $this->auth();
+		$this->while_refreshing(
+			function () use ( $auth ) {
+				$auth->sign_out();
+			}
+		);
+
+		$r = $auth->access_token();
+
+		$this->assertInstanceOf( WP_Error::class, $r );
+		$this->assertSame( 'ecomweb_not_signed_in', $r->get_error_code() );
+		$this->assertSame( 1, $this->fake->count( '/auth/logout' ) );
+		$this->assertFalse( get_option( 'ecomweb_session' ) );
+		$this->assertFalse( get_option( 'ecomweb_signed_out_reason' ) );
+		$this->assertFalse( get_option( '_ecomweb_lock_session' ) );
+	}
+
+	/**
+	 * A local sign-out (another request's second 401) during the refresh keeps its reason and no session.
+	 */
+	public function test_sign_out_local_during_refresh_keeps_reason() {
+		$this->seed( time() + 30 );
+		$this->fake->on( 'POST', '/auth/session/refresh', 200, $this->tokens() );
+		$auth = $this->auth();
+		$this->while_refreshing(
+			function () use ( $auth ) {
+				$auth->sign_out_local( 'revoked' );
+			}
+		);
+
+		$this->assertSame( 'ecomweb_not_signed_in', $auth->access_token()->get_error_code() );
+		$this->assertFalse( get_option( 'ecomweb_session' ) );
+		$this->assertSame( 'revoked', get_option( 'ecomweb_signed_out_reason' ) );
+	}
+
+	/**
+	 * A refusal of a token the merchant already signed out of records no reason.
+	 */
+	public function test_refusal_after_sign_out_during_refresh_sets_no_reason() {
+		$this->seed( time() + 30 );
+		$this->fake->on( 'POST', '/auth/session/refresh', 401, array( 'code' => 'SESSION_EXPIRED' ) )->on( 'POST', '/auth/logout', 200 );
+		$auth = $this->auth();
+		$this->while_refreshing(
+			function () use ( $auth ) {
+				$auth->sign_out();
+			}
+		);
+
+		$this->assertSame( 'ecomweb_not_signed_in', $auth->access_token()->get_error_code() );
+		$this->assertFalse( get_option( 'ecomweb_session' ) );
+		$this->assertFalse( get_option( 'ecomweb_signed_out_reason' ) );
+	}
+
+	/**
+	 * The refresh request has its own timeout, below the lock TTL.
+	 */
+	public function test_refresh_timeout_below_lock_ttl() {
+		$this->seed( time() + 30 );
+		$this->fake->on( 'POST', '/auth/session/refresh', 200, $this->tokens() );
+		$seen = null;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$seen ) {
+				$seen = $args['timeout'];
+				return $pre;
+			},
+			5,
+			2
+		);
+		$this->auth()->access_token();
+		$this->assertSame( Auth::REFRESH_TIMEOUT, $seen );
+		$this->assertLessThan( Auth::LOCK_TTL, $seen );
+	}
+
+	/**
 	 * AUTH_SESSION_EXPIRED on any 4xx also signs out.
 	 */
 	public function test_refresh_auth_session_expired_signs_out() {

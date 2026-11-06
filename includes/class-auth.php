@@ -22,6 +22,7 @@ class Auth {
 	const CONNECTION_OPTION = 'ecomweb_connection';
 	const LOCK_NAME         = 'session';
 	const LOCK_TTL          = 30;
+	const REFRESH_TIMEOUT   = 15; // Must stay below LOCK_TTL, or a second worker could refresh the same token.
 	const LOGOUT_TIMEOUT    = 5;
 	const DEFAULT_INTERVAL  = 5;
 	const SLOW_DOWN_STEP    = 5;
@@ -250,10 +251,19 @@ class Auth {
 			$response = $this->http->request(
 				'POST',
 				Config::api_url() . '/auth/session/refresh',
-				array( 'json' => array( 'refresh_token' => (string) ( $latest['refresh_token'] ?? '' ) ) )
+				array(
+					'json'    => array( 'refresh_token' => (string) ( $latest['refresh_token'] ?? '' ) ),
+					'timeout' => self::REFRESH_TIMEOUT,
+				)
 			);
 			if ( is_wp_error( $response ) || $response->status >= 500 ) {
 				return $this->unreachable();
+			}
+			// Sign-out doesn't take the lock: if it landed while the request was in flight, the
+			// answer belongs to a session that no longer exists. Discard it; never write it back.
+			$current = $this->store->read();
+			if ( null === $current || ( $current['refresh_token'] ?? null ) !== ( $latest['refresh_token'] ?? null ) ) {
+				return $this->not_signed_in();
 			}
 			if ( $response->ok() ) {
 				if ( ! $this->save_tokens( (array) $response->json, (string) ( $latest['signed_in_home_url'] ?? '' ), $latest ) ) {
