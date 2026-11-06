@@ -1,0 +1,30 @@
+{
+    "schema_version": 1,
+    "id": 105,
+    "type": "simple",
+    "status": "publish",
+    "name": "Leather Wallet",
+    "slug": "leather-wallet",
+    "description": "",
+    "short_description": "",
+    "sku": "WAL-01",
+    "price": "45.00",
+    "regular_price": "45.00",
+    "sale_price": null,
+    "on_sale": false,
+    "manage_stock": true,
+    "stock_quantity": 0,
+    "backorders": "no",
+    "stock_status": "outofstock",
+    "weight": null,
+    "categories": [],
+    "tags": [],
+    "images": [
+        {
+            "attachment_id": 10551,
+            "src": "https://shop.example/wp-content/uploads/wallet.png"
+        }
+    ],
+    "attributes": [],
+    "variations": []
+}

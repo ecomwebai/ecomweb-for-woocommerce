@@ -1,0 +1,95 @@
+{
+    "schema_version": 1,
+    "id": 103,
+    "type": "variable",
+    "status": "publish",
+    "name": "Phone Case",
+    "slug": "phone-case",
+    "description": "",
+    "short_description": "",
+    "sku": null,
+    "price": "15.00",
+    "regular_price": null,
+    "sale_price": null,
+    "on_sale": false,
+    "manage_stock": false,
+    "stock_quantity": null,
+    "backorders": "no",
+    "stock_status": "instock",
+    "weight": null,
+    "categories": [],
+    "tags": [],
+    "images": [],
+    "attributes": [
+        {
+            "name": "Model",
+            "taxonomy": null,
+            "variation": true,
+            "options": [
+                "iPhone 15",
+                "iPhone 16"
+            ]
+        },
+        {
+            "name": "Color",
+            "taxonomy": "pa_color",
+            "variation": true,
+            "options": [
+                "Red",
+                "Blue"
+            ]
+        }
+    ],
+    "variations": [
+        {
+            "id": 10301,
+            "status": "publish",
+            "sku": null,
+            "price": "15.00",
+            "regular_price": "15.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": null,
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Model",
+                    "option": null
+                },
+                {
+                    "name": "Color",
+                    "option": "Red"
+                }
+            ]
+        },
+        {
+            "id": 10302,
+            "status": "publish",
+            "sku": null,
+            "price": "15.00",
+            "regular_price": "15.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": null,
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Model",
+                    "option": "iPhone 16"
+                },
+                {
+                    "name": "Color",
+                    "option": "Blue"
+                }
+            ]
+        }
+    ]
+}

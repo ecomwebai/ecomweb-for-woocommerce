@@ -1,0 +1,126 @@
+{
+    "schema_version": 1,
+    "id": 107,
+    "type": "variable",
+    "status": "publish",
+    "name": "Court Sneaker",
+    "slug": "court-sneaker",
+    "description": "",
+    "short_description": "",
+    "sku": null,
+    "price": "60.00",
+    "regular_price": null,
+    "sale_price": null,
+    "on_sale": false,
+    "manage_stock": false,
+    "stock_quantity": null,
+    "backorders": "no",
+    "stock_status": "instock",
+    "weight": null,
+    "categories": [],
+    "tags": [],
+    "images": [],
+    "attributes": [
+        {
+            "name": "Size",
+            "taxonomy": "pa_size",
+            "variation": true,
+            "options": [
+                "41",
+                "42"
+            ]
+        },
+        {
+            "name": "Color",
+            "taxonomy": null,
+            "variation": true,
+            "options": [
+                "White"
+            ]
+        },
+        {
+            "name": "Width",
+            "taxonomy": null,
+            "variation": true,
+            "options": [
+                "Regular"
+            ]
+        },
+        {
+            "name": "Material",
+            "taxonomy": null,
+            "variation": true,
+            "options": [
+                "Canvas"
+            ]
+        }
+    ],
+    "variations": [
+        {
+            "id": 10701,
+            "status": "publish",
+            "sku": null,
+            "price": "60.00",
+            "regular_price": "60.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": null,
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Size",
+                    "option": "41"
+                },
+                {
+                    "name": "Color",
+                    "option": "White"
+                },
+                {
+                    "name": "Width",
+                    "option": "Regular"
+                },
+                {
+                    "name": "Material",
+                    "option": "Canvas"
+                }
+            ]
+        },
+        {
+            "id": 10702,
+            "status": "publish",
+            "sku": null,
+            "price": "60.00",
+            "regular_price": "60.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": null,
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Size",
+                    "option": "42"
+                },
+                {
+                    "name": "Color",
+                    "option": "White"
+                },
+                {
+                    "name": "Width",
+                    "option": "Regular"
+                },
+                {
+                    "name": "Material",
+                    "option": "Canvas"
+                }
+            ]
+        }
+    ]
+}
