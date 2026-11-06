@@ -8,6 +8,6 @@
     "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.latest-stable.zip"
   },
   "lifecycleScripts": {
-    "afterStart": "wp-env run cli wp plugin activate woocommerce ecomweb-for-woocommerce plugin-check"
+    "afterStart": "wp-env run cli wp plugin activate woocommerce ecomweb-for-woocommerce plugin-check && wp-env run tests-cli wp plugin activate woocommerce ecomweb-for-woocommerce"
   }
 }

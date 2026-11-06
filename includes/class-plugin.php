@@ -25,6 +25,27 @@ class Plugin {
 	private static $instance = null;
 
 	/**
+	 * Shared HTTP wrapper.
+	 *
+	 * @var Http|null
+	 */
+	private $http = null;
+
+	/**
+	 * Shared Auth.
+	 *
+	 * @var Auth|null
+	 */
+	private $auth = null;
+
+	/**
+	 * Shared API client.
+	 *
+	 * @var Api_Client|null
+	 */
+	private $api = null;
+
+	/**
 	 * Shared instance.
 	 *
 	 * @return Plugin
@@ -34,6 +55,42 @@ class Plugin {
 			self::$instance = new self();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * The one Auth: all ecomweb authentication.
+	 *
+	 * @return Auth
+	 */
+	public function auth(): Auth {
+		if ( null === $this->auth ) {
+			$this->auth = new Auth( $this->http(), new Session_Store(), new Lock() );
+		}
+		return $this->auth;
+	}
+
+	/**
+	 * The authenticated API client.
+	 *
+	 * @return Api_Client
+	 */
+	public function api(): Api_Client {
+		if ( null === $this->api ) {
+			$this->api = new Api_Client( $this->auth(), $this->http() );
+		}
+		return $this->api;
+	}
+
+	/**
+	 * Shared HTTP wrapper.
+	 *
+	 * @return Http
+	 */
+	private function http(): Http {
+		if ( null === $this->http ) {
+			$this->http = new Http();
+		}
+		return $this->http;
 	}
 
 	/**
