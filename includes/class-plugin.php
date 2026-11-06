@@ -107,6 +107,9 @@ class Plugin {
 		}
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		( new Ajax( $this->auth() ) )->register();
+		( new Admin_Page( $this->auth() ) )->register();
 	}
 
 	/**

@@ -1,0 +1,12 @@
+.ecomweb-card {
+	max-width: 520px;
+	margin-top: 16px;
+	padding: 4px 20px 8px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+.ecomweb-code-line code {
+	font-size: 20px;
+	letter-spacing: 2px;
+	padding: 4px 8px;
+}
