@@ -24,6 +24,13 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	private $page;
 
 	/**
+	 * Fake.
+	 *
+	 * @var Fake_Api
+	 */
+	private $fake;
+
+	/**
 	 * Admin user.
 	 *
 	 * @var int
@@ -38,6 +45,34 @@ class Test_Admin_Page extends WP_UnitTestCase {
 		$this->admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $this->admin );
 		$this->page = new Admin_Page( new Auth( new Http(), new Session_Store(), new Lock() ) );
+		$this->fake = Fake_Api::start();
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		$this->fake->stop();
+		parent::tear_down();
+	}
+
+	/**
+	 * Saves a chosen store.
+	 */
+	private function connect() {
+		update_option(
+			'ecomweb_connection',
+			array(
+				'connection_id' => 'c1',
+				'images_mode'   => 'upload',
+				'store'         => array(
+					'id'   => 's1',
+					'ref'  => 's1',
+					'name' => 'A',
+				),
+			),
+			false
+		);
 	}
 
 	/**
@@ -137,8 +172,31 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 * @param string $state State.
 	 */
 	public function test_render_never_prints_tokens( string $state ) {
-		if ( 'signed_in' === $state ) {
+		if ( in_array( $state, array( 'signed_in', 'pick_store', 'pick_store_empty', 'pick_store_error' ), true ) ) {
 			$this->sign_in();
+		}
+		if ( 'signed_in' === $state ) {
+			$this->connect();
+		}
+		if ( 'pick_store' === $state ) {
+			$this->fake->on(
+				'GET',
+				'/stores',
+				200,
+				array(
+					array(
+						'ref'  => 's1',
+						'name' => 'A',
+						'role' => 'owner',
+					),
+				)
+			);
+		}
+		if ( 'pick_store_empty' === $state ) {
+			$this->fake->on( 'GET', '/stores', 200, array() );
+		}
+		if ( 'pick_store_error' === $state ) {
+			$this->fake->on( 'GET', '/stores', 500, array( 'message' => 'Boom' ) );
 		}
 		if ( 'signing_in' === $state ) {
 			set_transient( "ecomweb_device_{$this->admin}", array( 'device_code' => 'DC-secret' ), 600 );
@@ -161,6 +219,9 @@ class Test_Admin_Page extends WP_UnitTestCase {
 			'signed out' => array( 'signed_out' ),
 			'signing in' => array( 'signing_in' ),
 			'signed in'  => array( 'signed_in' ),
+			'pick store' => array( 'pick_store' ),
+			'no stores'  => array( 'pick_store_empty' ),
+			'list error' => array( 'pick_store_error' ),
 		);
 	}
 
@@ -169,6 +230,7 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 */
 	public function test_signed_in_without_view_shows_placeholder() {
 		$this->sign_in();
+		$this->connect();
 		$html = $this->render();
 
 		$this->assertStringContainsString( 'Not available yet', $html );

@@ -25,6 +25,13 @@ class Plugin {
 	private static $instance = null;
 
 	/**
+	 * Shared connection.
+	 *
+	 * @var Connection|null
+	 */
+	private $connection = null;
+
+	/**
 	 * Shared HTTP wrapper.
 	 *
 	 * @var Http|null
@@ -82,6 +89,18 @@ class Plugin {
 	}
 
 	/**
+	 * The store connection.
+	 *
+	 * @return Connection
+	 */
+	public function connection(): Connection {
+		if ( null === $this->connection ) {
+			$this->connection = new Connection( $this->api() );
+		}
+		return $this->connection;
+	}
+
+	/**
 	 * Shared HTTP wrapper.
 	 *
 	 * @return Http
@@ -109,7 +128,9 @@ class Plugin {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 
 		( new Ajax( $this->auth() ) )->register();
-		( new Admin_Page( $this->auth() ) )->register();
+		( new Admin_Page( $this->auth(), $this->connection() ) )->register();
+		$this->connection()->listen();
+		( new Probe_Route() )->register();
 	}
 
 	/**
