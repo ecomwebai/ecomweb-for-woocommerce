@@ -53,6 +53,7 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$this->fake->stop();
+		unset( $_GET['view'] );
 		parent::tear_down();
 	}
 
@@ -172,11 +173,27 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 * @param string $state State.
 	 */
 	public function test_render_never_prints_tokens( string $state ) {
-		if ( in_array( $state, array( 'signed_in', 'pick_store', 'pick_store_empty', 'pick_store_error' ), true ) ) {
+		if ( in_array( $state, array( 'signed_in', 'confirm', 'pick_store', 'pick_store_empty', 'pick_store_error' ), true ) ) {
 			$this->sign_in();
 		}
-		if ( 'signed_in' === $state ) {
+		if ( in_array( $state, array( 'signed_in', 'confirm' ), true ) ) {
 			$this->connect();
+		}
+		if ( 'confirm' === $state ) {
+			$_GET['view'] = 'confirm';
+			$this->fake->on(
+				'POST',
+				'/preflight',
+				200,
+				array(
+					'products' => array(),
+					'plan'     => array(
+						'limit'     => -1,
+						'current'   => 0,
+						'new_count' => 0,
+					),
+				)
+			);
 		}
 		if ( 'pick_store' === $state ) {
 			$this->fake->on(
@@ -222,6 +239,7 @@ class Test_Admin_Page extends WP_UnitTestCase {
 			'pick store' => array( 'pick_store' ),
 			'no stores'  => array( 'pick_store_empty' ),
 			'list error' => array( 'pick_store_error' ),
+			'confirm'    => array( 'confirm' ),
 		);
 	}
 
