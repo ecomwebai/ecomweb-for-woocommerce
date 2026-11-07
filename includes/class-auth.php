@@ -100,6 +100,8 @@ class Auth {
 				'json' => array(
 					'client'      => self::CLIENT,
 					'device_name' => mb_substr( 'WooCommerce – ' . wp_parse_url( home_url(), PHP_URL_HOST ), 0, 100 ),
+					// EcomWeb sends the browser back to this page after Approve.
+					'return_url'  => Admin_Page::url(),
 				),
 			)
 		);
@@ -189,6 +191,10 @@ class Auth {
 
 		if ( ! is_array( $pending ) || empty( $pending['device_code'] ) || (int) ( $pending['expires_at'] ?? 0 ) <= time() ) {
 			delete_transient( $key );
+			// Another tab redeemed the code already (EcomWeb sends the approving tab back here).
+			if ( false === $pending && $this->is_signed_in() ) {
+				return $this->poll_result( 'approved', self::DEFAULT_INTERVAL, $this->email() );
+			}
 			return $this->poll_result( 'expired', is_array( $pending ) ? (int) ( $pending['interval'] ?? self::DEFAULT_INTERVAL ) : self::DEFAULT_INTERVAL );
 		}
 
@@ -533,7 +539,7 @@ class Auth {
 	 * @return \WP_Error
 	 */
 	private function signed_out_error( string $reason ): \WP_Error {
-		return new \WP_Error( 'ecomweb_signed_out', __( 'You were signed out of ecomweb. Sign in again.', 'ecomweb-for-woocommerce' ), array( 'reason' => $reason ) );
+		return new \WP_Error( 'ecomweb_signed_out', __( 'You were signed out of EcomWeb. Sign in again.', 'ecomweb-for-woocommerce' ), array( 'reason' => $reason ) );
 	}
 
 	/**
@@ -542,7 +548,7 @@ class Auth {
 	 * @return \WP_Error
 	 */
 	private function not_signed_in(): \WP_Error {
-		return new \WP_Error( 'ecomweb_not_signed_in', __( 'Sign in to ecomweb first.', 'ecomweb-for-woocommerce' ) );
+		return new \WP_Error( 'ecomweb_not_signed_in', __( 'Sign in to EcomWeb first.', 'ecomweb-for-woocommerce' ) );
 	}
 
 	/**
@@ -551,7 +557,7 @@ class Auth {
 	 * @return \WP_Error
 	 */
 	private function busy(): \WP_Error {
-		return new \WP_Error( 'ecomweb_busy', __( 'ecomweb is busy. Try again in a moment.', 'ecomweb-for-woocommerce' ) );
+		return new \WP_Error( 'ecomweb_busy', __( 'EcomWeb is busy. Try again in a moment.', 'ecomweb-for-woocommerce' ) );
 	}
 
 	/**
@@ -560,7 +566,7 @@ class Auth {
 	 * @return \WP_Error
 	 */
 	private function unreachable(): \WP_Error {
-		return new \WP_Error( 'ecomweb_unreachable', __( 'Could not reach ecomweb. Try again in a moment.', 'ecomweb-for-woocommerce' ) );
+		return new \WP_Error( 'ecomweb_unreachable', __( 'Could not reach EcomWeb. Try again in a moment.', 'ecomweb-for-woocommerce' ) );
 	}
 
 	/**
@@ -569,7 +575,7 @@ class Auth {
 	 * @return \WP_Error
 	 */
 	private function bad_response(): \WP_Error {
-		return new \WP_Error( 'ecomweb_bad_response', __( 'ecomweb sent an unexpected answer. Try again.', 'ecomweb-for-woocommerce' ) );
+		return new \WP_Error( 'ecomweb_bad_response', __( 'EcomWeb sent an unexpected answer. Try again.', 'ecomweb-for-woocommerce' ) );
 	}
 
 	/**

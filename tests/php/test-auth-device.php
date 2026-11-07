@@ -102,6 +102,7 @@ class Test_Auth_Device extends WP_UnitTestCase {
 			array(
 				'client'      => 'wordpress',
 				'device_name' => 'WooCommerce – example.org',
+				'return_url'  => admin_url( 'admin.php?page=ecomweb' ),
 			),
 			json_decode( $this->fake->calls()[0]['body'], true )
 		);
@@ -403,5 +404,37 @@ class Test_Auth_Device extends WP_UnitTestCase {
 	public function test_poll_without_flow_is_expired() {
 		$this->assertSame( 'expired', $this->auth->poll_device_flow( $this->uid )['status'] );
 		$this->assertSame( array(), $this->fake->calls() );
+	}
+
+	/**
+	 * A second tab polling after the first tab redeemed the code (EcomWeb sent the approving tab
+	 * back to this page) is told approved, not expired, and makes no call.
+	 */
+	public function test_poll_after_another_tab_signed_in_is_approved() {
+		$this->start_and_wait();
+		$this->fake->on(
+			'POST',
+			'/auth/device/token',
+			200,
+			array(
+				'access_token'  => 'AT',
+				'refresh_token' => 'RT',
+				'expires_at'    => time() + 900,
+				'expires_in'    => 900,
+				'user'          => array(
+					'id'    => 'u1',
+					'email' => 'm@shop.vn',
+					'name'  => null,
+				),
+			)
+		);
+		$this->auth->poll_device_flow( $this->uid );
+		$calls = count( $this->fake->calls() );
+
+		$r = $this->auth->poll_device_flow( $this->uid );
+
+		$this->assertSame( 'approved', $r['status'] );
+		$this->assertSame( 'm@shop.vn', $r['email'] );
+		$this->assertCount( $calls, $this->fake->calls() );
 	}
 }
