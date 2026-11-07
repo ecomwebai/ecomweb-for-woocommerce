@@ -1,0 +1,160 @@
+{
+    "schema_version": 1,
+    "id": 102,
+    "type": "variable",
+    "status": "publish",
+    "name": "Zip Hoodie",
+    "slug": "zip-hoodie",
+    "description": "",
+    "short_description": "",
+    "sku": null,
+    "price": "39.00",
+    "regular_price": null,
+    "sale_price": null,
+    "on_sale": false,
+    "manage_stock": false,
+    "stock_quantity": null,
+    "backorders": "no",
+    "stock_status": "instock",
+    "weight": "0.5",
+    "categories": [
+        {
+            "id": 11,
+            "name": "Clothing",
+            "slug": "clothing",
+            "parent": 0
+        }
+    ],
+    "tags": [],
+    "images": [
+        {
+            "attachment_id": 10251,
+            "src": "https://shop.example/wp-content/uploads/hoodie-black.png"
+        }
+    ],
+    "attributes": [
+        {
+            "name": "Size",
+            "taxonomy": "pa_size",
+            "variation": true,
+            "options": [
+                "S",
+                "M"
+            ]
+        },
+        {
+            "name": "Color",
+            "taxonomy": null,
+            "variation": true,
+            "options": [
+                "Black",
+                "Grey"
+            ]
+        }
+    ],
+    "variations": [
+        {
+            "id": 10201,
+            "status": "publish",
+            "sku": "HD-S-BLK",
+            "price": "39.00",
+            "regular_price": "39.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": true,
+            "stock_quantity": 5,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": "0.5",
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Size",
+                    "option": "S"
+                },
+                {
+                    "name": "Color",
+                    "option": "Black"
+                }
+            ]
+        },
+        {
+            "id": 10202,
+            "status": "publish",
+            "sku": "HD-S-GRY",
+            "price": "39.00",
+            "regular_price": "39.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": "0.5",
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Size",
+                    "option": "S"
+                },
+                {
+                    "name": "Color",
+                    "option": "Grey"
+                }
+            ]
+        },
+        {
+            "id": 10203,
+            "status": "publish",
+            "sku": "HD-M-BLK",
+            "price": "39.00",
+            "regular_price": "39.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": "0.5",
+            "image": null,
+            "attributes": [
+                {
+                    "name": "Size",
+                    "option": "M"
+                },
+                {
+                    "name": "Color",
+                    "option": "Black"
+                }
+            ]
+        },
+        {
+            "id": 10204,
+            "status": "private",
+            "sku": "HD-M-GRY",
+            "price": "42.00",
+            "regular_price": "42.00",
+            "sale_price": null,
+            "on_sale": false,
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "stock_status": "instock",
+            "weight": "0.5",
+            "image": {
+                "attachment_id": 10252,
+                "src": "https://shop.example/wp-content/uploads/hoodie-grey.png"
+            },
+            "attributes": [
+                {
+                    "name": "Size",
+                    "option": "M"
+                },
+                {
+                    "name": "Color",
+                    "option": "Grey"
+                }
+            ]
+        }
+    ]
+}

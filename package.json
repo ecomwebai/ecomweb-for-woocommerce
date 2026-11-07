@@ -1,0 +1,19 @@
+{
+  "name": "ecomweb-for-woocommerce",
+  "private": true,
+  "version": "1.0.0",
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "env:start": "wp-env start",
+    "composer": "wp-env run cli --env-cwd=wp-content/plugins/ecomweb-for-woocommerce composer",
+    "test:php": "wp-env run tests-cli --env-cwd=wp-content/plugins/ecomweb-for-woocommerce vendor/bin/phpunit",
+    "test:js": "node --test tests/js/*.test.js",
+    "test:build": "bash tests/scripts/build-zip.test.sh",
+    "lint": "npm run composer -- lint",
+    "plugin-check": "wp-env run cli wp plugin check ecomweb-for-woocommerce --exclude-directories=tests,vendor,bin,build,node_modules,.github,.git,.superpowers --exclude-files=.git,.phpunit.result.cache,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpunit.xml.dist,phpcs.xml.dist,.distignore,.gitignore,.editorconfig",
+    "build": "bash bin/build-zip.sh"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^12.1.0"
+  }
+}

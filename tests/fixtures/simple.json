@@ -1,0 +1,67 @@
+{
+    "schema_version": 1,
+    "id": 101,
+    "type": "simple",
+    "status": "publish",
+    "name": "Classic Cotton Tee",
+    "slug": "classic-cotton-tee",
+    "description": "<p>Soft <strong>100% cotton</strong> tee.</p>\n<script>alert(1)</script>\n[caption width=\"300\"]Model is 180 cm[/caption]",
+    "short_description": "Everyday tee.",
+    "sku": "TEE-CLASSIC",
+    "price": "19.99",
+    "regular_price": "19.99",
+    "sale_price": null,
+    "on_sale": false,
+    "manage_stock": true,
+    "stock_quantity": 42,
+    "backorders": "no",
+    "stock_status": "instock",
+    "weight": "0.2",
+    "categories": [
+        {
+            "id": 11,
+            "name": "Clothing",
+            "slug": "clothing",
+            "parent": 0
+        },
+        {
+            "id": 12,
+            "name": "T-Shirts",
+            "slug": "t-shirts",
+            "parent": 11
+        }
+    ],
+    "tags": [
+        {
+            "id": 21,
+            "name": "cotton",
+            "slug": "cotton"
+        },
+        {
+            "id": 22,
+            "name": "summer",
+            "slug": "summer"
+        }
+    ],
+    "images": [
+        {
+            "attachment_id": 10151,
+            "src": "https://shop.example/wp-content/uploads/tee-front.png"
+        },
+        {
+            "attachment_id": 10152,
+            "src": "https://shop.example/wp-content/uploads/tee-back.png"
+        }
+    ],
+    "attributes": [
+        {
+            "name": "Material",
+            "taxonomy": null,
+            "variation": false,
+            "options": [
+                "Cotton"
+            ]
+        }
+    ],
+    "variations": []
+}

@@ -1,0 +1,30 @@
+{
+    "schema_version": 1,
+    "id": 104,
+    "type": "simple",
+    "status": "publish",
+    "name": "Canvas Tote",
+    "slug": "canvas-tote",
+    "description": "",
+    "short_description": "",
+    "sku": "TOTE-01",
+    "price": "19.99",
+    "regular_price": "25.00",
+    "sale_price": "19.99",
+    "on_sale": true,
+    "manage_stock": false,
+    "stock_quantity": null,
+    "backorders": "no",
+    "stock_status": "instock",
+    "weight": null,
+    "categories": [],
+    "tags": [],
+    "images": [
+        {
+            "attachment_id": 10451,
+            "src": "https://shop.example/wp-content/uploads/tote.png"
+        }
+    ],
+    "attributes": [],
+    "variations": []
+}

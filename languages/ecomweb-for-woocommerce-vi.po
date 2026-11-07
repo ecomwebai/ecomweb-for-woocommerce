@@ -1,0 +1,721 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: EcomWeb for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ecomweb-for-woocommerce\n"
+"Last-Translator: EcomWeb\n"
+"Language-Team: Vietnamese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-07T01:37:20+00:00\n"
+"PO-Revision-Date: 2026-11-07 00:00+0000\n"
+"Language: vi\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: WP-CLI 2.7.1\n"
+"X-Domain: ecomweb-for-woocommerce\n"
+
+#. Plugin Name of the plugin
+msgid "EcomWeb for WooCommerce"
+msgstr "EcomWeb cho WooCommerce"
+
+#. Plugin URI of the plugin
+msgid "https://help.ecomweb.app/en/migrate-to-ecomweb/import-from-woocommerce"
+msgstr "https://help.ecomweb.app/vi/migrate-to-ecomweb/import-from-woocommerce"
+
+#. Description of the plugin
+msgid "Move your WooCommerce products to EcomWeb in a few clicks: images, prices, stock and variations, copied as drafts you can review."
+msgstr "Chuyển sản phẩm WooCommerce sang EcomWeb chỉ với vài cú bấm: hình ảnh, giá, tồn kho và biến thể được sao chép thành bản nháp để bạn xem lại."
+
+#. Author of the plugin
+#: includes/class-admin-page.php:199
+#: includes/class-products-list.php:60
+#: includes/views/partial-product-list.php:68
+msgid "EcomWeb"
+msgstr "EcomWeb"
+
+#. Author URI of the plugin
+msgid "https://ecomweb.app"
+msgstr "https://ecomweb.app"
+
+#: includes/class-admin-page.php:130
+msgid "Starting…"
+msgstr "Đang bắt đầu…"
+
+#: includes/class-admin-page.php:131
+msgid "Waiting for you to approve in EcomWeb…"
+msgstr "Đang chờ bạn xác nhận trên EcomWeb…"
+
+#: includes/class-admin-page.php:132
+msgid "Signed in. Loading…"
+msgstr "Đã đăng nhập. Đang tải…"
+
+#: includes/class-admin-page.php:133
+msgid "Sign-in was denied. Click Sign in with EcomWeb to try again."
+msgstr "Đăng nhập bị từ chối. Hãy bấm Đăng nhập bằng EcomWeb để thử lại."
+
+#: includes/class-admin-page.php:134
+msgid "The code expired. Click Sign in with EcomWeb to try again."
+msgstr "Mã đã hết hạn. Hãy bấm Đăng nhập bằng EcomWeb để thử lại."
+
+#: includes/class-admin-page.php:135
+msgid "Something went wrong. Click Sign in with EcomWeb to try again."
+msgstr "Đã xảy ra lỗi. Hãy bấm Đăng nhập bằng EcomWeb để thử lại."
+
+#. translators: 1: products handled so far, 2: products in this copy.
+#: includes/class-admin-page.php:137
+#: includes/views/page-connected.php:123
+msgid "Copying %1$d of %2$d…"
+msgstr "Đang sao chép %1$d trên %2$d…"
+
+#. translators: 1: created, 2: updated, 3: skipped (already copied), 4: failed.
+#: includes/class-admin-page.php:139
+#: includes/views/page-connected.php:137
+msgid "%1$d created, %2$d updated, %3$d skipped (already copied), %4$d failed."
+msgstr "%1$d đã tạo, %2$d đã cập nhật, %3$d đã bỏ qua (đã sao chép), %4$d thất bại."
+
+#: includes/class-admin-page.php:140
+msgid "Couldn't check the copy's progress. Trying again; reload the page if this keeps happening."
+msgstr "Không kiểm tra được tiến độ sao chép. Đang thử lại; hãy tải lại trang nếu lỗi này tiếp tục xảy ra."
+
+#. translators: %d: number of products ticked in the list.
+#: includes/class-admin-page.php:142
+msgid "Copy %d selected"
+msgstr "Sao chép %d mục đã chọn"
+
+#: includes/class-admin-page.php:155
+msgid "You do not have permission to view this page."
+msgstr "Bạn không có quyền xem trang này."
+
+#: includes/class-admin-page.php:199
+msgid "for WooCommerce"
+msgstr "cho WooCommerce"
+
+#: includes/class-admin-page.php:200
+msgid "Help"
+msgstr "Trợ giúp"
+
+#: includes/class-admin-page.php:213
+msgid "Sign in"
+msgstr "Đăng nhập"
+
+#: includes/class-admin-page.php:214
+msgid "Choose a store"
+msgstr "Chọn cửa hàng"
+
+#: includes/class-admin-page.php:215
+#: includes/views/page-connected.php:99
+msgid "Copy products"
+msgstr "Sao chép sản phẩm"
+
+#: includes/class-admin-page.php:324
+#: includes/class-copy-runner.php:784
+msgid "Wait for the current copy to finish."
+msgstr "Hãy chờ lần sao chép hiện tại hoàn tất."
+
+#: includes/class-admin-page.php:327
+msgid "Sign in with EcomWeb and choose a store first."
+msgstr "Hãy đăng nhập bằng EcomWeb và chọn cửa hàng trước."
+
+#: includes/class-admin-page.php:330
+msgid "Select at least one product to copy."
+msgstr "Hãy chọn ít nhất một sản phẩm để sao chép."
+
+#: includes/class-admin-page.php:333
+msgid "Choose a store first."
+msgstr "Hãy chọn cửa hàng trước."
+
+#: includes/class-admin-page.php:336
+#: includes/class-connection.php:114
+#: includes/class-connection.php:199
+#: includes/class-preflight.php:89
+msgid "You don't have access to that store in EcomWeb."
+msgstr "Bạn không có quyền truy cập cửa hàng đó trên EcomWeb."
+
+#. translators: %s: store name.
+#: includes/class-admin-page.php:340
+msgid "You no longer have access to %s in EcomWeb."
+msgstr "Bạn không còn quyền truy cập %s trên EcomWeb."
+
+#: includes/class-admin-page.php:343
+#: includes/class-connection.php:196
+#: includes/class-preflight.php:92
+msgid "Checked too often. Try again in a minute."
+msgstr "Kiểm tra quá thường xuyên. Hãy thử lại sau một phút."
+
+#: includes/class-admin-page.php:346
+msgid "EcomWeb can fetch your product images from this site."
+msgstr "EcomWeb có thể tải hình ảnh sản phẩm của bạn từ trang này."
+
+#: includes/class-admin-page.php:349
+msgid "Product images will be uploaded from this site."
+msgstr "Hình ảnh sản phẩm sẽ được tải lên từ trang này."
+
+#: includes/class-admin-page.php:355
+#: includes/class-messages.php:96
+msgid "Something went wrong. Try again."
+msgstr "Đã xảy ra lỗi. Hãy thử lại."
+
+#: includes/class-admin-page.php:370
+#: includes/class-products-list.php:206
+msgid "You do not have permission to do this."
+msgstr "Bạn không có quyền thực hiện thao tác này."
+
+#: includes/class-admin-page.php:521
+#: includes/views/page-confirm.php:18
+msgid "Choose the products to copy first."
+msgstr "Hãy chọn sản phẩm cần sao chép trước."
+
+#: includes/class-admin-page.php:534
+msgid "The currencies don't match, so nothing was copied."
+msgstr "Đơn vị tiền tệ không khớp nên chưa sao chép gì."
+
+#: includes/class-admin-page.php:537
+#: includes/views/page-confirm.php:93
+msgid "Your plan has no room for more products. Upgrade your plan, or delete products in EcomWeb, then copy again."
+msgstr "Gói của bạn không còn chỗ cho thêm sản phẩm. Hãy nâng cấp gói hoặc xóa bớt sản phẩm trên EcomWeb, rồi sao chép lại."
+
+#: includes/class-admin-page.php:540
+msgid "Your plan doesn't fit every product. Copy the first ones or upgrade your plan."
+msgstr "Gói của bạn không đủ cho mọi sản phẩm. Hãy sao chép những sản phẩm đầu tiên hoặc nâng cấp gói."
+
+#: includes/class-admin-page.php:543
+msgid "Tick the box to confirm that you want to overwrite products in EcomWeb."
+msgstr "Hãy đánh dấu ô để xác nhận bạn muốn ghi đè sản phẩm trên EcomWeb."
+
+#: includes/class-admin-page.php:546
+msgid "Nothing to copy: every selected product is already in EcomWeb."
+msgstr "Không có gì để sao chép: mọi sản phẩm đã chọn đều đã có trên EcomWeb."
+
+#: includes/class-admin-page.php:594
+#: includes/class-messages.php:80
+msgid "Signed out of EcomWeb. Sign in again."
+msgstr "Đã đăng xuất khỏi EcomWeb. Hãy đăng nhập lại."
+
+#: includes/class-admin-page.php:596
+msgid "Your WordPress security keys changed, so the saved sign-in can't be read. Sign in again."
+msgstr "Khóa bảo mật WordPress đã thay đổi nên không đọc được phiên đăng nhập đã lưu. Hãy đăng nhập lại."
+
+#: includes/class-admin-page.php:598
+msgid "This site's address changed, so you were signed out of EcomWeb. Sign in again."
+msgstr "Địa chỉ trang đã thay đổi nên bạn đã bị đăng xuất khỏi EcomWeb. Hãy đăng nhập lại."
+
+#: includes/class-api-client.php:104
+msgid "The image file could not be read."
+msgstr "Không đọc được tệp hình ảnh."
+
+#: includes/class-api-client.php:141
+#: includes/class-auth.php:569
+msgid "Could not reach EcomWeb. Try again in a moment."
+msgstr "Không kết nối được với EcomWeb. Hãy thử lại sau giây lát."
+
+#: includes/class-api-client.php:154
+#: includes/class-auth.php:542
+msgid "You were signed out of EcomWeb. Sign in again."
+msgstr "Bạn đã bị đăng xuất khỏi EcomWeb. Hãy đăng nhập lại."
+
+#: includes/class-auth.php:551
+msgid "Sign in to EcomWeb first."
+msgstr "Hãy đăng nhập vào EcomWeb trước."
+
+#: includes/class-auth.php:560
+msgid "EcomWeb is busy. Try again in a moment."
+msgstr "EcomWeb đang bận. Hãy thử lại sau giây lát."
+
+#: includes/class-auth.php:578
+msgid "EcomWeb sent an unexpected answer. Try again."
+msgstr "EcomWeb trả về phản hồi không mong đợi. Hãy thử lại."
+
+#: includes/class-connection.php:80
+msgid "Only the store owner or an admin can copy products"
+msgstr "Chỉ chủ cửa hàng hoặc quản trị viên mới có thể sao chép sản phẩm"
+
+#: includes/class-connection.php:125
+#: includes/class-connection.php:203
+#: includes/class-preflight.php:99
+msgid "EcomWeb sent an answer this plugin does not understand."
+msgstr "EcomWeb trả về phản hồi mà plugin này không hiểu."
+
+#: includes/class-connection.php:187
+#: includes/class-copy-runner.php:109
+#: includes/class-preflight.php:60
+msgid "Choose an EcomWeb store first."
+msgstr "Hãy chọn cửa hàng EcomWeb trước."
+
+#: includes/class-copy-runner.php:156
+#: includes/class-messages.php:88
+msgid "The copy couldn't be scheduled on this site. Try again."
+msgstr "Không thể lên lịch sao chép trên trang này. Hãy thử lại."
+
+#: includes/class-copy-runner.php:226
+#: includes/class-messages.php:90
+msgid "The copy stopped unexpectedly on this site. Copy again; products already copied are skipped."
+msgstr "Việc sao chép đã dừng đột ngột trên trang này. Hãy sao chép lại; sản phẩm đã sao chép sẽ được bỏ qua."
+
+#: includes/class-copy-runner.php:285
+msgid "This site is no longer connected to that EcomWeb store. Choose the store again."
+msgstr "Trang này không còn được kết nối với cửa hàng EcomWeb đó. Hãy chọn lại cửa hàng."
+
+#: includes/class-copy-runner.php:407
+msgid "EcomWeb took too long to copy a batch."
+msgstr "EcomWeb mất quá nhiều thời gian để sao chép một lô sản phẩm."
+
+#: includes/class-copy-runner.php:457
+msgid "EcomWeb did not report a result for this product."
+msgstr "EcomWeb không báo kết quả cho sản phẩm này."
+
+#: includes/class-messages.php:30
+msgid "On sale in WooCommerce; the regular price was not copied"
+msgstr "Đang giảm giá trên WooCommerce; giá gốc chưa được sao chép"
+
+#. translators: %s: the regular price.
+#: includes/class-messages.php:33
+msgid "On sale in WooCommerce; regular price %s was not copied"
+msgstr "Đang giảm giá trên WooCommerce; giá gốc %s chưa được sao chép"
+
+#: includes/class-messages.php:35
+msgid "An image could not be copied."
+msgstr "Không sao chép được một hình ảnh."
+
+#: includes/class-messages.php:37
+msgid "Only the first 20 images were copied."
+msgstr "Chỉ 20 hình ảnh đầu tiên được sao chép."
+
+#: includes/class-messages.php:39
+msgid "Choose a product category for it in EcomWeb."
+msgstr "Hãy chọn danh mục sản phẩm cho sản phẩm này trên EcomWeb."
+
+#: includes/class-messages.php:41
+msgid "Its URL slug was taken in EcomWeb, so a suffix was added."
+msgstr "Đường dẫn (slug) của sản phẩm đã có trên EcomWeb nên một hậu tố đã được thêm vào."
+
+#: includes/class-messages.php:43
+msgid "Some description markup (scripts, styles, forms or embeds) was removed."
+msgstr "Một số mã trong phần mô tả (script, kiểu dáng, biểu mẫu hoặc nội dung nhúng) đã bị loại bỏ."
+
+#: includes/class-messages.php:45
+msgid "A variation removed in WooCommerce was set to inactive in EcomWeb."
+msgstr "Một biến thể đã bị xóa trên WooCommerce được đặt ở trạng thái không hoạt động trên EcomWeb."
+
+#: includes/class-messages.php:61
+msgid "This product can't be copied: grouped and external products, and variable products without variations, aren't supported."
+msgstr "Không thể sao chép sản phẩm này: sản phẩm nhóm, sản phẩm bên ngoài và sản phẩm có biến thể nhưng chưa có biến thể nào đều không được hỗ trợ."
+
+#: includes/class-messages.php:63
+msgid "EcomWeb supports up to 3 variation attributes; this product has more."
+msgstr "EcomWeb hỗ trợ tối đa 3 thuộc tính biến thể; sản phẩm này có nhiều hơn."
+
+#: includes/class-messages.php:65
+msgid "Too many variations for EcomWeb once “Any” values are expanded."
+msgstr "Quá nhiều biến thể đối với EcomWeb sau khi các giá trị “Bất kỳ” được mở rộng."
+
+#: includes/class-messages.php:67
+msgid "A variation uses “Any” for an attribute that has no values."
+msgstr "Một biến thể dùng “Bất kỳ” cho thuộc tính không có giá trị nào."
+
+#: includes/class-messages.php:69
+msgid "EcomWeb couldn't copy this product. Try again later."
+msgstr "EcomWeb không sao chép được sản phẩm này. Hãy thử lại sau."
+
+#. translators: %s: the reason ecomweb gave.
+#: includes/class-messages.php:72
+msgid "EcomWeb rejected this batch: %s"
+msgstr "EcomWeb đã từ chối lô sản phẩm này: %s"
+
+#: includes/class-messages.php:74
+msgid "Your EcomWeb plan's product limit was reached. Upgrade, then copy again."
+msgstr "Đã đạt giới hạn sản phẩm của gói EcomWeb. Hãy nâng cấp rồi sao chép lại."
+
+#: includes/class-messages.php:76
+msgid "The store currency no longer matches WooCommerce."
+msgstr "Đơn vị tiền tệ của cửa hàng không còn khớp với WooCommerce."
+
+#: includes/class-messages.php:78
+msgid "This site's connection was removed in EcomWeb. Choose the store again."
+msgstr "Kết nối của trang này đã bị gỡ trên EcomWeb. Hãy chọn lại cửa hàng."
+
+#: includes/class-messages.php:82
+msgid "You no longer have access to this store in EcomWeb."
+msgstr "Bạn không còn quyền truy cập cửa hàng này trên EcomWeb."
+
+#: includes/class-messages.php:84
+msgid "EcomWeb can't be reached right now. Copy again later; products already copied are skipped."
+msgstr "Hiện chưa kết nối được với EcomWeb. Hãy sao chép lại sau; sản phẩm đã sao chép sẽ được bỏ qua."
+
+#: includes/class-messages.php:86
+msgid "EcomWeb took too long to answer. Copy again later; products already copied are skipped."
+msgstr "EcomWeb phản hồi quá chậm. Hãy sao chép lại sau; sản phẩm đã sao chép sẽ được bỏ qua."
+
+#: includes/class-messages.php:92
+msgid "EcomWeb is still busy with another copy of this site. Copy again later; products already copied are skipped."
+msgstr "EcomWeb vẫn đang bận với một lần sao chép khác của trang này. Hãy sao chép lại sau; sản phẩm đã sao chép sẽ được bỏ qua."
+
+#: includes/class-messages.php:94
+msgid "EcomWeb is limiting requests right now. Copy again later; products already copied are skipped."
+msgstr "EcomWeb đang giới hạn số yêu cầu. Hãy sao chép lại sau; sản phẩm đã sao chép sẽ được bỏ qua."
+
+#: includes/class-plugin.php:208
+msgid "EcomWeb for WooCommerce needs WooCommerce 8.0 or later."
+msgstr "EcomWeb cho WooCommerce cần WooCommerce 8.0 trở lên."
+
+#: includes/class-products-list.php:95
+#: includes/class-products-list.php:101
+#: includes/class-products-list.php:118
+#: includes/views/partial-product-list.php:35
+#: includes/views/partial-product-list.php:117
+#: includes/views/partial-product-list.php:119
+msgid "Copied"
+msgstr "Đã sao chép"
+
+#: includes/class-products-list.php:117
+msgid "EcomWeb: all"
+msgstr "EcomWeb: tất cả"
+
+#: includes/class-products-list.php:119
+#: includes/views/partial-product-list.php:34
+#: includes/views/partial-product-list.php:122
+msgid "Not copied"
+msgstr "Chưa sao chép"
+
+#: includes/class-products-list.php:189
+msgid "Copy to EcomWeb"
+msgstr "Sao chép sang EcomWeb"
+
+#: includes/class-upload-image-resolver.php:102
+msgid "An image could not be copied because it is missing or is not an image."
+msgstr "Không sao chép được một hình ảnh vì hình ảnh bị thiếu hoặc không phải là hình ảnh."
+
+#: includes/class-upload-image-resolver.php:106
+msgid "An image could not be copied because its file could not be read."
+msgstr "Không sao chép được một hình ảnh vì không đọc được tệp."
+
+#: includes/class-upload-image-resolver.php:109
+msgid "An image could not be copied because it is larger than 10 MB."
+msgstr "Không sao chép được một hình ảnh vì dung lượng lớn hơn 10 MB."
+
+#: includes/class-upload-image-resolver.php:112
+#: includes/class-upload-image-resolver.php:137
+msgid "An image could not be uploaded."
+msgstr "Không tải lên được một hình ảnh."
+
+#: includes/views/page-confirm.php:16
+msgid "Review the copy"
+msgstr "Xem lại trước khi sao chép"
+
+#: includes/views/page-confirm.php:19
+#: includes/views/page-confirm.php:24
+#: includes/views/page-confirm.php:119
+#: includes/views/page-confirm.php:173
+#: includes/views/page-confirm.php:179
+msgid "Cancel"
+msgstr "Hủy"
+
+#: includes/views/page-confirm.php:23
+#: includes/views/page-confirm.php:178
+#: includes/views/page-pick-store.php:19
+#: includes/views/page-pick-store.php:24
+#: includes/views/page-pick-store.php:62
+msgid "Refresh"
+msgstr "Làm mới"
+
+#. translators: 1: products selected, 2: new, 3: already in ecomweb, 4: deleted in ecomweb.
+#: includes/views/page-confirm.php:38
+msgid "%1$d product selected: %2$d new, %3$d already in EcomWeb, %4$d deleted in EcomWeb."
+msgid_plural "%1$d products selected: %2$d new, %3$d already in EcomWeb, %4$d deleted in EcomWeb."
+msgstr[0] "Đã chọn %1$d sản phẩm: %2$d mới, %3$d đã có trên EcomWeb, %4$d đã bị xóa trên EcomWeb."
+
+#: includes/views/page-confirm.php:51
+msgid "Products deleted in EcomWeb are left out."
+msgstr "Sản phẩm đã bị xóa trên EcomWeb sẽ không được sao chép."
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:59
+msgid "%d products can't be copied (grouped or external)."
+msgstr "%d sản phẩm không thể sao chép (sản phẩm nhóm hoặc bên ngoài)."
+
+#. translators: 1: ecomweb store currency, 2: WooCommerce currency.
+#: includes/views/page-confirm.php:70
+msgid "Your EcomWeb store uses %1$s and WooCommerce uses %2$s. EcomWeb doesn't convert prices: make the currencies match, then try again."
+msgstr "Cửa hàng EcomWeb của bạn dùng %1$s còn WooCommerce dùng %2$s. EcomWeb không quy đổi giá: hãy làm cho hai đơn vị tiền tệ khớp nhau rồi thử lại."
+
+#. translators: 1: plan product limit, 2: products in the store now, 3: products that fit, 4: products to create.
+#: includes/views/page-confirm.php:85
+msgid "Your plan allows %1$d products and the store has %2$d, so %3$d of these %4$d fit."
+msgstr "Gói của bạn cho phép %1$d sản phẩm và cửa hàng hiện có %2$d, nên chỉ %3$d trong %4$d sản phẩm này vừa giới hạn."
+
+#. translators: 1: image storage used, in MB. 2: image storage limit, in MB.
+#: includes/views/page-confirm.php:105
+msgid "Your store has used %1$s MB of %2$s MB of image storage. Images beyond that will fail to copy."
+msgstr "Cửa hàng của bạn đã dùng %1$s MB trong %2$s MB dung lượng lưu hình ảnh. Các hình ảnh vượt quá mức này sẽ không sao chép được."
+
+#: includes/views/page-confirm.php:117
+#: includes/views/page-confirm.php:171
+msgid "Upgrade your plan"
+msgstr "Nâng cấp gói"
+
+#: includes/views/page-confirm.php:129
+msgid "Overwrite products already copied"
+msgstr "Ghi đè sản phẩm đã sao chép"
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:139
+msgid "Yes, overwrite %d products in EcomWeb. Their EcomWeb status stays as it is."
+msgstr "Đồng ý, ghi đè %d sản phẩm trên EcomWeb. Trạng thái của chúng trên EcomWeb được giữ nguyên."
+
+#. translators: %d: number of products already copied.
+#: includes/views/page-confirm.php:151
+msgid "Your plan has no room for new products. You can still overwrite the %d products already copied."
+msgstr "Gói của bạn không còn chỗ cho sản phẩm mới. Bạn vẫn có thể ghi đè %d sản phẩm đã sao chép."
+
+#: includes/views/page-confirm.php:159
+#: includes/views/page-confirm.php:168
+msgid "Start copying"
+msgstr "Bắt đầu sao chép"
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:164
+msgid "Copy the first %d"
+msgstr "Sao chép %d sản phẩm đầu tiên"
+
+#: includes/views/page-connected.php:36
+msgid "Created"
+msgstr "Đã tạo"
+
+#: includes/views/page-connected.php:37
+msgid "Updated"
+msgstr "Đã cập nhật"
+
+#: includes/views/page-connected.php:38
+msgid "Skipped"
+msgstr "Đã bỏ qua"
+
+#: includes/views/page-connected.php:39
+msgid "Failed"
+msgstr "Thất bại"
+
+#: includes/views/page-connected.php:41
+msgid "Everyone who can manage WooCommerce on this site can copy products as this EcomWeb account."
+msgstr "Mọi người có quyền quản lý WooCommerce trên trang này đều có thể sao chép sản phẩm bằng tài khoản EcomWeb này."
+
+#. translators: %s: store name.
+#: includes/views/page-connected.php:54
+#: includes/views/page-connected.php:67
+msgid "Store: %s"
+msgstr "Cửa hàng: %s"
+
+#: includes/views/page-connected.php:74
+msgid "Images: this site uploads them to EcomWeb (EcomWeb can't reach this site)."
+msgstr "Hình ảnh: trang này tải chúng lên EcomWeb (EcomWeb không truy cập được trang này)."
+
+#: includes/views/page-connected.php:76
+msgid "Images: EcomWeb downloads them from this site."
+msgstr "Hình ảnh: EcomWeb tải chúng từ trang này."
+
+#: includes/views/page-connected.php:86
+msgid "Recheck images"
+msgstr "Kiểm tra lại hình ảnh"
+
+#: includes/views/page-connected.php:91
+msgid "Change store"
+msgstr "Đổi cửa hàng"
+
+#: includes/views/page-connected.php:100
+msgid "Tick the products to copy, or copy every product not copied yet."
+msgstr "Đánh dấu sản phẩm cần sao chép, hoặc sao chép mọi sản phẩm chưa sao chép."
+
+#: includes/views/page-connected.php:105
+msgid "Copy all products not copied yet"
+msgstr "Sao chép tất cả sản phẩm chưa sao chép"
+
+#: includes/views/page-connected.php:150
+msgid "Stop copy"
+msgstr "Dừng sao chép"
+
+#. translators: 1: when the copy finished, 2: created, 3: updated, 4: skipped (already copied), 5: failed, 6: not supported.
+#: includes/views/page-connected.php:161
+msgid "Last copy finished %1$s: %2$d created, %3$d updated, %4$d skipped (already copied), %5$d failed, %6$d not supported."
+msgstr "Lần sao chép gần nhất kết thúc %1$s: %2$d đã tạo, %3$d đã cập nhật, %4$d đã bỏ qua (đã sao chép), %5$d thất bại, %6$d không được hỗ trợ."
+
+#: includes/views/page-connected.php:178
+msgid "The last copy was cancelled."
+msgstr "Lần sao chép gần nhất đã bị hủy."
+
+#: includes/views/page-connected.php:187
+msgid "Products to review"
+msgstr "Sản phẩm cần xem lại"
+
+#: includes/views/page-connected.php:191
+#: includes/views/partial-product-list.php:66
+msgid "Product"
+msgstr "Sản phẩm"
+
+#: includes/views/page-connected.php:192
+msgid "Result"
+msgstr "Kết quả"
+
+#: includes/views/page-connected.php:193
+msgid "Details"
+msgstr "Chi tiết"
+
+#: includes/views/page-connected.php:221
+msgid "Open in EcomWeb"
+msgstr "Mở trên EcomWeb"
+
+#: includes/views/page-connected.php:233
+msgid "Recreate these sales as promotions in EcomWeb"
+msgstr "Tạo lại các đợt giảm giá này thành khuyến mãi trên EcomWeb"
+
+#: includes/views/page-pick-store.php:21
+msgid "You don't have an EcomWeb store yet."
+msgstr "Bạn chưa có cửa hàng EcomWeb nào."
+
+#: includes/views/page-pick-store.php:23
+msgid "Create a store"
+msgstr "Tạo cửa hàng"
+
+#: includes/views/page-pick-store.php:39
+msgid "Products copied to your previous store will be copied again to the new one."
+msgstr "Sản phẩm đã sao chép sang cửa hàng trước đó sẽ được sao chép lại sang cửa hàng mới."
+
+#: includes/views/page-pick-store.php:44
+msgid "Choose the store to copy your products to"
+msgstr "Chọn cửa hàng để sao chép sản phẩm sang"
+
+#: includes/views/page-pick-store.php:47
+msgid "Select a store"
+msgstr "Chọn một cửa hàng"
+
+#. translators: 1: store name, 2: why it can't be chosen.
+#: includes/views/page-pick-store.php:53
+msgid "%1$s (%2$s)"
+msgstr "%1$s (%2$s)"
+
+#: includes/views/page-pick-store.php:61
+msgid "Use this store"
+msgstr "Dùng cửa hàng này"
+
+#: includes/views/page-signed-out.php:17
+msgid "Copy your WooCommerce products to EcomWeb"
+msgstr "Sao chép sản phẩm WooCommerce sang EcomWeb"
+
+#: includes/views/page-signed-out.php:18
+msgid "Sign in with your EcomWeb account to copy your WooCommerce products into an EcomWeb store."
+msgstr "Đăng nhập bằng tài khoản EcomWeb để sao chép sản phẩm WooCommerce của bạn sang cửa hàng EcomWeb."
+
+#: includes/views/page-signed-out.php:20
+msgid "Products arrive in EcomWeb as drafts, with their images, prices, stock and variations."
+msgstr "Sản phẩm vào EcomWeb ở dạng bản nháp, kèm hình ảnh, giá, tồn kho và biến thể."
+
+#: includes/views/page-signed-out.php:21
+msgid "Copy all your products at once, or pick them in the Products list."
+msgstr "Sao chép tất cả sản phẩm một lần, hoặc chọn từng sản phẩm trong danh sách Sản phẩm."
+
+#: includes/views/page-signed-out.php:22
+msgid "Copy again any time: products already copied are skipped."
+msgstr "Sao chép lại bất cứ lúc nào: sản phẩm đã sao chép sẽ được bỏ qua."
+
+#: includes/views/page-signed-out.php:24
+msgid "Sign in with EcomWeb"
+msgstr "Đăng nhập bằng EcomWeb"
+
+#: includes/views/page-signed-out.php:25
+#: includes/views/page-signing-in.php:29
+msgid "EcomWeb will show your web host's location, not yours."
+msgstr "EcomWeb sẽ hiển thị vị trí của nhà cung cấp hosting, không phải vị trí của bạn."
+
+#: includes/views/page-signing-in.php:17
+msgid "Approve the sign-in in EcomWeb"
+msgstr "Cho phép đăng nhập trên EcomWeb"
+
+#: includes/views/page-signing-in.php:18
+msgid "Check that EcomWeb shows the same code, then approve."
+msgstr "Hãy kiểm tra EcomWeb hiển thị cùng một mã, rồi xác nhận."
+
+#: includes/views/page-signing-in.php:20
+msgid "Your code"
+msgstr "Mã của bạn"
+
+#: includes/views/page-signing-in.php:23
+msgid "Open EcomWeb"
+msgstr "Mở EcomWeb"
+
+#: includes/views/partial-account.php:20
+msgid "Signed in to EcomWeb"
+msgstr "Đã đăng nhập vào EcomWeb"
+
+#. translators: %s: the merchant's ecomweb email.
+#: includes/views/partial-account.php:23
+msgid "Signed in as %s"
+msgstr "Đã đăng nhập với tài khoản %s"
+
+#: includes/views/partial-account.php:31
+msgid "Disconnect from EcomWeb? Copied products stay in EcomWeb."
+msgstr "Ngắt kết nối khỏi EcomWeb? Sản phẩm đã sao chép vẫn được giữ trên EcomWeb."
+
+#: includes/views/partial-account.php:34
+msgid "Disconnect"
+msgstr "Ngắt kết nối"
+
+#: includes/views/partial-product-list.php:33
+msgid "All"
+msgstr "Tất cả"
+
+#: includes/views/partial-product-list.php:51
+#: includes/views/partial-product-list.php:52
+msgid "Search products"
+msgstr "Tìm sản phẩm"
+
+#: includes/views/partial-product-list.php:53
+msgid "Search"
+msgstr "Tìm"
+
+#: includes/views/partial-product-list.php:64
+msgid "Select all products on this page"
+msgstr "Chọn tất cả sản phẩm trên trang này"
+
+#: includes/views/partial-product-list.php:67
+msgid "Price"
+msgstr "Giá"
+
+#: includes/views/partial-product-list.php:73
+msgid "No products found."
+msgstr "Không tìm thấy sản phẩm nào."
+
+#. translators: %s: product SKU.
+#: includes/views/partial-product-list.php:80
+msgid "SKU: %s"
+msgstr "SKU: %s"
+
+#: includes/views/partial-product-list.php:83
+msgid "Variable product"
+msgstr "Sản phẩm có biến thể"
+
+#: includes/views/partial-product-list.php:104
+msgid "(no name)"
+msgstr "(chưa có tên)"
+
+#: includes/views/partial-product-list.php:114
+msgid "Can't be copied"
+msgstr "Không sao chép được"
+
+#: includes/views/partial-product-list.php:130
+msgid "Copy selected"
+msgstr "Sao chép mục đã chọn"
+
+#. translators: %d: number of products in the list.
+#: includes/views/partial-product-list.php:135
+msgid "%d product"
+msgid_plural "%d products"
+msgstr[0] "%d sản phẩm"
+
+#: includes/views/partial-product-list.php:140
+msgid "Previous page"
+msgstr "Trang trước"
+
+#. translators: 1: current page, 2: number of pages.
+#: includes/views/partial-product-list.php:145
+msgid "Page %1$d of %2$d"
+msgstr "Trang %1$d / %2$d"
+
+#: includes/views/partial-product-list.php:149
+msgid "Next page"
+msgstr "Trang sau"

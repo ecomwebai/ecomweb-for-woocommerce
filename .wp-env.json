@@ -1,0 +1,13 @@
+{
+  "phpVersion": "7.4",
+  "core": null,
+  "plugins": [],
+  "mappings": {
+    "wp-content/plugins/ecomweb-for-woocommerce": ".",
+    "wp-content/plugins/woocommerce": "https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip",
+    "wp-content/plugins/plugin-check": "https://downloads.wordpress.org/plugin/plugin-check.latest-stable.zip"
+  },
+  "lifecycleScripts": {
+    "afterStart": "wp-env run cli wp plugin activate woocommerce ecomweb-for-woocommerce plugin-check && wp-env run tests-cli wp plugin activate woocommerce ecomweb-for-woocommerce"
+  }
+}

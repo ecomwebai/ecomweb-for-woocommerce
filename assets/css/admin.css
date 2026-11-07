@@ -1,0 +1,793 @@
+/*
+ * ecomweb for WooCommerce: the plugin page. Everything is scoped to .ecomweb-wrap so the rest
+ * of wp-admin keeps its own look. Colours follow ecomweb: coral and navy from the logo, slate
+ * buttons from the ecomweb dashboard.
+ */
+.ecomweb-wrap {
+	--ew-coral: #ee4d2d;
+	--ew-coral-soft: #fdece8;
+	--ew-navy: #1d3557;
+	--ew-slate: #374151;
+	--ew-slate-hover: #4b5563;
+	--ew-slate-active: #111827;
+	--ew-text: #111827;
+	--ew-text-2: #4b5563;
+	--ew-muted: #6b7280;
+	--ew-border: #e5e7eb;
+	--ew-border-strong: #d1d5db;
+	--ew-subtle: #f9fafb;
+	--ew-success: #16a34a;
+	--ew-success-soft: #ecfdf3;
+	--ew-error: #dc2626;
+	--ew-error-soft: #fef2f2;
+	--ew-warning-soft: #fffbeb;
+	--ew-radius: 10px;
+	max-width: 880px;
+	color: var(--ew-text);
+}
+
+/* Header: the logo is the page title. */
+.ecomweb-topbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 8px 0 20px;
+	padding: 16px 0;
+	border-bottom: 1px solid var(--ew-border-strong);
+}
+.ecomweb-wrap .ecomweb-brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+}
+.ecomweb-brand img {
+	display: block;
+	width: 128px;
+	height: 32px;
+}
+.ecomweb-brand__for {
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: #fff;
+	border: 1px solid var(--ew-border);
+	color: var(--ew-text-2);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.4;
+}
+.ecomweb-topbar__help {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--ew-text-2);
+	text-decoration: none;
+	font-weight: 500;
+}
+.ecomweb-topbar__help:hover,
+.ecomweb-topbar__help:focus {
+	color: var(--ew-coral);
+}
+
+/* Setup steps. */
+.ecomweb-steps {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 24px;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+	counter-reset: none;
+}
+.ecomweb-steps li {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	color: var(--ew-muted);
+	font-weight: 500;
+}
+.ecomweb-steps__n {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: 1px solid var(--ew-border-strong);
+	background: #fff;
+	font-size: 12px;
+	font-weight: 600;
+}
+.ecomweb-steps li.is-current {
+	color: var(--ew-text);
+}
+.ecomweb-steps li.is-current .ecomweb-steps__n {
+	border-color: var(--ew-coral);
+	background: var(--ew-coral);
+	color: #fff;
+}
+.ecomweb-steps li.is-done .ecomweb-steps__n {
+	border-color: var(--ew-slate);
+	background: var(--ew-slate);
+	color: #fff;
+}
+
+/* Cards. */
+.ecomweb-card {
+	margin: 0 0 16px;
+	padding: 24px;
+	background: #fff;
+	border: 1px solid var(--ew-border);
+	border-radius: var(--ew-radius);
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+.ecomweb-card[hidden] {
+	display: none;
+}
+.ecomweb-card > :first-child {
+	margin-top: 0;
+}
+.ecomweb-card > :last-child {
+	margin-bottom: 0;
+}
+.ecomweb-card p {
+	font-size: 14px;
+	line-height: 1.55;
+}
+.ecomweb-wrap .ecomweb-card__title {
+	margin: 0 0 8px;
+	padding: 0;
+	color: var(--ew-text);
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+.ecomweb-card__title label {
+	font: inherit;
+	color: inherit;
+}
+.ecomweb-wrap .ecomweb-muted {
+	color: var(--ew-muted);
+	font-size: 13px;
+}
+.ecomweb-lead {
+	color: var(--ew-text);
+}
+
+/* Buttons in ecomweb's style; WordPress's own focus ring stays. */
+.ecomweb-wrap .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 36px;
+	padding: 0 14px;
+	border-radius: 6px;
+	border-color: var(--ew-border-strong);
+	background: #fff;
+	color: var(--ew-text);
+	font-weight: 500;
+	line-height: 2.4;
+}
+.ecomweb-wrap .button:hover {
+	border-color: var(--ew-slate-hover);
+	background: var(--ew-subtle);
+	color: var(--ew-text);
+}
+.ecomweb-wrap .button-primary {
+	border-color: var(--ew-slate);
+	background: var(--ew-slate);
+	color: #fff;
+}
+.ecomweb-wrap .button-primary:hover,
+.ecomweb-wrap .button-primary:focus {
+	border-color: var(--ew-slate-hover);
+	background: var(--ew-slate-hover);
+	color: #fff;
+}
+.ecomweb-wrap .button-primary:active {
+	border-color: var(--ew-slate-active);
+	background: var(--ew-slate-active);
+}
+.ecomweb-wrap .button:focus {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ew-slate);
+	outline: 2px solid transparent;
+}
+.ecomweb-wrap .button[disabled],
+.ecomweb-wrap .button:disabled {
+	border-color: var(--ew-border) !important;
+	background: var(--ew-subtle) !important;
+	color: #9ca3af !important;
+}
+.ecomweb-wrap .button-hero {
+	min-height: 44px;
+	padding: 0 22px;
+	font-size: 15px;
+}
+/* WordPress gives an icon in a button the button's line height (30px) in a 16px box, which drops
+   the glyph below the text: size the line to the icon so it centres. */
+.ecomweb-wrap .button .dashicons,
+.ecomweb-wrap .button .dashicons::before {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+	line-height: 16px;
+	vertical-align: middle;
+}
+.ecomweb-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 16px;
+}
+.ecomweb-actions form {
+	margin: 0;
+}
+
+/* Account bar. */
+.ecomweb-account {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0 0 16px;
+	padding: 12px 16px;
+	background: #fff;
+	border: 1px solid var(--ew-border);
+	border-radius: var(--ew-radius);
+}
+.ecomweb-account__avatar {
+	flex: none;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: var(--ew-coral-soft);
+	color: var(--ew-coral);
+	font-size: 20px;
+	line-height: 36px;
+	text-align: center;
+}
+.ecomweb-account__who {
+	flex: 1;
+	min-width: 0;
+}
+.ecomweb-wrap .ecomweb-account__name,
+.ecomweb-wrap .ecomweb-account__note {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+.ecomweb-account__name {
+	font-weight: 600;
+}
+.ecomweb-wrap .ecomweb-account__note {
+	color: var(--ew-muted);
+	font-size: 13px;
+}
+.ecomweb-account form {
+	flex: none;
+	margin: 0;
+}
+
+/* Signed out. */
+.ecomweb-hero {
+	padding: 32px;
+}
+.ecomweb-wrap .ecomweb-hero__title {
+	margin: 0 0 8px;
+	color: var(--ew-navy);
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+.ecomweb-wrap .ecomweb-hero__lead {
+	margin: 0 0 20px;
+	color: var(--ew-text-2);
+	font-size: 15px;
+}
+.ecomweb-features {
+	margin: 0 0 24px;
+	padding: 0;
+	list-style: none;
+}
+.ecomweb-features li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0 0 10px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+.ecomweb-features .dashicons {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--ew-coral-soft);
+	color: var(--ew-coral);
+	font-size: 18px;
+	line-height: 20px;
+}
+.ecomweb-hero__cta {
+	margin: 0 0 12px;
+}
+
+/* Signing in. */
+.ecomweb-code {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	margin: 16px 0;
+	padding: 16px;
+	border-radius: 8px;
+	background: var(--ew-subtle);
+	border: 1px solid var(--ew-border);
+}
+.ecomweb-code__label {
+	color: var(--ew-muted);
+	font-size: 12px;
+}
+.ecomweb-wrap .ecomweb-code__value {
+	padding: 0;
+	background: none;
+	color: var(--ew-text);
+	font-size: 26px;
+	font-weight: 600;
+	letter-spacing: 3px;
+}
+.ecomweb-status-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.ecomweb-status-row .spinner {
+	display: none;
+	float: none;
+	margin: 0;
+}
+.ecomweb-signing.is-busy .ecomweb-status-row .spinner {
+	display: inline-block;
+	visibility: visible;
+}
+.ecomweb-status-row p {
+	margin: 8px 0;
+}
+.ecomweb-status-row p:empty {
+	display: none;
+}
+
+/* Store picker. */
+.ecomweb-field {
+	margin: 12px 0 0;
+}
+.ecomweb-wrap .ecomweb-select {
+	width: 100%;
+	max-width: 420px;
+	min-height: 36px;
+	border-color: var(--ew-border-strong);
+	border-radius: 6px;
+}
+.ecomweb-wrap .ecomweb-select:focus {
+	border-color: var(--ew-slate);
+	box-shadow: 0 0 0 1px var(--ew-slate);
+}
+
+/* Connection. */
+.ecomweb-connection__store {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+.ecomweb-connection__icon {
+	flex: none;
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	background: var(--ew-subtle);
+	border: 1px solid var(--ew-border);
+	color: var(--ew-navy);
+	font-size: 20px;
+	line-height: 40px;
+	text-align: center;
+}
+.ecomweb-wrap .ecomweb-connection__name {
+	margin: 0 0 2px;
+	font-size: 15px;
+	font-weight: 600;
+}
+.ecomweb-connection__store .ecomweb-muted {
+	margin: 0;
+}
+
+/* Copy: progress and outcome. */
+.ecomweb-run {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--ew-border);
+}
+.ecomweb-run__head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.ecomweb-run__head .spinner {
+	float: none;
+	margin: 0;
+}
+.ecomweb-run__head p {
+	margin: 0;
+	font-weight: 600;
+}
+.ecomweb-bar {
+	height: 8px;
+	margin: 12px 0 8px;
+	overflow: hidden;
+	border-radius: 999px;
+	background: var(--ew-border);
+}
+.ecomweb-bar span {
+	display: block;
+	height: 100%;
+	border-radius: 999px;
+	background: var(--ew-coral);
+	transition: width 0.4s ease;
+}
+#ecomweb-counts {
+	margin: 0 0 12px;
+	color: var(--ew-text-2);
+}
+.ecomweb-result {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	margin-top: 20px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background: var(--ew-subtle);
+	border: 1px solid var(--ew-border);
+}
+.ecomweb-result.is-success {
+	background: var(--ew-success-soft);
+	border-color: #bbf7d0;
+}
+.ecomweb-result .dashicons {
+	flex: none;
+	color: var(--ew-muted);
+}
+.ecomweb-result.is-success .dashicons {
+	color: var(--ew-success);
+}
+.ecomweb-wrap .ecomweb-result p {
+	margin: 0;
+}
+
+/* Results table. */
+.ecomweb-wrap .ecomweb-table {
+	border-color: var(--ew-border);
+	border-radius: 8px;
+	overflow: hidden;
+}
+.ecomweb-table th {
+	font-weight: 600;
+}
+.ecomweb-table td {
+	vertical-align: top;
+}
+.ecomweb-table td > div + div {
+	margin-top: 4px;
+}
+.ecomweb-table .dashicons-external,
+.ecomweb-card a:not(.button) .dashicons-external,
+.ecomweb-table .dashicons-external::before,
+.ecomweb-card a:not(.button) .dashicons-external::before {
+	width: 14px;
+	height: 14px;
+	font-size: 14px;
+	line-height: 14px;
+	vertical-align: -2px;
+}
+.ecomweb-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--ew-subtle);
+	border: 1px solid var(--ew-border);
+	font-size: 12px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+.ecomweb-badge.is-created,
+.ecomweb-badge.is-updated {
+	background: var(--ew-success-soft);
+	border-color: #bbf7d0;
+}
+.ecomweb-badge.is-failed {
+	background: var(--ew-error-soft);
+	border-color: #fecaca;
+}
+.ecomweb-list {
+	margin: 0;
+	padding-left: 18px;
+	list-style: disc;
+}
+.ecomweb-list li {
+	margin-bottom: 6px;
+}
+
+/* Confirm. */
+.ecomweb-check {
+	margin: 12px 0 0;
+}
+.ecomweb-check.is-danger {
+	padding: 10px 12px;
+	border-radius: 8px;
+	background: var(--ew-warning-soft);
+	border: 1px solid #fde68a;
+}
+.ecomweb-check[hidden] {
+	display: none;
+}
+
+/* Notices inside the page keep the card's shape. */
+.ecomweb-wrap .notice.inline.ecomweb-notice {
+	margin: 12px 0;
+	border-radius: 6px;
+}
+.ecomweb-wrap > .notice.inline.ecomweb-notice {
+	margin: 0 0 16px;
+}
+
+/* A notice that opens a card sits flush with the card's padding. */
+.ecomweb-wrap .ecomweb-card > .notice.inline.ecomweb-notice:first-child {
+	margin-top: 0;
+}
+
+/* Card header: title and description on the left, an action on the right. */
+.ecomweb-card__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px 24px;
+}
+.ecomweb-card__head > div {
+	flex: 1 1 280px;
+	min-width: 0;
+}
+.ecomweb-card__head form {
+	margin: 0;
+}
+.ecomweb-wrap .ecomweb-card__head .ecomweb-muted {
+	margin: 0;
+}
+
+/* Product list. */
+.ecomweb-list-tools {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 20px 0 12px;
+}
+.ecomweb-tabs {
+	display: inline-flex;
+	gap: 2px;
+	margin: 0;
+	padding: 3px;
+	border-radius: 8px;
+	background: var(--ew-subtle);
+	border: 1px solid var(--ew-border);
+}
+.ecomweb-tabs li {
+	margin: 0;
+}
+.ecomweb-tabs a {
+	display: block;
+	padding: 5px 12px;
+	border-radius: 6px;
+	color: var(--ew-text-2);
+	font-weight: 500;
+	text-decoration: none;
+}
+.ecomweb-tabs a:hover {
+	color: var(--ew-text);
+}
+.ecomweb-tabs a.is-current {
+	background: #fff;
+	color: var(--ew-text);
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+}
+.ecomweb-search {
+	display: flex;
+	gap: 8px;
+}
+.ecomweb-wrap .ecomweb-search input[type="search"] {
+	width: 220px;
+	min-height: 36px;
+	margin: 0;
+	border-color: var(--ew-border-strong);
+	border-radius: 6px;
+}
+.ecomweb-wrap .ecomweb-products {
+	border-collapse: separate;
+}
+.ecomweb-products thead td,
+.ecomweb-products thead th {
+	padding: 10px 12px;
+	background: var(--ew-subtle);
+	border-bottom: 1px solid var(--ew-border);
+	color: var(--ew-text-2);
+	font-size: 12px;
+	font-weight: 600;
+}
+.ecomweb-products tbody th,
+.ecomweb-products tbody td {
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--ew-border);
+	vertical-align: middle;
+}
+.ecomweb-products tbody tr:last-child th,
+.ecomweb-products tbody tr:last-child td {
+	border-bottom: 0;
+}
+.ecomweb-products tbody tr:hover {
+	background: var(--ew-subtle);
+}
+.ecomweb-wrap .ecomweb-products .ecomweb-products__check {
+	width: 20px;
+	padding-right: 0;
+	vertical-align: middle;
+}
+.ecomweb-products__check input[type="checkbox"] {
+	margin: 0;
+}
+.ecomweb-products__price {
+	width: 22%;
+	white-space: nowrap;
+}
+.ecomweb-products__price del {
+	color: var(--ew-muted);
+}
+.ecomweb-products__price ins {
+	text-decoration: none;
+}
+.ecomweb-products__state {
+	width: 18%;
+}
+.ecomweb-products__empty {
+	padding: 32px 12px !important;
+	color: var(--ew-muted);
+	text-align: center;
+}
+.ecomweb-products tr.is-unsupported .ecomweb-product {
+	opacity: 0.6;
+}
+.ecomweb-product {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+.ecomweb-product img,
+.ecomweb-product__noimg {
+	flex: none;
+	width: 40px;
+	height: 40px;
+	border-radius: 6px;
+	border: 1px solid var(--ew-border);
+	object-fit: cover;
+}
+.ecomweb-product__noimg {
+	background: var(--ew-subtle);
+	color: #9ca3af;
+	font-size: 20px;
+	line-height: 40px;
+	text-align: center;
+}
+.ecomweb-product__text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+.ecomweb-product__name {
+	color: var(--ew-text);
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+.ecomweb-product__meta {
+	color: var(--ew-muted);
+	font-size: 12px;
+}
+a.ecomweb-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	color: var(--ew-text);
+	text-decoration: none;
+}
+a.ecomweb-badge:hover {
+	border-color: var(--ew-success);
+}
+.ecomweb-badge.is-muted {
+	color: var(--ew-muted);
+}
+.ecomweb-list-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 12px;
+}
+.ecomweb-pager {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.ecomweb-wrap .ecomweb-pager .button {
+	min-width: 36px;
+	justify-content: center;
+	padding: 0 8px;
+}
+
+/* WooCommerce's searchable select, in the picker's shape. */
+.ecomweb-field .select2-container {
+	max-width: 420px;
+}
+.ecomweb-wrap .ecomweb-field .select2-container .select2-selection--single {
+	height: 36px;
+	border-color: var(--ew-border-strong);
+	border-radius: 6px;
+}
+.ecomweb-wrap .ecomweb-field .select2-container .select2-selection--single .select2-selection__rendered {
+	line-height: 34px;
+	padding-left: 10px;
+}
+.ecomweb-wrap .ecomweb-field .select2-container .select2-selection--single .select2-selection__arrow {
+	height: 34px;
+}
+
+@media screen and (max-width: 600px) {
+	.ecomweb-card,
+	.ecomweb-hero {
+		padding: 16px;
+	}
+	.ecomweb-account {
+		flex-wrap: wrap;
+	}
+	.ecomweb-wrap .ecomweb-hero__title {
+		font-size: 19px;
+	}
+	.ecomweb-brand__for {
+		display: none;
+	}
+	.ecomweb-search,
+	.ecomweb-wrap .ecomweb-search input[type="search"] {
+		width: 100%;
+	}
+	.ecomweb-products__price {
+		display: none;
+	}
+}
+
+/* The searchable select's list opens outside the page wrapper. */
+.ecomweb-select-dropdown.select2-dropdown {
+	border-color: var(--ew-slate, #374151);
+	border-radius: 0 0 6px 6px;
+}
+.ecomweb-select-dropdown .select2-results__option--highlighted[aria-selected],
+.ecomweb-select-dropdown .select2-results__option--highlighted[data-selected] {
+	background-color: #374151;
+	color: #fff;
+}
+.ecomweb-select-dropdown .select2-results__option[aria-disabled="true"] {
+	color: #9ca3af;
+}
+.ecomweb-wrap .ecomweb-field .select2-container--focus .select2-selection--single,
+.ecomweb-wrap .ecomweb-field .select2-container--open .select2-selection--single {
+	border-color: var(--ew-slate);
+}
