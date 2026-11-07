@@ -2,7 +2,9 @@
 # Builds build/ecomweb-for-woocommerce-<version>.zip, with the top folder ecomweb-for-woocommerce/.
 #
 # Fails unless the plugin header Version, the readme Stable tag and ECOMWEB_WOO_VERSION agree.
-# Files listed in .distignore are left out. Compiles the .mo files with WP-CLI inside wp-env.
+# Compiles the .mo files with WP-CLI inside wp-env. Only git-tracked files under the paths in
+# SHIP go in (their working-tree content), so untracked or hidden files such as .DS_Store,
+# .wp-env.override.json or .claude/ never reach the zip. Fails if a hidden file got in anyway.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -24,10 +26,24 @@ VERSION="$HEADER_VERSION"
 # The .mo files are build output: compile them from the .po files inside wp-env.
 npx wp-env run cli --env-cwd="wp-content/plugins/$SLUG" wp i18n make-mo languages
 
+# What the plugin ships. Everything else (tests, bin, vendor, dev config) stays out.
+SHIP=( "$MAIN" uninstall.php readme.txt LICENSE includes assets languages )
+
 DEST="build/$SLUG"
 rm -rf build
 mkdir -p "$DEST"
-rsync -a --exclude-from=.distignore ./ "$DEST/"
+git ls-files -z -- "${SHIP[@]}" | while IFS= read -r -d '' FILE; do
+	# Tracked but deleted in the working tree: nothing to ship.
+	[ -f "$FILE" ] || continue
+	mkdir -p "$DEST/$(dirname "$FILE")"
+	cp -p "$FILE" "$DEST/$FILE"
+done
+
+HIDDEN="$(cd "$DEST" && find . -mindepth 1 -name '.*' -print)"
+if [ -n "$HIDDEN" ]; then
+	echo "Hidden files in the build: $HIDDEN" >&2
+	exit 1
+fi
 
 ZIP="build/$SLUG-$VERSION.zip"
 (cd build && zip -qr "$SLUG-$VERSION.zip" "$SLUG")
