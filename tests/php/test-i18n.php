@@ -26,6 +26,7 @@ class Test_I18n extends WP_UnitTestCase {
 			array( 'Overwrite products already copied', 'Ghi đè sản phẩm đã sao chép' ),
 			array( 'Change store', 'Đổi cửa hàng' ),
 			array( 'Disconnect', 'Ngắt kết nối' ),
+			array( 'Stop copy', 'Dừng sao chép' ),
 			array( 'Recheck images', 'Kiểm tra lại hình ảnh' ),
 			array( 'Copy to ecomweb', 'Sao chép sang ecomweb' ),
 			array( 'Copied', 'Đã sao chép' ),
