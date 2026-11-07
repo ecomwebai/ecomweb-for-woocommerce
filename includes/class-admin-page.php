@@ -153,12 +153,23 @@ class Admin_Page {
 		} elseif ( $signed_in && 'confirm' === $this->view() ) {
 			$this->render_confirm();
 		} elseif ( $signed_in ) {
-			// The connected view (Task 11) is added here.
-			echo '<p>' . esc_html__( 'Not available yet', 'ecomweb-for-woocommerce' ) . '</p>';
+			$this->render_connected();
 		} else {
 			require ECOMWEB_WOO_DIR . 'includes/views/page-signed-out.php';
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * The connected view.
+	 *
+	 * @return void
+	 */
+	private function render_connected(): void {
+		$email      = $this->auth->email();
+		$connection = (array) $this->connection->current();
+		$state      = Copy_State::get();
+		require ECOMWEB_WOO_DIR . 'includes/views/page-connected.php';
 	}
 
 	/**

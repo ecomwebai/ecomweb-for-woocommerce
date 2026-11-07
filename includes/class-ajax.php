@@ -41,6 +41,7 @@ class Ajax {
 	public function register(): void {
 		add_action( 'wp_ajax_ecomweb_device_start', array( $this, 'device_start' ) );
 		add_action( 'wp_ajax_ecomweb_device_poll', array( $this, 'device_poll' ) );
+		add_action( 'wp_ajax_ecomweb_copy_status', array( $this, 'copy_status' ) );
 	}
 
 	/**
@@ -79,6 +80,24 @@ class Ajax {
 			array(
 				'status'   => $result['status'],
 				'interval' => $result['interval'],
+			)
+		);
+	}
+
+	/**
+	 * The copy's status and progress, for the connected page to poll.
+	 *
+	 * @return void
+	 */
+	public function copy_status(): void {
+		$this->guard();
+		$state = Copy_State::get();
+		wp_send_json_success(
+			array(
+				'status' => null === $state ? '' : (string) ( $state['status'] ?? '' ),
+				'done'   => null === $state ? 0 : Copy_State::done( $state ),
+				'total'  => null === $state ? 0 : (int) ( $state['total'] ?? 0 ),
+				'counts' => null === $state ? new \stdClass() : (object) ( $state['counts'] ?? array() ),
 			)
 		);
 	}

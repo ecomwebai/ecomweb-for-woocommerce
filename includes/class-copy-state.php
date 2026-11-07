@@ -57,4 +57,19 @@ class Copy_State {
 		$state = self::get();
 		return null !== $state && 'running' === ( $state['status'] ?? null );
 	}
+
+	/**
+	 * Products handled so far: created + updated + skipped + failed.
+	 *
+	 * @param array $state State.
+	 * @return int
+	 */
+	public static function done( array $state ): int {
+		$counts = (array) ( $state['counts'] ?? array() );
+		$done   = 0;
+		foreach ( array( 'created', 'updated', 'skipped', 'failed' ) as $key ) {
+			$done += (int) ( $counts[ $key ] ?? 0 );
+		}
+		return $done;
+	}
 }

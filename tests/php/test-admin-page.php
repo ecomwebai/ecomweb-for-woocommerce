@@ -173,10 +173,10 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 * @param string $state State.
 	 */
 	public function test_render_never_prints_tokens( string $state ) {
-		if ( in_array( $state, array( 'signed_in', 'confirm', 'pick_store', 'pick_store_empty', 'pick_store_error' ), true ) ) {
+		if ( in_array( $state, array( 'signed_in', 'confirm', 'connected_running', 'connected_failed', 'connected_done', 'pick_store', 'pick_store_empty', 'pick_store_error' ), true ) ) {
 			$this->sign_in();
 		}
-		if ( in_array( $state, array( 'signed_in', 'confirm' ), true ) ) {
+		if ( in_array( $state, array( 'signed_in', 'confirm', 'connected_running', 'connected_failed', 'connected_done' ), true ) ) {
 			$this->connect();
 		}
 		if ( 'confirm' === $state ) {
@@ -191,6 +191,24 @@ class Test_Admin_Page extends WP_UnitTestCase {
 						'limit'     => -1,
 						'current'   => 0,
 						'new_count' => 0,
+					),
+				)
+			);
+		}
+		if ( 0 === strpos( $state, 'connected_' ) ) {
+			\Ecomweb\Woo\Copy_State::put(
+				array(
+					'status' => array(
+						'connected_running' => 'running',
+						'connected_failed'  => 'failed',
+						'connected_done'    => 'completed',
+					)[ $state ],
+					'total'  => 5,
+					'counts' => array( 'created' => 2 ),
+					'issues' => array(),
+					'error'  => array(
+						'code'    => 'API_UNREACHABLE',
+						'message' => 'm',
 					),
 				)
 			);
@@ -233,26 +251,17 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 */
 	public function states(): array {
 		return array(
-			'signed out' => array( 'signed_out' ),
-			'signing in' => array( 'signing_in' ),
-			'signed in'  => array( 'signed_in' ),
-			'pick store' => array( 'pick_store' ),
-			'no stores'  => array( 'pick_store_empty' ),
-			'list error' => array( 'pick_store_error' ),
-			'confirm'    => array( 'confirm' ),
+			'signed out'   => array( 'signed_out' ),
+			'signing in'   => array( 'signing_in' ),
+			'signed in'    => array( 'signed_in' ),
+			'pick store'   => array( 'pick_store' ),
+			'no stores'    => array( 'pick_store_empty' ),
+			'list error'   => array( 'pick_store_error' ),
+			'confirm'      => array( 'confirm' ),
+			'copy running' => array( 'connected_running' ),
+			'copy failed'  => array( 'connected_failed' ),
+			'copy done'    => array( 'connected_done' ),
 		);
-	}
-
-	/**
-	 * Signed in with no view yet: a plain placeholder.
-	 */
-	public function test_signed_in_without_view_shows_placeholder() {
-		$this->sign_in();
-		$this->connect();
-		$html = $this->render();
-
-		$this->assertStringContainsString( 'Not available yet', $html );
-		$this->assertStringNotContainsString( 'Sign in with ecomweb', $html );
 	}
 
 	/**

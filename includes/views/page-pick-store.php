@@ -18,7 +18,7 @@ $ecomweb_post_url = admin_url( 'admin-post.php' );
 		echo esc_html( sprintf( __( 'Signed in as %s', 'ecomweb-for-woocommerce' ), $email ) );
 		?>
 	</p>
-	<form method="post" action="<?php echo esc_url( $ecomweb_post_url ); ?>">
+	<form method="post" action="<?php echo esc_url( $ecomweb_post_url ); ?>" data-confirm="<?php echo esc_attr__( 'Disconnect from ecomweb? Copied products stay in ecomweb.', 'ecomweb-for-woocommerce' ); ?>">
 		<input type="hidden" name="action" value="ecomweb_disconnect">
 		<?php wp_nonce_field( 'ecomweb_disconnect' ); ?>
 		<?php submit_button( __( 'Disconnect', 'ecomweb-for-woocommerce' ), 'secondary', 'submit', false ); ?>

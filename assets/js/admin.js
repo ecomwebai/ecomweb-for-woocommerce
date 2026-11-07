@@ -1,6 +1,45 @@
 ( function () {
 	'use strict';
 
+	// Forms that ask first (Disconnect).
+	Array.prototype.forEach.call( document.querySelectorAll( 'form[data-confirm]' ), function ( form ) {
+		form.addEventListener( 'submit', function ( event ) {
+			if ( ! window.confirm( form.getAttribute( 'data-confirm' ) ) ) {
+				event.preventDefault();
+			}
+		} );
+	} );
+
+	// Connected page: poll the copy's status every 5 s while it runs, and reload when it changes.
+	var cfg = window.ecomwebWoo;
+	var copy = document.getElementById( 'ecomweb-copy' );
+	if ( cfg && copy && 'running' === copy.getAttribute( 'data-status' ) ) {
+		var tick = function () {
+			var body = new FormData();
+			body.append( 'action', 'ecomweb_copy_status' );
+			body.append( 'nonce', cfg.nonce );
+			fetch( cfg.ajaxUrl, { method: 'POST', credentials: 'same-origin', body: body } )
+				.then( function ( res ) {
+					return res.json();
+				} )
+				.then( function ( res ) {
+					if ( res && res.success && res.data.status !== 'running' ) {
+						window.location.reload();
+						return;
+					}
+					window.setTimeout( tick, 5000 );
+				} )
+				.catch( function () {
+					window.setTimeout( tick, 5000 );
+				} );
+		};
+		window.setTimeout( tick, 5000 );
+	}
+} )();
+
+( function () {
+	'use strict';
+
 	// Confirm screen: the overwrite confirmation shows only while "Overwrite products already copied" is ticked.
 	var overwrite = document.getElementById( 'ecomweb-overwrite' );
 	var confirmRow = document.getElementById( 'ecomweb-overwrite-confirm' );

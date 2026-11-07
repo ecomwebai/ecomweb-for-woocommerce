@@ -10,3 +10,12 @@
 	letter-spacing: 2px;
 	padding: 4px 8px;
 }
+.ecomweb-buttons {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.ecomweb-issues,
+.ecomweb-on-sale {
+	max-width: none;
+}
