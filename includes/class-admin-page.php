@@ -259,6 +259,9 @@ class Admin_Page {
 				case 'copy_running':
 					$out[] = array( 'warning', __( 'Wait for the current copy to finish.', 'ecomweb-for-woocommerce' ) );
 					break;
+				case 'not_connected':
+					$out[] = array( 'warning', __( 'Sign in with ecomweb and choose a store first.', 'ecomweb-for-woocommerce' ) );
+					break;
 				case 'pick_store':
 					$out[] = array( 'warning', __( 'Choose a store first.', 'ecomweb-for-woocommerce' ) );
 					break;

@@ -151,6 +151,7 @@ class Plugin {
 		$this->connection()->listen();
 		( new Probe_Route() )->register();
 		$this->runner()->register();
+		( new Products_List( $this->connection() ) )->register();
 	}
 
 	/**
