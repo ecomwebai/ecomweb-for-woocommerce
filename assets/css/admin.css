@@ -207,10 +207,15 @@
 	padding: 0 22px;
 	font-size: 15px;
 }
-.ecomweb-wrap .button .dashicons {
+/* WordPress gives an icon in a button the button's line height (30px) in a 16px box, which drops
+   the glyph below the text: size the line to the icon so it centres. */
+.ecomweb-wrap .button .dashicons,
+.ecomweb-wrap .button .dashicons::before {
 	width: 16px;
 	height: 16px;
 	font-size: 16px;
+	line-height: 16px;
+	vertical-align: middle;
 }
 .ecomweb-actions {
 	display: flex;
@@ -475,10 +480,13 @@
 	margin-top: 4px;
 }
 .ecomweb-table .dashicons-external,
-.ecomweb-card a .dashicons-external {
+.ecomweb-card a:not(.button) .dashicons-external,
+.ecomweb-table .dashicons-external::before,
+.ecomweb-card a:not(.button) .dashicons-external::before {
 	width: 14px;
 	height: 14px;
 	font-size: 14px;
+	line-height: 14px;
 	vertical-align: -2px;
 }
 .ecomweb-badge {
