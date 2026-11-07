@@ -18,10 +18,12 @@ class Admin_Page {
 	const CAPABILITY = 'manage_woocommerce';
 	const HOOK       = 'woocommerce_page_ecomweb';
 	const ACTIONS    = array(
-		'ecomweb_select_store'   => 'handle_select_store',
-		'ecomweb_change_store'   => 'handle_change_store',
-		'ecomweb_disconnect'     => 'handle_disconnect',
-		'ecomweb_recheck_images' => 'handle_recheck_images',
+		'ecomweb_select_store'     => 'handle_select_store',
+		'ecomweb_change_store'     => 'handle_change_store',
+		'ecomweb_disconnect'       => 'handle_disconnect',
+		'ecomweb_recheck_images'   => 'handle_recheck_images',
+		'ecomweb_prepare_copy_all' => 'handle_prepare_copy_all',
+		'ecomweb_start_copy'       => 'handle_start_copy',
 	);
 	const FLASH      = 'ecomweb_notice_';
 
@@ -148,13 +150,54 @@ class Admin_Page {
 			$email   = (string) $this->auth->email();
 			$changed = isset( $_GET['notice'] ) && 'changed_store' === sanitize_key( wp_unslash( $_GET['notice'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks which warning to show.
 			require ECOMWEB_WOO_DIR . 'includes/views/page-pick-store.php';
+		} elseif ( $signed_in && 'confirm' === $this->view() ) {
+			$this->render_confirm();
 		} elseif ( $signed_in ) {
-			// Connected (Task 11) and confirm (Task 9) add their views here.
+			// The connected view (Task 11) is added here.
 			echo '<p>' . esc_html__( 'Not available yet', 'ecomweb-for-woocommerce' ) . '</p>';
 		} else {
 			require ECOMWEB_WOO_DIR . 'includes/views/page-signed-out.php';
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * The requested view.
+	 *
+	 * @return string
+	 */
+	private function view(): string {
+		return isset( $_GET['view'] ) ? sanitize_key( wp_unslash( $_GET['view'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks which view to show.
+	}
+
+	/**
+	 * The confirm screen. It runs preflight on every load.
+	 *
+	 * @return void
+	 */
+	private function render_confirm(): void {
+		$selection = Selection::get( get_current_user_id() );
+		$preflight = null;
+		if ( null !== $selection ) {
+			$preflight = $this->preflight( $selection['ids'] );
+		}
+		$plan = null;
+		$all  = null;
+		if ( is_array( $preflight ) ) {
+			$plan = Copy_Planner::plan( $preflight, false, $selection['explicit'], false );
+			$all  = Copy_Planner::plan( $preflight, true, $selection['explicit'], false );
+		}
+		require ECOMWEB_WOO_DIR . 'includes/views/page-confirm.php';
+	}
+
+	/**
+	 * Runs preflight for the products.
+	 *
+	 * @param int[] $ids Product IDs.
+	 * @return array|\WP_Error
+	 */
+	private function preflight( array $ids ) {
+		return ( new Preflight( Plugin::instance()->api(), $this->connection ) )->run( $ids );
 	}
 
 	/**
@@ -223,6 +266,9 @@ class Admin_Page {
 					break;
 				case 'images_upload':
 					$out[] = array( 'success', __( 'Product images will be uploaded from this site.', 'ecomweb-for-woocommerce' ) );
+					break;
+				case 'copy_refused':
+					$out[] = array( 'error', $arg );
 					break;
 				case 'api_error':
 					$out[] = array( 'error', '' !== $arg ? $arg : __( 'Something went wrong. Try again.', 'ecomweb-for-woocommerce' ) );
@@ -335,6 +381,91 @@ class Admin_Page {
 			$this->finish_with_error( $result );
 		}
 		$this->finish( 'images_' . $result );
+	}
+
+	/**
+	 * Saves every supported product as the selection and opens the confirm screen.
+	 *
+	 * @return void
+	 */
+	public function handle_prepare_copy_all(): void {
+		$this->guard( 'ecomweb_prepare_copy_all' );
+		if ( null === $this->connection->current() ) {
+			$this->finish( 'pick_store' );
+		}
+		Selection::save( get_current_user_id(), Product_Query::all_supported_ids(), false, 0 );
+		$this->go_confirm();
+	}
+
+	/**
+	 * Starts the copy, after checking the plan again.
+	 *
+	 * @return void
+	 */
+	public function handle_start_copy(): void {
+		$this->guard( 'ecomweb_start_copy' );
+		$user_id   = get_current_user_id();
+		$selection = Selection::get( $user_id );
+		if ( null === $selection || empty( $selection['ids'] ) ) {
+			$this->refuse( __( 'Choose the products to copy first.', 'ecomweb-for-woocommerce' ), false );
+		}
+		$overwrite         = ! empty( $_POST['overwrite'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guard() checked the nonce.
+		$confirm_overwrite = ! empty( $_POST['confirm_overwrite'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$limit_to_fits     = ! empty( $_POST['limit_to_fits'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		$preflight = $this->preflight( $selection['ids'] );
+		if ( is_wp_error( $preflight ) ) {
+			$this->finish_with_error( $preflight );
+		}
+		$plan = Copy_Planner::plan( $preflight, $overwrite, $selection['explicit'], $limit_to_fits );
+
+		if ( $plan['currency_blocked'] ) {
+			$this->refuse( __( "The currencies don't match, so nothing was copied.", 'ecomweb-for-woocommerce' ) );
+		}
+		if ( $plan['over_cap'] && ! $limit_to_fits ) {
+			$this->refuse( __( "Your plan doesn't fit every product. Copy the first ones or upgrade your plan.", 'ecomweb-for-woocommerce' ) );
+		}
+		if ( $plan['overwrite_count'] > 0 && ! $confirm_overwrite ) {
+			$this->refuse( __( 'Tick the box to confirm that you want to overwrite products in ecomweb.', 'ecomweb-for-woocommerce' ) );
+		}
+		if ( empty( $plan['queue'] ) ) {
+			$this->refuse( __( 'Nothing to copy: every selected product is already in ecomweb.', 'ecomweb-for-woocommerce' ) );
+		}
+
+		$started = Plugin::instance()->runner()->start( $plan['queue'], $overwrite, $selection['not_supported'] );
+		if ( is_wp_error( $started ) ) {
+			if ( 'ecomweb_copy_running' === $started->get_error_code() ) {
+				$this->finish( 'copy_running' );
+			}
+			$this->finish_with_error( $started );
+		}
+		Selection::clear( $user_id );
+		$this->finish();
+	}
+
+	/**
+	 * Redirects to the confirm screen and ends the request.
+	 *
+	 * @return void
+	 */
+	private function go_confirm(): void {
+		wp_safe_redirect( self::url( array( 'view' => 'confirm' ) ) );
+		exit;
+	}
+
+	/**
+	 * Leaves a message and goes back to the confirm screen, or to the main page.
+	 *
+	 * @param string $message Message.
+	 * @param bool   $confirm Whether the confirm screen still makes sense.
+	 * @return void
+	 */
+	private function refuse( string $message, bool $confirm = true ): void {
+		self::flash( 'copy_refused', array( $message ) );
+		if ( $confirm ) {
+			$this->go_confirm();
+		}
+		$this->finish();
 	}
 
 	/**

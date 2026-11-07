@@ -1,6 +1,23 @@
 ( function () {
 	'use strict';
 
+	// Confirm screen: the overwrite confirmation shows only while "Overwrite products already copied" is ticked.
+	var overwrite = document.getElementById( 'ecomweb-overwrite' );
+	var confirmRow = document.getElementById( 'ecomweb-overwrite-confirm' );
+	if ( overwrite && confirmRow ) {
+		var confirmBox = confirmRow.querySelector( 'input' );
+		var sync = function () {
+			confirmRow.hidden = ! overwrite.checked;
+			confirmBox.required = overwrite.checked;
+		};
+		overwrite.addEventListener( 'change', sync );
+		sync();
+	}
+} )();
+
+( function () {
+	'use strict';
+
 	var cfg = window.ecomwebWoo;
 	var button = document.getElementById( 'ecomweb-sign-in' );
 	var signedOut = document.getElementById( 'ecomweb-signed-out' );
