@@ -1105,9 +1105,11 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 		$before = $this->state();
 		$other  = as_enqueue_async_action( 'someone_else', array( $id ), 'other' );
 		$stale  = as_enqueue_async_action( Copy_Runner::SEND_HOOK, array( 'old-id' ), Copy_Runner::GROUP );
+		$group  = as_enqueue_async_action( Copy_Runner::SEND_HOOK, array( $id ), 'other' );
 
 		$this->runner()->on_action_failed( $other, new Exception( 'x' ), '' );
 		$this->runner()->on_action_failed( $stale, new Exception( 'x' ), '' );
+		$this->runner()->on_action_failed( $group, 300 );
 
 		$this->assertSame( $before, $this->state() );
 	}
@@ -1134,6 +1136,7 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 		$this->assertNotFalse( has_action( Copy_Runner::POLL_HOOK, array( $runner, 'handle_poll' ) ) );
 		$this->assertNotFalse( has_action( 'action_scheduler_failed_execution', array( $runner, 'on_action_failed' ) ) );
 		$this->assertNotFalse( has_action( 'action_scheduler_unexpected_shutdown', array( $runner, 'on_action_failed' ) ) );
+		$this->assertNotFalse( has_action( 'action_scheduler_failed_action', array( $runner, 'on_action_failed' ) ) );
 	}
 
 	/**
@@ -1147,5 +1150,105 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 
 		$this->assertSame( array( 'id' => 'b' ), Copy_State::get() );
 		$this->assertContains( $wpdb->get_var( $wpdb->prepare( "SELECT autoload FROM {$wpdb->options} WHERE option_name = %s", Copy_State::OPTION ) ), array( 'no', 'off' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- test
+	}
+
+	/**
+	 * A worker killed outright is only reported by the queue cleaner's action_scheduler_failed_action
+	 * (action id, timeout): it is retried like the other failures, then the copy is interrupted.
+	 */
+	public function test_queue_cleaner_failed_action_retries_then_copy_interrupted() {
+		$runner = Plugin::instance()->runner();
+		$runner->register();
+		$id = $this->start( $this->products( 1 ) );
+
+		foreach ( array( 30, 60, 120, 240, 480 ) as $delay ) {
+			$action_id = as_enqueue_async_action( Copy_Runner::SEND_HOOK, array( $id ), Copy_Runner::GROUP );
+			$this->consume( $id );
+			do_action( 'action_scheduler_failed_action', $action_id, 300 );
+			$this->assertSame( 'running', $this->state()['status'] );
+			$this->assertEqualsWithDelta( time() + $delay, $this->next( Copy_Runner::SEND_HOOK, $id ), 2 );
+		}
+		$action_id = as_enqueue_async_action( Copy_Runner::SEND_HOOK, array( $id ), Copy_Runner::GROUP );
+		$this->consume( $id );
+		do_action( 'action_scheduler_failed_action', $action_id, 300 );
+
+		$this->assertSame( 'failed', $this->state()['status'] );
+		$this->assertSame( 'COPY_INTERRUPTED', $this->state()['error']['code'] );
+		$this->assertFalse( $this->next( Copy_Runner::SEND_HOOK, $id ) );
+	}
+
+	/**
+	 * Alternating 503 and 409 don't reset each other's count: the transient delays keep growing
+	 * and the copy fails API_UNREACHABLE at the 6th 503.
+	 */
+	public function test_alternating_5xx_and_409_fails_within_budget() {
+		for ( $i = 0; $i < 6; $i++ ) {
+			$this->fake->on( 'POST', self::BATCH, 503, array( 'message' => 'down' ) );
+			$this->fake->on( 'POST', self::BATCH, 409, array( 'code' => 'WOOCOMMERCE_COPY_IN_PROGRESS' ) );
+		}
+		$id = $this->start( $this->products( 1 ) );
+
+		foreach ( array( 30, 60, 120, 240, 480 ) as $delay ) {
+			$this->send( $id );
+			$this->assertEqualsWithDelta( time() + $delay, $this->next( Copy_Runner::SEND_HOOK, $id ), 2 );
+			$this->send( $id );
+			$this->assertEqualsWithDelta( time() + Copy_Runner::CONFLICT_DELAY, $this->next( Copy_Runner::SEND_HOOK, $id ), 2 );
+		}
+		$this->assertSame( 'running', $this->state()['status'] );
+		$this->send( $id );
+
+		$state = $this->state();
+		$this->assertSame( 11, $this->fake->count( self::BATCH ) );
+		$this->assertSame( 'failed', $state['status'] );
+		$this->assertSame( 'API_UNREACHABLE', $state['error']['code'] );
+		$this->assertFalse( $this->next( Copy_Runner::SEND_HOOK, $id ) );
+	}
+
+	/**
+	 * The batch's retry budget counts every kind: after nine 409s, a 503 and a 409, the next 503
+	 * is the 12th retry, past 2 x 5 for transient, so the copy fails with the last kind's code.
+	 */
+	public function test_total_retry_budget_fails_with_last_kind() {
+		for ( $i = 0; $i < 9; $i++ ) {
+			$this->fake->on( 'POST', self::BATCH, 409, array( 'code' => 'WOOCOMMERCE_COPY_IN_PROGRESS' ) );
+		}
+		$this->fake->on( 'POST', self::BATCH, 503, array( 'message' => 'down' ) );
+		$this->fake->on( 'POST', self::BATCH, 409, array( 'code' => 'WOOCOMMERCE_COPY_IN_PROGRESS' ) );
+		$this->fake->on( 'POST', self::BATCH, 503, array( 'message' => 'down' ) );
+		$id = $this->start( $this->products( 1 ) );
+
+		for ( $i = 0; $i < 11; $i++ ) {
+			$this->send( $id );
+			$this->assertSame( 'running', $this->state()['status'] );
+		}
+		$this->assertSame( 1, $this->state()['retry']['tries']['transient'] );
+		$this->send( $id );
+
+		$this->assertSame( 'failed', $this->state()['status'] );
+		$this->assertSame( 'API_UNREACHABLE', $this->state()['error']['code'] );
+	}
+
+	/**
+	 * A successful step resets the whole budget.
+	 */
+	public function test_success_resets_retry_budget() {
+		$this->fake->on( 'POST', self::BATCH, 503, array( 'message' => 'down' ) );
+		$this->fake->on( 'POST', self::BATCH, 409, array( 'code' => 'WOOCOMMERCE_COPY_IN_PROGRESS' ) );
+		$this->accepted();
+		$id = $this->start( $this->products( 1 ) );
+		$this->send( $id );
+		$this->send( $id );
+		$this->send( $id );
+
+		$retry = $this->state()['retry'];
+		$this->assertSame( 0, $retry['total'] );
+		$this->assertSame(
+			array(
+				'conflict'  => 0,
+				'throttled' => 0,
+				'transient' => 0,
+			),
+			$retry['tries']
+		);
 	}
 }

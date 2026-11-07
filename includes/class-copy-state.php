@@ -5,7 +5,8 @@
  * Shape: id, status (running|completed|failed|cancelled), connection_id, store_ref, overwrite,
  * started_at, finished_at, total, queue (int[] not yet sent),
  * in_flight (null | {job_id, product_ids, submitted_at, local_warnings}),
- * retry {kind: null|conflict|throttled|transient, count}, counts {created, updated, skipped,
+ * retry {kind: null|conflict|throttled|transient, count (of kind), tries {conflict, throttled,
+ * transient}, total} (reset only by a successful step), counts {created, updated, skipped,
  * failed, not_supported}, issues {"<wc_id>": {name, result, url, regular_price, warnings, error}},
  * upload_failed (attachment IDs whose upload failed in this copy), error (null | {code, message}).
  *

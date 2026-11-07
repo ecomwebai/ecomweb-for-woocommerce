@@ -28,6 +28,7 @@ class Copy_Runner {
 	const THROTTLE_DELAY   = 60;
 	const THROTTLE_TRIES   = 10;
 	const TRANSIENT_DELAYS = array( 30, 60, 120, 240, 480 );
+	const BUDGET_FACTOR    = 2; // Retries of all kinds since the last successful step: at most 2 x the failing kind's limit.
 	const POLL_TIMEOUT     = 4500; // 75 min: the API's stale-job limit (W29).
 	const UPLOAD_BUDGET    = 20;
 	const BATCH_TIMEOUT    = 30;
@@ -82,6 +83,8 @@ class Copy_Runner {
 		add_action( self::POLL_HOOK, array( $this, 'handle_poll' ) );
 		add_action( 'action_scheduler_failed_execution', array( $this, 'on_action_failed' ) );
 		add_action( 'action_scheduler_unexpected_shutdown', array( $this, 'on_action_failed' ) );
+		// A worker killed outright (FPM terminate, OOM): the queue cleaner marks it failed minutes later.
+		add_action( 'action_scheduler_failed_action', array( $this, 'on_action_failed' ) );
 	}
 
 	/**
@@ -195,7 +198,7 @@ class Copy_Runner {
 			return;
 		}
 		$action = \ActionScheduler::store()->fetch_action( (int) $action_id );
-		if ( ! in_array( $action->get_hook(), array( self::SEND_HOOK, self::POLL_HOOK ), true ) ) {
+		if ( ! in_array( $action->get_hook(), array( self::SEND_HOOK, self::POLL_HOOK ), true ) || self::GROUP !== $action->get_group() ) {
 			return;
 		}
 		$args  = $action->get_args();
@@ -518,7 +521,8 @@ class Copy_Runner {
 	}
 
 	/**
-	 * Schedules a retry of $kind, or fails the copy once its tries are used up.
+	 * Schedules a retry of $kind, or fails the copy with $code once that kind's tries, or the
+	 * batch's retry budget across all kinds, are used up.
 	 *
 	 * @param array  $state   State.
 	 * @param string $kind    conflict, throttled or transient.
@@ -534,17 +538,26 @@ class Copy_Runner {
 			'throttled' => self::THROTTLE_TRIES,
 			'transient' => count( self::TRANSIENT_DELAYS ),
 		);
-		$count  = ( $state['retry']['kind'] ?? null ) === $kind ? (int) $state['retry']['count'] : 0;
-		if ( $count >= $limits[ $kind ] ) {
+		$retry  = is_array( $state['retry'] ?? null ) ? $state['retry'] : array();
+		$tries  = array_merge( self::no_retry()['tries'], is_array( $retry['tries'] ?? null ) ? $retry['tries'] : array() );
+		$count  = (int) $tries[ $kind ];
+		$total  = (int) ( $retry['total'] ?? 0 );
+
+		// Neither count resets when the kind changes, so interleaved failures (5xx then 409 then
+		// 5xx...) still run out; only a successful step resets them.
+		if ( $count >= $limits[ $kind ] || $total >= self::BUDGET_FACTOR * $limits[ $kind ] ) {
 			$this->fail( $state, $code, $message );
 			return;
 		}
 		if ( 'transient' === $kind ) {
 			$delay = self::TRANSIENT_DELAYS[ $count ];
 		}
+		$tries[ $kind ] = $count + 1;
 		$state['retry'] = array(
 			'kind'  => $kind,
 			'count' => $count + 1,
+			'tries' => $tries,
+			'total' => $total + 1,
 		);
 		if ( $this->commit( $state ) ) {
 			self::schedule( $hook, $state['id'], $delay );
@@ -698,6 +711,12 @@ class Copy_Runner {
 		return array(
 			'kind'  => null,
 			'count' => 0,
+			'tries' => array(
+				'conflict'  => 0,
+				'throttled' => 0,
+				'transient' => 0,
+			),
+			'total' => 0,
 		);
 	}
 
