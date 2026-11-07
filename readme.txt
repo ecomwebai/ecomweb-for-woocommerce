@@ -1,5 +1,5 @@
 === EcomWeb for WooCommerce ===
-Contributors: ecomweb
+Contributors: travisnguyen20
 Tags: woocommerce, migration, products, import, ecomweb
 Requires at least: 6.4
 Tested up to: 7.1
