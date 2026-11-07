@@ -8,6 +8,8 @@
 use Ecomweb\Woo\Admin_Page;
 use Ecomweb\Woo\Auth;
 use Ecomweb\Woo\Config;
+use Ecomweb\Woo\Copy_Runner;
+use Ecomweb\Woo\Copy_State;
 use Ecomweb\Woo\Plugin;
 use Ecomweb\Woo\Session_Store;
 
@@ -403,5 +405,48 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'You no longer have access to Shop One in ecomweb.', $this->render() );
 		$this->assertStringNotContainsString( 'You no longer have access', $this->render() );
+	}
+
+	/**
+	 * Starts a copy of one new product.
+	 *
+	 * @return string Copy ID.
+	 */
+	private function start_copy(): string {
+		add_filter( 'action_scheduler_allow_async_request_runner', '__return_false' );
+		$product = new WC_Product_Simple();
+		$product->set_name( 'Tee' );
+		$state = Plugin::instance()->runner()->start( array( $product->save() ), false, 0 );
+		$this->assertIsArray( $state );
+		return $state['id'];
+	}
+
+	/**
+	 * Disconnect cancels a running copy (W7).
+	 */
+	public function test_disconnect_cancels_running_copy() {
+		$this->connect();
+		$id = $this->start_copy();
+		$this->fake->on( 'POST', '/auth/logout', 204 );
+		$this->request( 'ecomweb_disconnect' );
+
+		$this->redirect_of( 'handle_disconnect' );
+
+		$this->assertSame( 'cancelled', Copy_State::get()['status'] );
+		$this->assertFalse( as_next_scheduled_action( Copy_Runner::SEND_HOOK, array( $id ), Copy_Runner::GROUP ) );
+		$this->assertSame( 0, $this->fake->count( '/products/batch' ) );
+	}
+
+	/**
+	 * Change store is refused while a copy runs, and the connection stays (W7).
+	 */
+	public function test_change_store_blocked_while_running() {
+		$this->connect();
+		$this->start_copy();
+		$this->request( 'ecomweb_change_store' );
+
+		$this->assertSame( Admin_Page::url( array( 'notice' => 'copy_running' ) ), $this->redirect_of( 'handle_change_store' ) );
+		$this->assertSame( 'c1', get_option( 'ecomweb_connection' )['connection_id'] );
+		$this->assertTrue( Copy_State::is_running() );
 	}
 }

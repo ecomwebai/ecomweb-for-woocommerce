@@ -303,7 +303,7 @@ class Admin_Page {
 	 */
 	public function handle_change_store(): void {
 		$this->guard( 'ecomweb_change_store' );
-		if ( class_exists( __NAMESPACE__ . '\\Copy_State' ) && Copy_State::is_running() ) {
+		if ( Copy_State::is_running() ) {
 			$this->finish( 'copy_running' );
 		}
 		$this->connection->forget();
@@ -317,9 +317,7 @@ class Admin_Page {
 	 */
 	public function handle_disconnect(): void {
 		$this->guard( 'ecomweb_disconnect' );
-		if ( class_exists( __NAMESPACE__ . '\\Copy_Runner' ) ) {
-			Copy_Runner::cancel();
-		}
+		Copy_Runner::cancel();
 		$this->auth->sign_out();
 		$this->connection->forget();
 		$this->finish();

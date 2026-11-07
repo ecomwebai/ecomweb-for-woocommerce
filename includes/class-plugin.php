@@ -53,6 +53,13 @@ class Plugin {
 	private $api = null;
 
 	/**
+	 * Shared copy runner.
+	 *
+	 * @var Copy_Runner|null
+	 */
+	private $runner = null;
+
+	/**
 	 * Shared instance.
 	 *
 	 * @return Plugin
@@ -101,6 +108,18 @@ class Plugin {
 	}
 
 	/**
+	 * The copy runner.
+	 *
+	 * @return Copy_Runner
+	 */
+	public function runner(): Copy_Runner {
+		if ( null === $this->runner ) {
+			$this->runner = new Copy_Runner( $this->api(), $this->connection() );
+		}
+		return $this->runner;
+	}
+
+	/**
 	 * Shared HTTP wrapper.
 	 *
 	 * @return Http
@@ -131,6 +150,7 @@ class Plugin {
 		( new Admin_Page( $this->auth(), $this->connection() ) )->register();
 		$this->connection()->listen();
 		( new Probe_Route() )->register();
+		$this->runner()->register();
 	}
 
 	/**
