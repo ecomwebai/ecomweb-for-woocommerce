@@ -224,6 +224,47 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Only http(s) upgrade links are rendered.
+	 *
+	 * @dataProvider unsafe_urls
+	 * @param string $url URL from the API.
+	 */
+	public function test_upgrade_link_limited_to_http( string $url ) {
+		$ids = $this->products( 3 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer(
+			array_fill_keys( $ids, 'new' ),
+			array(
+				'plan'        => array(
+					'limit'     => 10,
+					'current'   => 9,
+					'new_count' => 3,
+					'fits'      => 1,
+				),
+				'upgrade_url' => $url,
+			)
+		);
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'Copy the first 1', $html );
+		$this->assertStringNotContainsString( 'Upgrade your plan', $html );
+		$this->assertStringNotContainsString( 'javascript:', $html );
+		$this->assertStringNotContainsString( 'mailto:', $html );
+	}
+
+	/**
+	 * URLs that must not become links.
+	 *
+	 * @return array
+	 */
+	public function unsafe_urls(): array {
+		return array(
+			'javascript' => array( 'javascript:alert(1)' ),
+			'mailto'     => array( 'mailto:a@example.com' ),
+		);
+	}
+
+	/**
 	 * A currency mismatch has no start button.
 	 */
 	public function test_currency_mismatch_has_no_start_button() {

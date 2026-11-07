@@ -140,8 +140,9 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 			<?php else : ?>
 				<?php submit_button( __( 'Start copying', 'ecomweb-for-woocommerce' ), 'primary', 'submit', false ); ?>
 			<?php endif; ?>
-			<?php if ( $plan['over_cap'] && ! empty( $preflight['upgrade_url'] ) ) : ?>
-				<a class="button" href="<?php echo esc_url( $preflight['upgrade_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
+			<?php $ecomweb_upgrade = $plan['over_cap'] ? esc_url( (string) ( $preflight['upgrade_url'] ?? '' ), array( 'http', 'https' ) ) : ''; ?>
+			<?php if ( '' !== $ecomweb_upgrade ) : ?>
+				<a class="button" href="<?php echo esc_url( $ecomweb_upgrade, array( 'http', 'https' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
 			<?php endif; ?>
 			<a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a>
 		</p>
