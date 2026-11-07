@@ -210,7 +210,7 @@ class Auth {
 		}
 
 		if ( $response->ok() ) {
-			if ( ! $this->save_tokens( (array) $response->json, self::normalise_home( home_url() ) ) ) {
+			if ( ! $this->save_tokens( (array) $response->json, self::normalise_home( self::home() ) ) ) {
 				return $this->bad_response();
 			}
 			delete_transient( $key );
@@ -475,7 +475,18 @@ class Auth {
 	 * @return bool
 	 */
 	private function moved( array $session ): bool {
-		return self::normalise_home( (string) ( $session['signed_in_home_url'] ?? '' ) ) !== self::normalise_home( home_url() );
+		return self::normalise_home( (string) ( $session['signed_in_home_url'] ?? '' ) ) !== self::normalise_home( self::home() );
+	}
+
+	/**
+	 * The site's home address from the `home` option. Not home_url(): plugins filter that per
+	 * request (WPML language folders, multi-domain), which would look like a move. A clone or a
+	 * move changes the option or WP_HOME, and both show here.
+	 *
+	 * @return string
+	 */
+	public static function home(): string {
+		return (string) get_option( 'home' );
 	}
 
 	/**

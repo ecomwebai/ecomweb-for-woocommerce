@@ -149,6 +149,27 @@ class Test_Auth_Clone extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A plugin that filters home_url() per request (WPML language folders, multi-domain) is not a
+	 * move: the check reads the home option.
+	 */
+	public function test_filtered_home_url_does_not_count_as_move() {
+		$this->seed();
+		$filter = function () {
+			return 'https://fr.example.net/fr';
+		};
+		add_filter( 'home_url', $filter );
+
+		$moved = $this->auth->check_site_moved();
+		$token = $this->auth->access_token();
+		remove_filter( 'home_url', $filter );
+
+		$this->assertFalse( $moved );
+		$this->assertSame( 'AT', $token );
+		$this->assertNotFalse( get_option( 'ecomweb_session' ) );
+		$this->assertFalse( get_option( 'ecomweb_signed_out_reason' ) );
+	}
+
+	/**
 	 * No session, no move.
 	 */
 	public function test_no_session_is_not_a_move() {

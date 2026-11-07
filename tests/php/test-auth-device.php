@@ -254,6 +254,39 @@ class Test_Auth_Device extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The session records the home option, not a filtered home_url().
+	 */
+	public function test_poll_approved_records_home_option_not_filtered_home_url() {
+		$this->start_and_wait();
+		$this->fake->on(
+			'POST',
+			'/auth/device/token',
+			200,
+			array(
+				'access_token'  => 'AT',
+				'refresh_token' => 'RT',
+				'expires_at'    => time() + 900,
+				'expires_in'    => 900,
+				'user'          => array(
+					'id'    => 'u1',
+					'email' => 'm@shop.vn',
+					'name'  => null,
+				),
+			)
+		);
+		$filter = function () {
+			return 'https://fr.example.net/fr';
+		};
+		add_filter( 'home_url', $filter );
+
+		$this->auth->poll_device_flow( $this->uid );
+		remove_filter( 'home_url', $filter );
+
+		$this->assertSame( 'example.org', ( new Session_Store() )->read()['signed_in_home_url'] );
+		$this->assertTrue( $this->auth->is_signed_in() );
+	}
+
+	/**
 	 * Approval saves the session and clears the transient and the signed-out reason.
 	 */
 	public function test_poll_approved_saves_session() {

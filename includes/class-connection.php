@@ -91,7 +91,7 @@ class Connection {
 	public function registration_payload(): array {
 		return array(
 			'site_uuid'            => Plugin::site_uuid(),
-			'site_url'             => home_url(),
+			'site_url'             => Auth::home(),
 			'woocommerce_currency' => get_woocommerce_currency(),
 			'weight_unit'          => (string) get_option( 'woocommerce_weight_unit', 'kg' ),
 			'plugin_version'       => Config::version(),

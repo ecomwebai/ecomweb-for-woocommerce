@@ -167,7 +167,7 @@ class Test_Connection extends WP_UnitTestCase {
 		$this->assertSame(
 			array(
 				'site_uuid'            => get_option( 'ecomweb_site_uuid' ),
-				'site_url'             => home_url(),
+				'site_url'             => get_option( 'home' ),
 				'woocommerce_currency' => 'VND',
 				'weight_unit'          => 'g',
 				'plugin_version'       => '1.0.0',
@@ -316,6 +316,27 @@ class Test_Connection extends WP_UnitTestCase {
 
 		$this->assertTrue( $this->connection()->ensure_current() );
 		$this->assertSame( 2, $this->fake->count( self::BASE ), 'Up to date again.' );
+	}
+
+	/**
+	 * The payload's site_url is the home option, so a plugin that filters home_url() per request
+	 * neither changes the payload nor triggers a re-register.
+	 */
+	public function test_filtered_home_url_changes_neither_payload_nor_hash() {
+		$this->fake->on( 'POST', self::BASE, 200, $this->registered() );
+		$this->connection()->register( 's1' );
+		$filter = function () {
+			return 'https://fr.example.net/fr';
+		};
+		add_filter( 'home_url', $filter );
+
+		$payload = $this->connection()->registration_payload();
+		$current = $this->connection()->ensure_current();
+		remove_filter( 'home_url', $filter );
+
+		$this->assertSame( get_option( 'home' ), $payload['site_url'] );
+		$this->assertTrue( $current );
+		$this->assertSame( 1, $this->fake->count( self::BASE ) );
 	}
 
 	/**
