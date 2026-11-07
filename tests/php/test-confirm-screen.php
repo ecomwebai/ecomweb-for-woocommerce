@@ -224,6 +224,62 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A plan with no room left (a free store at its cap): the cap message and the upgrade link,
+	 * and no Start copying button that could only be refused.
+	 */
+	public function test_no_room_shows_cap_message_and_upgrade_link_without_start_button() {
+		$ids = $this->products( 3 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer(
+			array( $ids[0] => 'new', $ids[1] => 'new', $ids[2] => 'copied' ),
+			array(
+				'plan'        => array(
+					'limit'     => 20,
+					'current'   => 20,
+					'new_count' => 2,
+					'fits'      => 0,
+				),
+				'upgrade_url' => 'https://ecomweb.app/store/s1/settings/subscription',
+			)
+		);
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'Your plan allows 20 products and the store has 20, so 0 of these 2 fit.', $html );
+		$this->assertStringContainsString( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.', $html );
+		$this->assertStringContainsString( 'href="https://ecomweb.app/store/s1/settings/subscription"', $html );
+		$this->assertStringContainsString( 'Upgrade your plan', $html );
+		$this->assertStringContainsString( 'Cancel', $html );
+		$this->assertStringNotContainsString( 'Start copying', $html );
+		$this->assertStringNotContainsString( 'Copy the first', $html );
+		$this->assertStringNotContainsString( 'value="ecomweb_start_copy"', $html );
+		$this->assertStringNotContainsString( 'already in ecomweb.</', $html );
+	}
+
+	/**
+	 * Starting with no room left is refused with the plan-cap message, not "already in ecomweb".
+	 */
+	public function test_start_with_no_room_refuses_with_cap_message() {
+		$ids = $this->products( 2 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer(
+			array_fill_keys( $ids, 'new' ),
+			array(
+				'plan' => array(
+					'limit'     => 20,
+					'current'   => 20,
+					'new_count' => 2,
+					'fits'      => 0,
+				),
+			)
+		);
+		$this->request( 'ecomweb_start_copy', array( 'limit_to_fits' => '1' ) );
+		$this->redirect_of( 'handle_start_copy' );
+
+		$this->assertFalse( get_option( 'ecomweb_copy_state' ) );
+		$this->assertSame( array( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.' ), get_transient( 'ecomweb_notice_' . $this->admin )['args'] );
+	}
+
+	/**
 	 * Only http(s) upgrade links are rendered.
 	 *
 	 * @dataProvider unsafe_urls

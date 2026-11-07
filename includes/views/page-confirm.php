@@ -26,6 +26,8 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 	<?php
 	$ecomweb_new      = count( $preflight['products'] ) - $plan['already_copied'] - $plan['deleted'];
 	$ecomweb_currency = (array) ( $preflight['currency'] ?? array() );
+	$ecomweb_no_room  = $plan['over_cap'] && 0 === $plan['fits'];
+	$ecomweb_upgrade  = $plan['over_cap'] ? esc_url( (string) ( $preflight['upgrade_url'] ?? '' ), array( 'http', 'https' ) ) : '';
 	?>
 	<p>
 		<?php
@@ -81,6 +83,9 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 					$plan['creates']
 				)
 			);
+			if ( $ecomweb_no_room ) {
+				echo ' ' . esc_html__( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.', 'ecomweb-for-woocommerce' );
+			}
 			?>
 		</p></div>
 	<?php endif; ?>
@@ -100,7 +105,14 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 		</p></div>
 	<?php endif; ?>
 
-	<?php if ( ! $plan['currency_blocked'] ) : ?>
+	<?php if ( $ecomweb_no_room && ! $plan['currency_blocked'] ) : ?>
+		<p>
+			<?php if ( '' !== $ecomweb_upgrade ) : ?>
+				<a class="button button-primary" href="<?php echo esc_url( $ecomweb_upgrade, array( 'http', 'https' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
+			<?php endif; ?>
+			<a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a>
+		</p>
+	<?php elseif ( ! $plan['currency_blocked'] ) : ?>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="ecomweb-confirm-form">
 		<input type="hidden" name="action" value="ecomweb_start_copy">
 		<?php wp_nonce_field( 'ecomweb_start_copy' ); ?>
@@ -134,13 +146,9 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 					echo esc_html( sprintf( __( 'Copy the first %d', 'ecomweb-for-woocommerce' ), $plan['fits'] ) );
 					?>
 				</button>
-			<?php elseif ( $plan['over_cap'] ) : ?>
-				<input type="hidden" name="limit_to_fits" value="1">
-				<?php submit_button( __( 'Start copying', 'ecomweb-for-woocommerce' ), 'primary', 'submit', false ); ?>
 			<?php else : ?>
 				<?php submit_button( __( 'Start copying', 'ecomweb-for-woocommerce' ), 'primary', 'submit', false ); ?>
 			<?php endif; ?>
-			<?php $ecomweb_upgrade = $plan['over_cap'] ? esc_url( (string) ( $preflight['upgrade_url'] ?? '' ), array( 'http', 'https' ) ) : ''; ?>
 			<?php if ( '' !== $ecomweb_upgrade ) : ?>
 				<a class="button" href="<?php echo esc_url( $ecomweb_upgrade, array( 'http', 'https' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
 			<?php endif; ?>
