@@ -299,7 +299,7 @@ class Copy_Runner {
 					// Gone or no longer supported: leaves the total (W26).
 					$next['queue']  = array_values( array_diff( $next['queue'], array( $id ) ) );
 					$next['single'] = self::without( $next['single'] ?? array(), array( $id ) );
-					$next['total'] = max( 0, (int) $next['total'] - 1 );
+					$next['total']  = max( 0, (int) $next['total'] - 1 );
 					++$next['counts']['not_supported'];
 					continue;
 				}
@@ -507,14 +507,14 @@ class Copy_Runner {
 	}
 
 	/**
-	 * $list without $ids.
+	 * $from without $ids.
 	 *
-	 * @param int[] $list IDs.
+	 * @param int[] $from IDs.
 	 * @param int[] $ids  IDs to remove.
 	 * @return int[]
 	 */
-	private static function without( array $list, array $ids ): array {
-		return array_values( array_diff( $list, $ids ) );
+	private static function without( array $from, array $ids ): array {
+		return array_values( array_diff( $from, $ids ) );
 	}
 
 	/**

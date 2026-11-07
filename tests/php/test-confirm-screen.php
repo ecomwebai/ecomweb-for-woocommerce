@@ -231,7 +231,11 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$ids = $this->products( 3 );
 		Selection::save( $this->admin, $ids, false, 0 );
 		$this->answer(
-			array( $ids[0] => 'new', $ids[1] => 'new', $ids[2] => 'copied' ),
+			array(
+				$ids[0] => 'new',
+				$ids[1] => 'new',
+				$ids[2] => 'copied',
+			),
 			array(
 				'plan'        => array(
 					'limit'     => 20,
