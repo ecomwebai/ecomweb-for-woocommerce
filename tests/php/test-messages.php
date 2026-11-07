@@ -159,6 +159,29 @@ class Test_Messages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A warning with an unknown code and no message has no text, so it isn't listed.
+	 */
+	public function test_warning_without_text_is_left_out() {
+		$list = Messages::warnings(
+			array(
+				'regular_price' => null,
+				'warnings'      => array(
+					array(
+						'code'    => 'SOMETHING_NEW',
+						'message' => '',
+					),
+					array( 'code' => 'ANOTHER_NEW' ),
+					array(
+						'code'    => 'IMAGE_FAILED',
+						'message' => '',
+					),
+				),
+			)
+		);
+		$this->assertSame( array( 'An image could not be copied.' ), $list );
+	}
+
+	/**
 	 * W30: one ON_SALE per variation shows once.
 	 */
 	public function test_warnings_are_deduplicated() {

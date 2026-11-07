@@ -165,12 +165,15 @@ class Products_List {
 	}
 
 	/**
-	 * Adds the bulk action.
+	 * Adds the bulk action, for users who can manage WooCommerce only.
 	 *
 	 * @param array $a Actions.
 	 * @return array
 	 */
 	public function add_bulk_action( array $a ): array {
+		if ( ! current_user_can( Admin_Page::CAPABILITY ) ) {
+			return $a;
+		}
 		$a[ self::ACTION ] = __( 'Copy to ecomweb', 'ecomweb-for-woocommerce' );
 		return $a;
 	}

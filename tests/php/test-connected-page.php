@@ -312,6 +312,34 @@ class Test_Connected_Page extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A warning with no text leaves no empty line in the issues table.
+	 */
+	public function test_empty_warning_renders_no_empty_line() {
+		$this->state(
+			array(
+				'issues' => array(
+					'7' => array(
+						'name'          => 'Tee',
+						'result'        => 'created',
+						'url'           => null,
+						'regular_price' => '1',
+						'warnings'      => array(
+							array(
+								'code'    => 'SOMETHING_NEW',
+								'message' => '',
+							),
+						),
+						'error'         => null,
+					),
+				),
+			)
+		);
+		$html = $this->render();
+		$this->assertStringContainsString( 'Tee', $html );
+		$this->assertDoesNotMatchRegularExpression( '#<div>\s*</div>#', $html );
+	}
+
+	/**
 	 * Names are escaped.
 	 */
 	public function test_issue_names_escaped() {

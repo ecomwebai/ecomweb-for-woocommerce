@@ -230,6 +230,17 @@ class Test_Products_List extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Users who can't manage WooCommerce don't see the bulk action.
+	 */
+	public function test_bulk_action_hidden_without_manage_woocommerce() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$this->assertSame( array( 'trash' => 'Move to Trash' ), $this->list->add_bulk_action( array( 'trash' => 'Move to Trash' ) ) );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'shop_manager' ) ) );
+		$this->assertArrayHasKey( 'ecomweb_copy', $this->list->add_bulk_action( array() ) );
+	}
+
+	/**
 	 * Explicit selection and redirect.
 	 */
 	public function test_bulk_action_saves_explicit_selection_and_redirects_to_confirm() {

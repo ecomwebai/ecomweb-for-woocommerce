@@ -34,7 +34,7 @@ class Copy_Runner {
 	const BATCH_TIMEOUT    = 30;
 	const TIME_LIMIT       = 120;
 	const LOCK             = 'copy';
-	const LOCK_TTL         = 120;
+	const LOCK_TTL         = 180; // Above a SEND's worst wall time: upload budget + one upload + the POST + a refresh.
 	const LOCK_TIMEOUT     = 5;
 	const LOCK_BUSY_DELAY  = 10;
 	const RESULTS          = array( 'created', 'updated', 'skipped', 'failed' );

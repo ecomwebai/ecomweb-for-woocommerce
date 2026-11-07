@@ -98,6 +98,7 @@ class Messages {
 
 	/**
 	 * The texts for an issue's warnings, each shown once (the API sends one ON_SALE per variation).
+	 * A warning with an unknown code and no message has no text and is left out.
 	 *
 	 * @param array $issue Issue with `warnings` and `regular_price`.
 	 * @return string[]
@@ -105,8 +106,9 @@ class Messages {
 	public static function warnings( array $issue ): array {
 		$out = array();
 		foreach ( (array) ( $issue['warnings'] ?? array() ) as $warning ) {
-			if ( is_array( $warning ) ) {
-				$out[] = self::warning( $warning, $issue );
+			$text = is_array( $warning ) ? self::warning( $warning, $issue ) : '';
+			if ( '' !== trim( $text ) ) {
+				$out[] = $text;
 			}
 		}
 		return array_values( array_unique( $out ) );

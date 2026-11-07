@@ -328,6 +328,18 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The copy lock outlives a SEND's worst wall time (network waits don't count toward PHP's
+	 * time limit): the upload budget, one upload started just inside it, the batch POST, and a
+	 * refresh with its lock wait. The session refresh timeout stays below it too.
+	 */
+	public function test_lock_ttl_covers_worst_case_send() {
+		$worst = Copy_Runner::UPLOAD_BUDGET + Ecomweb\Woo\Api_Client::UPLOAD_TIMEOUT + Copy_Runner::BATCH_TIMEOUT + 2 * Auth::REFRESH_TIMEOUT;
+		$this->assertGreaterThanOrEqual( $worst + 30, Copy_Runner::LOCK_TTL );
+		$this->assertGreaterThan( Copy_Runner::TIME_LIMIT, Copy_Runner::LOCK_TTL );
+		$this->assertLessThan( Copy_Runner::LOCK_TTL, Auth::REFRESH_TIMEOUT );
+	}
+
+	/**
 	 * A second start while one runs is refused (Review Focus 2).
 	 */
 	public function test_start_twice_returns_running_error() {

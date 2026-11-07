@@ -375,6 +375,32 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The store picker has no blank "Signed in as" when the API gave no email.
+	 */
+	public function test_pick_store_view_without_email() {
+		$session          = ( new Session_Store() )->read();
+		$session['email'] = null;
+		( new Session_Store() )->write( $session );
+		$this->fake->on(
+			'GET',
+			'/stores',
+			200,
+			array(
+				array(
+					'ref'  => 's1',
+					'name' => 'A',
+					'role' => 'owner',
+				),
+			)
+		);
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'Signed in to ecomweb', $html );
+		$this->assertStringNotContainsString( 'Signed in as', $html );
+		$this->assertStringContainsString( 'Use this store', $html );
+	}
+
+	/**
 	 * No stores: a sign-up link and Refresh.
 	 */
 	public function test_no_store_view_links_to_signup() {
