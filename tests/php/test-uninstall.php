@@ -157,4 +157,18 @@ class Test_Uninstall extends WP_UnitTestCase {
 		$this->assertFalse( as_next_scheduled_action( 'ecomweb_copy_send' ) );
 		$this->assertFalse( as_next_scheduled_action( 'ecomweb_copy_poll' ) );
 	}
+
+	/**
+	 * The readme's FAQ doesn't promise that deleting the plugin revokes the sign-in: the logout is
+	 * best effort, and skipped after a move. It points the merchant to Profile → Sessions.
+	 */
+	public function test_readme_says_sign_out_is_best_effort() {
+		$readme = (string) file_get_contents( dirname( __DIR__, 2 ) . '/readme.txt' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		preg_match( '/= How do I revoke the plugin\'s access\? =\s*(.+?)\n\n=/s', $readme, $m );
+		$this->assertNotEmpty( $m, 'FAQ entry present' );
+		$this->assertStringNotContainsString( 'Either revokes', $m[1] );
+		$this->assertStringContainsString( 'try to sign this site out of ecomweb', $m[1] );
+		$this->assertStringContainsString( "the site's address changed", $m[1] );
+		$this->assertStringContainsString( 'So also open ecomweb, go to Profile → Sessions', $m[1] );
+	}
 }

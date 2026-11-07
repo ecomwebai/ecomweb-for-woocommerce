@@ -47,7 +47,7 @@ For the smoothest copy, yes: ecomweb downloads your product images from your sit
 
 = How do I revoke the plugin's access? =
 
-Click **Disconnect** on the plugin page, or delete the plugin. Either revokes the sign-in. You can also open ecomweb, go to Profile → Sessions and sign out the device named "WooCommerce – your site address".
+Click **Disconnect** on the plugin page, or delete the plugin. Both try to sign this site out of ecomweb, but the sign-in stays valid in ecomweb if ecomweb can't be reached at that moment or the site's address changed since you signed in. So also open ecomweb, go to Profile → Sessions and sign out the device named "WooCommerce – your site address".
 
 = What happens if I move or clone my site? =
 
