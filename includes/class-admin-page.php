@@ -114,12 +114,17 @@ class Admin_Page {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( Ajax::NONCE_ACTION ),
 				'i18n'    => array(
-					'starting' => __( 'Starting…', 'ecomweb-for-woocommerce' ),
-					'waiting'  => __( 'Waiting for you to approve in ecomweb…', 'ecomweb-for-woocommerce' ),
-					'approved' => __( 'Signed in. Loading…', 'ecomweb-for-woocommerce' ),
-					'denied'   => __( 'Sign-in was denied. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
-					'expired'  => __( 'The code expired. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
-					'error'    => __( 'Something went wrong. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
+					'starting'   => __( 'Starting…', 'ecomweb-for-woocommerce' ),
+					'waiting'    => __( 'Waiting for you to approve in ecomweb…', 'ecomweb-for-woocommerce' ),
+					'approved'   => __( 'Signed in. Loading…', 'ecomweb-for-woocommerce' ),
+					'denied'     => __( 'Sign-in was denied. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
+					'expired'    => __( 'The code expired. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
+					'error'      => __( 'Something went wrong. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
+					/* translators: 1: products handled so far, 2: products in this copy. */
+					'progress'   => __( 'Copying %1$d of %2$d…', 'ecomweb-for-woocommerce' ),
+					/* translators: 1: created, 2: updated, 3: skipped (already copied), 4: failed. */
+					'counts'     => __( '%1$d created, %2$d updated, %3$d skipped (already copied), %4$d failed.', 'ecomweb-for-woocommerce' ),
+					'pollFailed' => __( "Couldn't check the copy's progress. Trying again; reload the page if this keeps happening.", 'ecomweb-for-woocommerce' ),
 				),
 			)
 		);

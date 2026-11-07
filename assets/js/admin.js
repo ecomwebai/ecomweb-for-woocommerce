@@ -10,10 +10,52 @@
 		} );
 	} );
 
-	// Connected page: poll the copy's status every 5 s while it runs, and reload when it changes.
+	// Connected page: while a copy runs, poll its status. Each answer rewrites "Copying X of Y"
+	// and the counts; a finished copy reloads the page. Failed polls (an expired nonce, a
+	// logged-out admin, the network) back off from 5 s to a 60 s cap, and a note says so.
 	var cfg = window.ecomwebWoo;
 	var copy = document.getElementById( 'ecomweb-copy' );
 	if ( cfg && copy && 'running' === copy.getAttribute( 'data-status' ) ) {
+		var progress = document.getElementById( 'ecomweb-progress' );
+		var counts = document.getElementById( 'ecomweb-counts' );
+		var note = document.getElementById( 'ecomweb-poll-note' );
+		var failures = 0;
+
+		// Fills %1$d, %2$d… (or %d) from values.
+		var format = function ( text, values ) {
+			var next = 0;
+			return String( text ).replace( /%(?:(\d+)\$)?d/g, function ( match, n ) {
+				var value = n ? values[ n - 1 ] : values[ next++ ];
+				return String( parseInt( value, 10 ) || 0 );
+			} );
+		};
+
+		var schedule = function () {
+			window.setTimeout( tick, Math.min( 60000, 5000 * Math.pow( 2, failures ) ) );
+		};
+
+		var failed = function () {
+			failures++;
+			if ( note ) {
+				note.textContent = cfg.i18n.pollFailed;
+				note.hidden = false;
+			}
+			schedule();
+		};
+
+		var show = function ( data ) {
+			var c = data.counts || {};
+			if ( progress ) {
+				progress.textContent = format( cfg.i18n.progress, [ data.done, data.total ] );
+			}
+			if ( counts ) {
+				counts.textContent = format( cfg.i18n.counts, [ c.created, c.updated, c.skipped, c.failed ] );
+			}
+			if ( note ) {
+				note.hidden = true;
+			}
+		};
+
 		var tick = function () {
 			var body = new FormData();
 			body.append( 'action', 'ecomweb_copy_status' );
@@ -23,17 +65,21 @@
 					return res.json();
 				} )
 				.then( function ( res ) {
-					if ( res && res.success && res.data.status !== 'running' ) {
+					if ( ! res || ! res.success || ! res.data ) {
+						failed();
+						return;
+					}
+					if ( 'running' !== res.data.status ) {
 						window.location.reload();
 						return;
 					}
-					window.setTimeout( tick, 5000 );
+					failures = 0;
+					show( res.data );
+					schedule();
 				} )
-				.catch( function () {
-					window.setTimeout( tick, 5000 );
-				} );
+				.catch( failed );
 		};
-		window.setTimeout( tick, 5000 );
+		schedule();
 	}
 } )();
 

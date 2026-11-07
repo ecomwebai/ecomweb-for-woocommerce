@@ -291,6 +291,10 @@ class Test_Admin_Page extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'admin-ajax.php', $data );
 		$this->assertStringContainsString( wp_create_nonce( 'ecomweb_ajax' ), $data );
 		$this->assertStringContainsString( 'Sign-in was denied', $data );
+		// The copy poller's strings (assets/js/admin.js fills the placeholders).
+		$this->assertStringContainsString( '"progress":"Copying %1$d of %2$d\\u2026"', $data );
+		$this->assertStringContainsString( '"counts":"%1$d created, %2$d updated, %3$d skipped (already copied), %4$d failed."', $data );
+		$this->assertStringContainsString( '"pollFailed":"Couldn', $data );
 	}
 
 	/**

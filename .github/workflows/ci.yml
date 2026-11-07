@@ -25,11 +25,12 @@ jobs:
           composer install --no-interaction --prefer-dist
           composer lint
 
-      - name: Start wp-env and run the PHP tests
+      - name: Start wp-env and run the PHP and JS tests
         run: |
           npm ci
           npx wp-env start
           npm run test:php
+          npm run test:js
 
       - name: Build the zip
         run: bash bin/build-zip.sh
