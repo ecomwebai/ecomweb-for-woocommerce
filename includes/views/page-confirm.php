@@ -34,7 +34,12 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 		echo esc_html(
 			sprintf(
 				/* translators: 1: products selected, 2: new, 3: already in ecomweb, 4: deleted in ecomweb. */
-				__( '%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb.', 'ecomweb-for-woocommerce' ),
+				_n(
+					'%1$d product selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb.',
+					'%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb.',
+					count( $preflight['products'] ),
+					'ecomweb-for-woocommerce'
+				),
 				count( $preflight['products'] ),
 				$ecomweb_new,
 				$plan['already_copied'],

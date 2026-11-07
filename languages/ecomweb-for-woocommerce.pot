@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T02:58:45+00:00\n"
+"POT-Creation-Date: 2026-11-07T11:45:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: ecomweb-for-woocommerce\n"
@@ -131,7 +131,7 @@ msgid "The currencies don't match, so nothing was copied."
 msgstr ""
 
 #: includes/class-admin-page.php:457
-#: includes/views/page-confirm.php:87
+#: includes/views/page-confirm.php:92
 msgid "Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again."
 msgstr ""
 
@@ -355,14 +355,14 @@ msgstr ""
 
 #: includes/views/page-confirm.php:18
 #: includes/views/page-confirm.php:23
-#: includes/views/page-confirm.php:113
-#: includes/views/page-confirm.php:167
-#: includes/views/page-confirm.php:173
+#: includes/views/page-confirm.php:118
+#: includes/views/page-confirm.php:172
+#: includes/views/page-confirm.php:178
 msgid "Cancel"
 msgstr ""
 
 #: includes/views/page-confirm.php:22
-#: includes/views/page-confirm.php:172
+#: includes/views/page-confirm.php:177
 #: includes/views/page-pick-store.php:35
 #: includes/views/page-pick-store.php:40
 #: includes/views/page-pick-store.php:64
@@ -371,59 +371,61 @@ msgstr ""
 
 #. translators: 1: products selected, 2: new, 3: already in ecomweb, 4: deleted in ecomweb.
 #: includes/views/page-confirm.php:37
-msgid "%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
-msgstr ""
+msgid "%1$d product selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
+msgid_plural "%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
+msgstr[0] ""
+msgstr[1] ""
 
-#: includes/views/page-confirm.php:45
+#: includes/views/page-confirm.php:50
 msgid "Products deleted in ecomweb are left out."
 msgstr ""
 
 #. translators: %d: number of products.
-#: includes/views/page-confirm.php:53
+#: includes/views/page-confirm.php:58
 msgid "%d products can't be copied (grouped or external)."
 msgstr ""
 
 #. translators: 1: ecomweb store currency, 2: WooCommerce currency.
-#: includes/views/page-confirm.php:64
+#: includes/views/page-confirm.php:69
 msgid "Your ecomweb store uses %1$s and WooCommerce uses %2$s. ecomweb doesn't convert prices: make the currencies match, then try again."
 msgstr ""
 
 #. translators: 1: plan product limit, 2: products in the store now, 3: products that fit, 4: products to create.
-#: includes/views/page-confirm.php:79
+#: includes/views/page-confirm.php:84
 msgid "Your plan allows %1$d products and the store has %2$d, so %3$d of these %4$d fit."
 msgstr ""
 
 #. translators: 1: image storage used, in MB. 2: image storage limit, in MB.
-#: includes/views/page-confirm.php:99
+#: includes/views/page-confirm.php:104
 msgid "Your store has used %1$s MB of %2$s MB of image storage. Images beyond that will fail to copy."
 msgstr ""
 
-#: includes/views/page-confirm.php:111
-#: includes/views/page-confirm.php:165
+#: includes/views/page-confirm.php:116
+#: includes/views/page-confirm.php:170
 msgid "Upgrade your plan"
 msgstr ""
 
-#: includes/views/page-confirm.php:123
+#: includes/views/page-confirm.php:128
 msgid "Overwrite products already copied"
 msgstr ""
 
 #. translators: %d: number of products.
-#: includes/views/page-confirm.php:133
+#: includes/views/page-confirm.php:138
 msgid "Yes, overwrite %d products in ecomweb. Their ecomweb status stays as it is."
 msgstr ""
 
 #. translators: %d: number of products already copied.
-#: includes/views/page-confirm.php:145
+#: includes/views/page-confirm.php:150
 msgid "Your plan has no room for new products. You can still overwrite the %d products already copied."
 msgstr ""
 
-#: includes/views/page-confirm.php:153
-#: includes/views/page-confirm.php:162
+#: includes/views/page-confirm.php:158
+#: includes/views/page-confirm.php:167
 msgid "Start copying"
 msgstr ""
 
 #. translators: %d: number of products.
-#: includes/views/page-confirm.php:158
+#: includes/views/page-confirm.php:163
 msgid "Copy the first %d"
 msgstr ""
 

@@ -373,8 +373,9 @@ msgstr "Làm mới"
 
 #. translators: 1: products selected, 2: new, 3: already in ecomweb, 4: deleted in ecomweb.
 #: includes/views/page-confirm.php:37
-msgid "%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
-msgstr "Đã chọn %1$d sản phẩm: %2$d mới, %3$d đã có trên ecomweb, %4$d đã bị xóa trên ecomweb."
+msgid "%1$d product selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
+msgid_plural "%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
+msgstr[0] "Đã chọn %1$d sản phẩm: %2$d mới, %3$d đã có trên ecomweb, %4$d đã bị xóa trên ecomweb."
 
 #: includes/views/page-confirm.php:45
 msgid "Products deleted in ecomweb are left out."
