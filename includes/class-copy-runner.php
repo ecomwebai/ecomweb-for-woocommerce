@@ -144,7 +144,12 @@ class Copy_Runner {
 				'error'         => null,
 			);
 			Copy_State::put( $state );
-			if ( ! self::enqueue( self::SEND_HOOK, $state['id'] ) ) {
+			try {
+				$queued = (int) as_enqueue_async_action( self::SEND_HOOK, array( $state['id'] ), self::GROUP ) > 0;
+			} catch ( \Exception $e ) {
+				$queued = false;
+			}
+			if ( ! $queued ) {
 				// Nothing would ever run this copy: don't leave it "running".
 				$state['status']      = 'failed';
 				$state['finished_at'] = time();
@@ -667,25 +672,11 @@ class Copy_Runner {
 	 */
 	private static function schedule( string $hook, string $copy_id, int $delay ): void {
 		if ( $delay <= 0 ) {
-			self::enqueue( $hook, $copy_id );
+			// No catch: inside an action, a throw lets Action Scheduler fail it, and on_action_failed retries.
+			as_enqueue_async_action( $hook, array( $copy_id ), self::GROUP );
 			return;
 		}
 		as_schedule_single_action( time() + $delay, $hook, array( $copy_id ), self::GROUP );
-	}
-
-	/**
-	 * Queues a hook for the copy to run now.
-	 *
-	 * @param string $hook    Hook.
-	 * @param string $copy_id Copy ID.
-	 * @return bool Whether Action Scheduler stored the action.
-	 */
-	private static function enqueue( string $hook, string $copy_id ): bool {
-		try {
-			return (int) as_enqueue_async_action( $hook, array( $copy_id ), self::GROUP ) > 0;
-		} catch ( \Exception $e ) {
-			return false;
-		}
 	}
 
 	/**

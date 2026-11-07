@@ -340,6 +340,42 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An enqueue that throws inside a running action isn't swallowed: Action Scheduler fails the
+	 * action, and on_action_failed schedules the transient retry.
+	 */
+	public function test_enqueue_throw_inside_send_leads_to_retry() {
+		$this->fake->on( 'POST', self::BATCH, 400, array( 'message' => 'products.1.name too long' ) );
+		$id      = $this->start( $this->products( 2 ) );
+		$actions = as_get_scheduled_actions(
+			array(
+				'hook'     => Copy_Runner::SEND_HOOK,
+				'args'     => array( $id ),
+				'group'    => Copy_Runner::GROUP,
+				'status'   => ActionScheduler_Store::STATUS_PENDING,
+				'per_page' => 1,
+			),
+			'ids'
+		);
+		$this->assertCount( 1, $actions );
+		$throw = function () {
+			throw new RuntimeException( 'Action Scheduler store unavailable' );
+		};
+		add_filter( 'pre_as_enqueue_async_action', $throw );
+
+		// The 400 splits the batch, and queuing the next SEND throws.
+		ActionScheduler::runner()->process_action( (int) $actions[0] );
+		remove_filter( 'pre_as_enqueue_async_action', $throw );
+
+		$state = $this->state();
+		$this->assertSame( 'running', $state['status'] );
+		$this->assertSame( 'transient', $state['retry']['kind'] );
+		$this->assertSame( 1, $state['retry']['count'] );
+		$next = $this->next( Copy_Runner::SEND_HOOK, $id );
+		$this->assertIsInt( $next );
+		$this->assertGreaterThanOrEqual( time() + Copy_Runner::TRANSIENT_DELAYS[0] - 2, $next );
+	}
+
+	/**
 	 * A second start while one runs is refused (Review Focus 2).
 	 */
 	public function test_start_twice_returns_running_error() {
