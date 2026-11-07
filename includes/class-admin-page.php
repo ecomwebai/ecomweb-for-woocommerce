@@ -453,7 +453,7 @@ class Admin_Page {
 		if ( $plan['currency_blocked'] ) {
 			$this->refuse( __( "The currencies don't match, so nothing was copied.", 'ecomweb-for-woocommerce' ) );
 		}
-		if ( $plan['over_cap'] && 0 === $plan['fits'] ) {
+		if ( $plan['over_cap'] && 0 === $plan['fits'] && 0 === $plan['overwrite_count'] ) {
 			$this->refuse( __( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.', 'ecomweb-for-woocommerce' ) );
 		}
 		if ( $plan['over_cap'] && ! $limit_to_fits ) {

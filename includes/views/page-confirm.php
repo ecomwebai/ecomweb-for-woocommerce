@@ -105,7 +105,7 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 		</p></div>
 	<?php endif; ?>
 
-	<?php if ( $ecomweb_no_room && ! $plan['currency_blocked'] ) : ?>
+	<?php if ( $ecomweb_no_room && 0 === $all['already_copied'] && ! $plan['currency_blocked'] ) : ?>
 		<p>
 			<?php if ( '' !== $ecomweb_upgrade ) : ?>
 				<a class="button button-primary" href="<?php echo esc_url( $ecomweb_upgrade, array( 'http', 'https' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
@@ -138,8 +138,20 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 				</label>
 			</p>
 		<?php endif; ?>
+		<?php if ( $ecomweb_no_room ) : ?>
+			<p>
+				<?php
+				/* translators: %d: number of products already copied. */
+				echo esc_html( sprintf( __( 'Your plan has no room for new products. You can still overwrite the %d products already copied.', 'ecomweb-for-woocommerce' ), $all['already_copied'] ) );
+				?>
+			</p>
+		<?php endif; ?>
 		<p>
-			<?php if ( $plan['over_cap'] && $plan['fits'] > 0 ) : ?>
+			<?php if ( $ecomweb_no_room ) : ?>
+				<?php // Overwrite only: shown while Overwrite is ticked (admin.js); the handler refuses it unticked. ?>
+				<input type="hidden" name="limit_to_fits" value="1">
+				<span id="ecomweb-overwrite-start"><?php submit_button( __( 'Start copying', 'ecomweb-for-woocommerce' ), 'primary', 'submit', false ); ?></span>
+			<?php elseif ( $plan['over_cap'] && $plan['fits'] > 0 ) : ?>
 				<button type="submit" name="limit_to_fits" value="1" class="button button-primary">
 					<?php
 					/* translators: %d: number of products. */

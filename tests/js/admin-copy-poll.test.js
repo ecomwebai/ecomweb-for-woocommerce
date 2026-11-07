@@ -157,3 +157,29 @@ test( 'no polling when the copy is not running', () => {
 	} );
 	assert.equal( timers.length, 0 );
 } );
+
+test( 'confirm screen: the overwrite-only Start button shows only while Overwrite is ticked', () => {
+	const listeners = {};
+	const overwrite = { checked: false, addEventListener: ( name, fn ) => ( listeners[ name ] = fn ) };
+	const confirmBox = { required: false };
+	const confirmRow = { hidden: false, querySelector: () => confirmBox };
+	const start = { hidden: false };
+	const elements = {
+		'ecomweb-overwrite': overwrite,
+		'ecomweb-overwrite-confirm': confirmRow,
+		'ecomweb-overwrite-start': start,
+	};
+	vm.runInNewContext( SOURCE, {
+		window: { setTimeout: () => {} },
+		document: { getElementById: ( id ) => elements[ id ] || null, querySelectorAll: () => [] },
+	} );
+
+	assert.equal( start.hidden, true );
+	assert.equal( confirmRow.hidden, true );
+
+	overwrite.checked = true;
+	listeners.change();
+	assert.equal( start.hidden, false );
+	assert.equal( confirmRow.hidden, false );
+	assert.equal( confirmBox.required, true );
+} );

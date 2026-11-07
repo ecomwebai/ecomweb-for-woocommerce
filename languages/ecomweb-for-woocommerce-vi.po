@@ -75,7 +75,7 @@ msgid "You do not have permission to view this page."
 msgstr "Bạn không có quyền xem trang này."
 
 #: includes/class-admin-page.php:266
-#: includes/class-copy-runner.php:793
+#: includes/class-copy-runner.php:784
 msgid "Wait for the current copy to finish."
 msgstr "Hãy chờ lần sao chép hiện tại hoàn tất."
 
@@ -204,25 +204,25 @@ msgstr "ecomweb trả về phản hồi mà plugin này không hiểu."
 msgid "Choose an ecomweb store first."
 msgstr "Hãy chọn cửa hàng ecomweb trước."
 
-#: includes/class-copy-runner.php:151
+#: includes/class-copy-runner.php:156
 #: includes/class-messages.php:88
 msgid "The copy couldn't be scheduled on this site. Try again."
 msgstr "Không thể lên lịch sao chép trên trang này. Hãy thử lại."
 
-#: includes/class-copy-runner.php:221
+#: includes/class-copy-runner.php:226
 #: includes/class-messages.php:90
 msgid "The copy stopped unexpectedly on this site. Copy again; products already copied are skipped."
 msgstr "Việc sao chép đã dừng đột ngột trên trang này. Hãy sao chép lại; sản phẩm đã sao chép sẽ được bỏ qua."
 
-#: includes/class-copy-runner.php:280
+#: includes/class-copy-runner.php:285
 msgid "This site is no longer connected to that ecomweb store. Choose the store again."
 msgstr "Trang này không còn được kết nối với cửa hàng ecomweb đó. Hãy chọn lại cửa hàng."
 
-#: includes/class-copy-runner.php:402
+#: includes/class-copy-runner.php:407
 msgid "ecomweb took too long to copy a batch."
 msgstr "ecomweb mất quá nhiều thời gian để sao chép một lô sản phẩm."
 
-#: includes/class-copy-runner.php:452
+#: includes/class-copy-runner.php:457
 msgid "ecomweb did not report a result for this product."
 msgstr "ecomweb không báo kết quả cho sản phẩm này."
 
@@ -358,13 +358,13 @@ msgstr "Không tải lên được một hình ảnh."
 #: includes/views/page-confirm.php:18
 #: includes/views/page-confirm.php:23
 #: includes/views/page-confirm.php:113
-#: includes/views/page-confirm.php:155
-#: includes/views/page-confirm.php:161
+#: includes/views/page-confirm.php:167
+#: includes/views/page-confirm.php:173
 msgid "Cancel"
 msgstr "Hủy"
 
 #: includes/views/page-confirm.php:22
-#: includes/views/page-confirm.php:160
+#: includes/views/page-confirm.php:172
 #: includes/views/page-pick-store.php:35
 #: includes/views/page-pick-store.php:40
 #: includes/views/page-pick-store.php:64
@@ -401,7 +401,7 @@ msgid "Your store has used %1$s MB of %2$s MB of image storage. Images beyond th
 msgstr "Cửa hàng của bạn đã dùng %1$s MB trong %2$s MB dung lượng lưu hình ảnh. Các hình ảnh vượt quá mức này sẽ không sao chép được."
 
 #: includes/views/page-confirm.php:111
-#: includes/views/page-confirm.php:153
+#: includes/views/page-confirm.php:165
 msgid "Upgrade your plan"
 msgstr "Nâng cấp gói"
 
@@ -414,14 +414,20 @@ msgstr "Ghi đè sản phẩm đã sao chép"
 msgid "Yes, overwrite %d products in ecomweb. Their ecomweb status stays as it is."
 msgstr "Đồng ý, ghi đè %d sản phẩm trên ecomweb. Trạng thái của chúng trên ecomweb được giữ nguyên."
 
-#. translators: %d: number of products.
-#: includes/views/page-confirm.php:146
-msgid "Copy the first %d"
-msgstr "Sao chép %d sản phẩm đầu tiên"
+#. translators: %d: number of products already copied.
+#: includes/views/page-confirm.php:145
+msgid "Your plan has no room for new products. You can still overwrite the %d products already copied."
+msgstr "Gói của bạn không còn chỗ cho sản phẩm mới. Bạn vẫn có thể ghi đè %d sản phẩm đã sao chép."
 
-#: includes/views/page-confirm.php:150
+#: includes/views/page-confirm.php:153
+#: includes/views/page-confirm.php:162
 msgid "Start copying"
 msgstr "Bắt đầu sao chép"
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:158
+msgid "Copy the first %d"
+msgstr "Sao chép %d sản phẩm đầu tiên"
 
 #: includes/views/page-connected.php:36
 msgid "Created"

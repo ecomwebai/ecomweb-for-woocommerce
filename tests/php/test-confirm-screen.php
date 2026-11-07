@@ -224,28 +224,33 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A plan with no room left (a free store at its cap): the cap message and the upgrade link,
-	 * and no Start copying button that could only be refused.
+	 * A no-room answer for $states: the store is at its cap of 20.
+	 *
+	 * @param array $states ID => state.
 	 */
-	public function test_no_room_shows_cap_message_and_upgrade_link_without_start_button() {
-		$ids = $this->products( 3 );
-		Selection::save( $this->admin, $ids, false, 0 );
+	private function answer_no_room( array $states ): void {
 		$this->answer(
-			array(
-				$ids[0] => 'new',
-				$ids[1] => 'new',
-				$ids[2] => 'copied',
-			),
+			$states,
 			array(
 				'plan'        => array(
 					'limit'     => 20,
 					'current'   => 20,
-					'new_count' => 2,
+					'new_count' => count( array_keys( $states, 'new', true ) ),
 					'fits'      => 0,
 				),
 				'upgrade_url' => 'https://ecomweb.app/store/s1/settings/subscription',
 			)
 		);
+	}
+
+	/**
+	 * No room and nothing copied (a free store at its cap): the cap message and the upgrade
+	 * link only, with no Start copying button that could only be refused.
+	 */
+	public function test_no_room_without_copied_products_offers_upgrade_only() {
+		$ids = $this->products( 2 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer_no_room( array_fill_keys( $ids, 'new' ) );
 		$html = $this->render();
 
 		$this->assertStringContainsString( 'Your plan allows 20 products and the store has 20, so 0 of these 2 fit.', $html );
@@ -260,20 +265,69 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Starting with no room left is refused with the plan-cap message, not "already in ecomweb".
+	 * No room but some products already copied: overwriting needs no room, so the overwrite
+	 * option stays, with a Start copying button that only shows while Overwrite is ticked.
 	 */
-	public function test_start_with_no_room_refuses_with_cap_message() {
+	public function test_no_room_with_copied_products_keeps_overwrite() {
+		$ids = $this->products( 3 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer_no_room(
+			array(
+				$ids[0] => 'new',
+				$ids[1] => 'copied',
+				$ids[2] => 'copied',
+			)
+		);
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'Your plan has no room for new products. You can still overwrite the 2 products already copied.', $html );
+		$this->assertStringContainsString( 'value="ecomweb_start_copy"', $html );
+		$this->assertStringContainsString( 'id="ecomweb-overwrite"', $html );
+		$this->assertStringContainsString( 'Yes, overwrite 2 products in ecomweb.', $html );
+		$this->assertMatchesRegularExpression( '#<input type="hidden" name="limit_to_fits" value="1">\s*<span id="ecomweb-overwrite-start"><input[^>]*value="Start copying"#', $html );
+		$this->assertStringContainsString( 'Upgrade your plan', $html );
+		$this->assertStringNotContainsString( 'Copy the first', $html );
+	}
+
+	/**
+	 * No room, overwrite ticked and confirmed: the copy queues only the products already copied.
+	 */
+	public function test_start_with_no_room_and_overwrite_queues_only_copied_products() {
+		$ids = $this->products( 3 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer_no_room(
+			array(
+				$ids[0] => 'new',
+				$ids[1] => 'copied',
+				$ids[2] => 'copied',
+			)
+		);
+		$this->request(
+			'ecomweb_start_copy',
+			array(
+				'limit_to_fits'     => '1',
+				'overwrite'         => '1',
+				'confirm_overwrite' => '1',
+			)
+		);
+		$this->redirect_of( 'handle_start_copy' );
+
+		$state = get_option( 'ecomweb_copy_state' );
+		$this->assertSame( array( $ids[1], $ids[2] ), array_map( 'intval', $state['queue'] ) );
+		$this->assertTrue( $state['overwrite'] );
+		$this->assertSame( 'running', $state['status'] );
+	}
+
+	/**
+	 * No room and Overwrite not ticked: refused with the plan-cap message, not "already in ecomweb".
+	 */
+	public function test_start_with_no_room_without_overwrite_is_refused() {
 		$ids = $this->products( 2 );
 		Selection::save( $this->admin, $ids, false, 0 );
-		$this->answer(
-			array_fill_keys( $ids, 'new' ),
+		$this->answer_no_room(
 			array(
-				'plan' => array(
-					'limit'     => 20,
-					'current'   => 20,
-					'new_count' => 2,
-					'fits'      => 0,
-				),
+				$ids[0] => 'new',
+				$ids[1] => 'copied',
 			)
 		);
 		$this->request( 'ecomweb_start_copy', array( 'limit_to_fits' => '1' ) );

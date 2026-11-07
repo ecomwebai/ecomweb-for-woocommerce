@@ -87,13 +87,18 @@
 	'use strict';
 
 	// Confirm screen: the overwrite confirmation shows only while "Overwrite products already copied" is ticked.
+	// With no plan room left, the only possible copy is an overwrite: its Start button shows only then.
 	var overwrite = document.getElementById( 'ecomweb-overwrite' );
 	var confirmRow = document.getElementById( 'ecomweb-overwrite-confirm' );
+	var overwriteStart = document.getElementById( 'ecomweb-overwrite-start' );
 	if ( overwrite && confirmRow ) {
 		var confirmBox = confirmRow.querySelector( 'input' );
 		var sync = function () {
 			confirmRow.hidden = ! overwrite.checked;
 			confirmBox.required = overwrite.checked;
+			if ( overwriteStart ) {
+				overwriteStart.hidden = ! overwrite.checked;
+			}
 		};
 		overwrite.addEventListener( 'change', sync );
 		sync();

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-07T02:47:14+00:00\n"
+"POT-Creation-Date: 2026-11-07T02:58:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: ecomweb-for-woocommerce\n"
@@ -73,7 +73,7 @@ msgid "You do not have permission to view this page."
 msgstr ""
 
 #: includes/class-admin-page.php:266
-#: includes/class-copy-runner.php:793
+#: includes/class-copy-runner.php:784
 msgid "Wait for the current copy to finish."
 msgstr ""
 
@@ -202,25 +202,25 @@ msgstr ""
 msgid "Choose an ecomweb store first."
 msgstr ""
 
-#: includes/class-copy-runner.php:151
+#: includes/class-copy-runner.php:156
 #: includes/class-messages.php:88
 msgid "The copy couldn't be scheduled on this site. Try again."
 msgstr ""
 
-#: includes/class-copy-runner.php:221
+#: includes/class-copy-runner.php:226
 #: includes/class-messages.php:90
 msgid "The copy stopped unexpectedly on this site. Copy again; products already copied are skipped."
 msgstr ""
 
-#: includes/class-copy-runner.php:280
+#: includes/class-copy-runner.php:285
 msgid "This site is no longer connected to that ecomweb store. Choose the store again."
 msgstr ""
 
-#: includes/class-copy-runner.php:402
+#: includes/class-copy-runner.php:407
 msgid "ecomweb took too long to copy a batch."
 msgstr ""
 
-#: includes/class-copy-runner.php:452
+#: includes/class-copy-runner.php:457
 msgid "ecomweb did not report a result for this product."
 msgstr ""
 
@@ -356,13 +356,13 @@ msgstr ""
 #: includes/views/page-confirm.php:18
 #: includes/views/page-confirm.php:23
 #: includes/views/page-confirm.php:113
-#: includes/views/page-confirm.php:155
-#: includes/views/page-confirm.php:161
+#: includes/views/page-confirm.php:167
+#: includes/views/page-confirm.php:173
 msgid "Cancel"
 msgstr ""
 
 #: includes/views/page-confirm.php:22
-#: includes/views/page-confirm.php:160
+#: includes/views/page-confirm.php:172
 #: includes/views/page-pick-store.php:35
 #: includes/views/page-pick-store.php:40
 #: includes/views/page-pick-store.php:64
@@ -399,7 +399,7 @@ msgid "Your store has used %1$s MB of %2$s MB of image storage. Images beyond th
 msgstr ""
 
 #: includes/views/page-confirm.php:111
-#: includes/views/page-confirm.php:153
+#: includes/views/page-confirm.php:165
 msgid "Upgrade your plan"
 msgstr ""
 
@@ -412,13 +412,19 @@ msgstr ""
 msgid "Yes, overwrite %d products in ecomweb. Their ecomweb status stays as it is."
 msgstr ""
 
-#. translators: %d: number of products.
-#: includes/views/page-confirm.php:146
-msgid "Copy the first %d"
+#. translators: %d: number of products already copied.
+#: includes/views/page-confirm.php:145
+msgid "Your plan has no room for new products. You can still overwrite the %d products already copied."
 msgstr ""
 
-#: includes/views/page-confirm.php:150
+#: includes/views/page-confirm.php:153
+#: includes/views/page-confirm.php:162
 msgid "Start copying"
+msgstr ""
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:158
+msgid "Copy the first %d"
 msgstr ""
 
 #: includes/views/page-connected.php:36
