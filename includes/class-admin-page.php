@@ -24,6 +24,7 @@ class Admin_Page {
 		'ecomweb_recheck_images'   => 'handle_recheck_images',
 		'ecomweb_prepare_copy_all' => 'handle_prepare_copy_all',
 		'ecomweb_start_copy'       => 'handle_start_copy',
+		'ecomweb_stop_copy'        => 'handle_stop_copy',
 	);
 	const FLASH      = 'ecomweb_notice_';
 
@@ -380,6 +381,17 @@ class Admin_Page {
 		Copy_Runner::cancel();
 		$this->auth->sign_out();
 		$this->connection->forget();
+		$this->finish();
+	}
+
+	/**
+	 * Stops the running copy. Sign-in and the connection stay; products already copied stay.
+	 *
+	 * @return void
+	 */
+	public function handle_stop_copy(): void {
+		$this->guard( 'ecomweb_stop_copy' );
+		Copy_Runner::cancel();
 		$this->finish();
 	}
 

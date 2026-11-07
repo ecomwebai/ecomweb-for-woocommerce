@@ -127,6 +127,26 @@ $ecomweb_results = array(
 			);
 			?>
 		</p>
+		<p id="ecomweb-counts">
+			<?php
+			echo esc_html(
+				sprintf(
+					/* translators: 1: created, 2: updated, 3: skipped (already copied), 4: failed. */
+					__( '%1$d created, %2$d updated, %3$d skipped (already copied), %4$d failed.', 'ecomweb-for-woocommerce' ),
+					$ecomweb_count( 'created' ),
+					$ecomweb_count( 'updated' ),
+					$ecomweb_count( 'skipped' ),
+					$ecomweb_count( 'failed' )
+				)
+			);
+			?>
+		</p>
+		<p id="ecomweb-poll-note" class="description" hidden></p>
+		<form method="post" action="<?php echo esc_url( $ecomweb_post_url ); ?>" id="ecomweb-stop-form">
+			<input type="hidden" name="action" value="ecomweb_stop_copy">
+			<?php wp_nonce_field( 'ecomweb_stop_copy' ); ?>
+			<?php submit_button( __( 'Stop copy', 'ecomweb-for-woocommerce' ), 'secondary', 'submit', false ); ?>
+		</form>
 	<?php elseif ( 'completed' === $ecomweb_status ) : ?>
 		<p id="ecomweb-progress">
 			<?php

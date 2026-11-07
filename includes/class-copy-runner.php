@@ -144,7 +144,13 @@ class Copy_Runner {
 				'error'         => null,
 			);
 			Copy_State::put( $state );
-			as_enqueue_async_action( self::SEND_HOOK, array( $state['id'] ), self::GROUP );
+			if ( ! self::enqueue( self::SEND_HOOK, $state['id'] ) ) {
+				// Nothing would ever run this copy: don't leave it "running".
+				$state['status']      = 'failed';
+				$state['finished_at'] = time();
+				$state['error']       = self::error_item( 'COPY_NOT_STARTED', __( "The copy couldn't be scheduled on this site. Try again.", 'ecomweb-for-woocommerce' ) );
+				Copy_State::put( $state );
+			}
 			return $state;
 		} finally {
 			Lock::release( self::LOCK, $token );
@@ -661,10 +667,25 @@ class Copy_Runner {
 	 */
 	private static function schedule( string $hook, string $copy_id, int $delay ): void {
 		if ( $delay <= 0 ) {
-			as_enqueue_async_action( $hook, array( $copy_id ), self::GROUP );
+			self::enqueue( $hook, $copy_id );
 			return;
 		}
 		as_schedule_single_action( time() + $delay, $hook, array( $copy_id ), self::GROUP );
+	}
+
+	/**
+	 * Queues a hook for the copy to run now.
+	 *
+	 * @param string $hook    Hook.
+	 * @param string $copy_id Copy ID.
+	 * @return bool Whether Action Scheduler stored the action.
+	 */
+	private static function enqueue( string $hook, string $copy_id ): bool {
+		try {
+			return (int) as_enqueue_async_action( $hook, array( $copy_id ), self::GROUP ) > 0;
+		} catch ( \Exception $e ) {
+			return false;
+		}
 	}
 
 	/**

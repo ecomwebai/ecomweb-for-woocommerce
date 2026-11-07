@@ -5,6 +5,8 @@
  * @package ecomweb-for-woocommerce
  */
 
+use Ecomweb\Woo\Copy_Runner;
+use Ecomweb\Woo\Copy_State;
 use Ecomweb\Woo\Plugin;
 
 /**
@@ -33,6 +35,28 @@ class Test_Plugin extends WP_UnitTestCase {
 		update_option( 'ecomweb_site_uuid', $uuid );
 		Plugin::activate();
 		$this->assertSame( $uuid, get_option( 'ecomweb_site_uuid' ) );
+	}
+
+	/**
+	 * Deactivation stops a running copy: its pending actions would have no callback.
+	 */
+	public function test_deactivation_cancels_running_copy() {
+		$this->assertNotFalse( has_action( 'deactivate_' . plugin_basename( ECOMWEB_WOO_FILE ), array( Plugin::class, 'deactivate' ) ) );
+		add_filter( 'action_scheduler_allow_async_request_runner', '__return_false' );
+		Copy_State::put(
+			array(
+				'id'     => 'copy-1',
+				'status' => 'running',
+			)
+		);
+		as_enqueue_async_action( Copy_Runner::SEND_HOOK, array( 'copy-1' ), Copy_Runner::GROUP );
+		as_schedule_single_action( time() + 30, Copy_Runner::POLL_HOOK, array( 'copy-1' ), Copy_Runner::GROUP );
+
+		Plugin::deactivate();
+
+		$this->assertSame( 'cancelled', Copy_State::get()['status'] );
+		$this->assertFalse( as_next_scheduled_action( Copy_Runner::SEND_HOOK, array( 'copy-1' ), Copy_Runner::GROUP ) );
+		$this->assertFalse( as_next_scheduled_action( Copy_Runner::POLL_HOOK, array( 'copy-1' ), Copy_Runner::GROUP ) );
 	}
 
 	/**

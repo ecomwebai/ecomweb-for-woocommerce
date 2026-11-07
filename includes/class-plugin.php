@@ -164,6 +164,17 @@ class Plugin {
 	}
 
 	/**
+	 * Deactivation hook: stop a running copy. Once the plugin is inactive its pending actions
+	 * have no callback, so Action Scheduler fails them and the copy would stay "running" with
+	 * nothing scheduled after reactivation.
+	 *
+	 * @return void
+	 */
+	public static function deactivate(): void {
+		Copy_Runner::cancel();
+	}
+
+	/**
 	 * Stable per-site UUID. Created on first use and never autoloaded.
 	 *
 	 * @return string

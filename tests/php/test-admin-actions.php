@@ -146,6 +146,7 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 			'change'  => array( 'ecomweb_change_store', 'handle_change_store' ),
 			'disc'    => array( 'ecomweb_disconnect', 'handle_disconnect' ),
 			'recheck' => array( 'ecomweb_recheck_images', 'handle_recheck_images' ),
+			'stop'    => array( 'ecomweb_stop_copy', 'handle_stop_copy' ),
 		);
 	}
 
@@ -158,6 +159,7 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 		$this->assertNotFalse( has_action( 'admin_post_ecomweb_change_store' ) );
 		$this->assertNotFalse( has_action( 'admin_post_ecomweb_disconnect' ) );
 		$this->assertNotFalse( has_action( 'admin_post_ecomweb_recheck_images' ) );
+		$this->assertNotFalse( has_action( 'admin_post_ecomweb_stop_copy' ) );
 	}
 
 	/**
@@ -435,6 +437,25 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 		$this->assertSame( 'cancelled', Copy_State::get()['status'] );
 		$this->assertFalse( as_next_scheduled_action( Copy_Runner::SEND_HOOK, array( $id ), Copy_Runner::GROUP ) );
 		$this->assertSame( 0, $this->fake->count( '/products/batch' ) );
+	}
+
+	/**
+	 * Stop copy cancels the running copy and unschedules it, and keeps the sign-in and the store.
+	 */
+	public function test_stop_copy_cancels_and_keeps_sign_in_and_connection() {
+		$this->connect();
+		$id = $this->start_copy();
+		$this->request( 'ecomweb_stop_copy' );
+
+		$this->assertSame( Admin_Page::url(), $this->redirect_of( 'handle_stop_copy' ) );
+
+		$this->assertSame( 'cancelled', Copy_State::get()['status'] );
+		$this->assertFalse( as_next_scheduled_action( Copy_Runner::SEND_HOOK, array( $id ), Copy_Runner::GROUP ) );
+		$this->assertTrue( Plugin::instance()->auth()->is_signed_in() );
+		$this->assertSame( 'c1', get_option( 'ecomweb_connection' )['connection_id'] );
+		$this->assertSame( 0, $this->fake->count( '/auth/logout' ) );
+		$this->assertSame( 0, $this->fake->count( '/products/batch' ) );
+		$this->assertStringContainsString( 'The last copy was cancelled.', $this->render() );
 	}
 
 	/**

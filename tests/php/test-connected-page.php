@@ -199,6 +199,11 @@ class Test_Connected_Page extends WP_UnitTestCase {
 		);
 		$html = $this->render();
 		$this->assertStringContainsString( 'Copying 20 of 45', $html );
+		$this->assertStringContainsString( '<p id="ecomweb-counts">', $html );
+		$this->assertStringContainsString( '12 created, 3 updated, 3 skipped (already copied), 2 failed.', $html );
+		$this->assertStringContainsString( 'value="ecomweb_stop_copy"', $html );
+		$this->assertStringContainsString( 'value="Stop copy"', $html );
+		$this->assertMatchesRegularExpression( '/<form[^>]*id="ecomweb-stop-form".*?name="_wpnonce" value="' . wp_create_nonce( 'ecomweb_stop_copy' ) . '"/s', $html );
 		$this->assertMatchesRegularExpression( '/<input[^>]*value="Copy all products not copied yet"[^>]*disabled/', $html );
 		$this->assertMatchesRegularExpression( '/<input[^>]*value="Change store"[^>]*disabled/', $html );
 		$this->assertStringContainsString( 'data-status="running"', $html );
@@ -212,6 +217,7 @@ class Test_Connected_Page extends WP_UnitTestCase {
 		$html = $this->render();
 		$this->assertStringContainsString( '30 created, 5 updated, 4 skipped (already copied), 3 failed, 3 not supported.', $html );
 		$this->assertStringContainsString( 'Last copy finished ', $html );
+		$this->assertStringNotContainsString( 'Stop copy', $html );
 		$this->assertDoesNotMatchRegularExpression( '/<input[^>]*value="Copy all products not copied yet"[^>]*disabled/', $html );
 	}
 

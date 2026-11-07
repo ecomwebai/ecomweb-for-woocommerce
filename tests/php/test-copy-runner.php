@@ -309,6 +309,25 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 	}
 
 	/**
+	 * When Action Scheduler doesn't store the first action, the copy is failed, not left running
+	 * with nothing scheduled, and a new copy can start.
+	 */
+	public function test_start_fails_the_copy_when_enqueue_fails() {
+		add_filter( 'pre_as_enqueue_async_action', '__return_zero' );
+		$state = $this->runner()->start( array( 5, 6 ), false, 0 );
+		remove_filter( 'pre_as_enqueue_async_action', '__return_zero' );
+
+		$this->assertIsArray( $state );
+		$this->assertSame( 'failed', $state['status'] );
+		$this->assertSame( 'COPY_NOT_STARTED', $state['error']['code'] );
+		$this->assertSame( 'failed', $this->state()['status'] );
+		$this->assertIsInt( $this->state()['finished_at'] );
+		$this->assertFalse( Copy_State::is_running() );
+		$this->assertIsArray( $this->runner()->start( array( 5 ), false, 0 ) );
+		$this->assertTrue( Copy_State::is_running() );
+	}
+
+	/**
 	 * A second start while one runs is refused (Review Focus 2).
 	 */
 	public function test_start_twice_returns_running_error() {

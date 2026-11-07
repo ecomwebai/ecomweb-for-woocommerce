@@ -84,6 +84,8 @@ class Messages {
 				return __( "ecomweb can't be reached right now. Copy again later; products already copied are skipped.", 'ecomweb-for-woocommerce' );
 			case 'JOB_TIMEOUT':
 				return __( 'ecomweb took too long to answer. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
+			case 'COPY_NOT_STARTED':
+				return __( "The copy couldn't be scheduled on this site. Try again.", 'ecomweb-for-woocommerce' );
 			case 'COPY_INTERRUPTED':
 				return __( 'The copy stopped unexpectedly on this site. Copy again; products already copied are skipped.', 'ecomweb-for-woocommerce' );
 			case 'WOOCOMMERCE_COPY_IN_PROGRESS':
