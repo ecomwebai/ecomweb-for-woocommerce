@@ -3,7 +3,8 @@
  * The current or last copy's progress and results, in one non-autoloaded option.
  *
  * Shape: id, status (running|completed|failed|cancelled), connection_id, store_ref, overwrite,
- * started_at, finished_at, total, queue (int[] not yet sent),
+ * started_at, finished_at, total, queue (int[] not yet sent), single (int[] of the queue to send
+ * one per batch, after their batch was rejected with a 400),
  * in_flight (null | {job_id, product_ids, submitted_at, local_warnings}),
  * retry {kind: null|conflict|throttled|transient, count (of kind), tries {conflict, throttled,
  * transient}, total} (reset only by a successful step), counts {created, updated, skipped,

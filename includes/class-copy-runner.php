@@ -129,6 +129,7 @@ class Copy_Runner {
 				'finished_at'   => null,
 				'total'         => count( $ids ),
 				'queue'         => $ids,
+				'single'        => array(),
 				'in_flight'     => null,
 				'retry'         => self::no_retry(),
 				'counts'        => array(
@@ -285,12 +286,13 @@ class Copy_Runner {
 		$warnings   = array();
 
 		while ( empty( $products ) && ! empty( $next['queue'] ) ) {
-			foreach ( array_slice( $next['queue'], 0, self::BATCH_SIZE ) as $id ) {
+			foreach ( self::next_ids( $next ) as $id ) {
 				$product = wc_get_product( $id );
 				$payload = $product instanceof \WC_Product ? $serializer->serialize( $product, $resolver ) : null;
 				if ( null === $payload ) {
 					// Gone or no longer supported: leaves the total (W26).
-					$next['queue'] = array_values( array_diff( $next['queue'], array( $id ) ) );
+					$next['queue']  = array_values( array_diff( $next['queue'], array( $id ) ) );
+					$next['single'] = self::without( $next['single'] ?? array(), array( $id ) );
 					$next['total'] = max( 0, (int) $next['total'] - 1 );
 					++$next['counts']['not_supported'];
 					continue;
@@ -343,6 +345,7 @@ class Copy_Runner {
 				'local_warnings' => $warnings,
 			);
 			$next['queue']     = array_values( array_diff( $next['queue'], $ids ) );
+			$next['single']    = self::without( $next['single'] ?? array(), $ids );
 			$next['retry']     = self::no_retry();
 			if ( $this->commit( $next ) ) {
 				self::schedule( self::POLL_HOOK, $next['id'], self::POLL_DELAY );
@@ -357,6 +360,8 @@ class Copy_Runner {
 			$this->retry( $next, 'throttled', self::SEND_HOOK, $code ?? 'WOOCOMMERCE_RATE_LIMITED', $response->error_message(), self::retry_after( $response ) );
 		} elseif ( $response->status >= 500 ) {
 			$this->retry( $next, 'transient', self::SEND_HOOK, 'API_UNREACHABLE', $response->error_message() );
+		} elseif ( 400 === $response->status && count( $ids ) > 1 ) {
+			$this->split_batch( $next, $ids );
 		} elseif ( 400 === $response->status ) {
 			$this->reject_batch( $next, $ids, $warnings, $response->error_message() );
 		} else {
@@ -450,7 +455,21 @@ class Copy_Runner {
 	}
 
 	/**
-	 * A 400 for the batch: its products fail with BATCH_REJECTED and the copy goes on.
+	 * A 400 for a batch of several products: one invalid product (a name over the API's limit,
+	 * say) rejects them all. Send each of them on its own, so only the invalid one fails.
+	 *
+	 * @param array $state State; its queue still starts with $ids.
+	 * @param int[] $ids   Products in the batch.
+	 * @return void
+	 */
+	private function split_batch( array $state, array $ids ): void {
+		$state['single'] = array_values( array_unique( array_merge( $ids, (array) ( $state['single'] ?? array() ) ) ) );
+		$state['retry']  = self::no_retry();
+		$this->advance( $state );
+	}
+
+	/**
+	 * A 400 for a batch of one product: it fails with BATCH_REJECTED and the copy goes on.
 	 *
 	 * @param array  $state    State.
 	 * @param int[]  $ids      Products in the batch.
@@ -463,9 +482,33 @@ class Copy_Runner {
 			++$state['counts']['failed'];
 			$state['issues'][ $id ] = self::issue( $id, 'failed', null, $warnings[ $id ] ?? array(), self::error_item( 'BATCH_REJECTED', $message ) );
 		}
-		$state['queue'] = array_values( array_diff( $state['queue'], $ids ) );
-		$state['retry'] = self::no_retry();
+		$state['queue']  = array_values( array_diff( $state['queue'], $ids ) );
+		$state['single'] = self::without( $state['single'] ?? array(), $ids );
+		$state['retry']  = self::no_retry();
 		$this->advance( $state );
+	}
+
+	/**
+	 * The products for the next batch: the first product waiting to be sent on its own, else
+	 * the first BATCH_SIZE of the queue.
+	 *
+	 * @param array $state State.
+	 * @return int[]
+	 */
+	private static function next_ids( array $state ): array {
+		$single = array_values( array_intersect( $state['queue'], (array) ( $state['single'] ?? array() ) ) );
+		return empty( $single ) ? array_slice( $state['queue'], 0, self::BATCH_SIZE ) : array( (int) $single[0] );
+	}
+
+	/**
+	 * $list without $ids.
+	 *
+	 * @param int[] $list IDs.
+	 * @param int[] $ids  IDs to remove.
+	 * @return int[]
+	 */
+	private static function without( array $list, array $ids ): array {
+		return array_values( array_diff( $list, $ids ) );
 	}
 
 	/**

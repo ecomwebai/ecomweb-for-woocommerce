@@ -746,34 +746,135 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 	}
 
 	/**
-	 * 400: these 20 fail with BATCH_REJECTED, and the next batch is queued.
+	 * A 400 body like the API's ValidationPipe answer.
+	 *
+	 * @param string $first First message.
+	 * @return array
 	 */
-	public function test_400_marks_batch_failed_and_continues() {
-		$ids = $this->products( 45 );
-		$this->fake->on(
-			'POST',
-			self::BATCH,
-			400,
-			array(
-				'message'    => array( 'products.0.images must contain no more than 20 elements', 'bad' ),
-				'error'      => 'Bad Request',
-				'statusCode' => 400,
-			)
+	private function rejected( string $first ): array {
+		return array(
+			'message'    => array( $first, 'bad' ),
+			'error'      => 'Bad Request',
+			'statusCode' => 400,
 		);
+	}
+
+	/**
+	 * Product IDs in a recorded batch POST.
+	 *
+	 * @param array $call Recorded call.
+	 * @return int[]
+	 */
+	private function sent_ids( array $call ): array {
+		return array_map(
+			function ( $p ) {
+				return (int) $p['id'];
+			},
+			$this->body( $call )['products']
+		);
+	}
+
+	/**
+	 * 400 for a batch of 20: nothing fails yet. The 20 are queued to go one at a time, and the
+	 * first of them is sent alone next.
+	 */
+	public function test_400_on_a_batch_resends_its_products_one_at_a_time() {
+		$ids = $this->products( 45 );
+		$this->fake->on( 'POST', self::BATCH, 400, $this->rejected( 'products.3.name must be shorter than or equal to 255 characters' ) );
+		$this->accepted();
 		$id = $this->start( $ids );
 		$this->send( $id );
 
 		$state = $this->state();
-		$this->assertSame( 20, $state['counts']['failed'] );
-		$this->assertCount( 25, $state['queue'] );
-		$this->assertSame( $ids[20], $state['queue'][0] );
-		$this->assertNull( $state['in_flight'] );
-		$this->assertCount( 20, $state['issues'] );
+		$this->assertSame( 0, $state['counts']['failed'] );
+		$this->assertSame( array(), $state['issues'] );
+		$this->assertSame( $ids, $state['queue'] );
+		$this->assertSame( array_slice( $ids, 0, 20 ), $state['single'] );
+		$this->assertSame( 'running', $state['status'] );
+		$this->assertTrue( $this->next( Copy_Runner::SEND_HOOK, $id ) );
+
+		$this->send( $id );
+
+		$calls = $this->fake->calls( self::BATCH );
+		$this->assertCount( 2, $calls );
+		$this->assertSame( array( $ids[0] ), $this->sent_ids( $calls[1] ) );
+		$state = $this->state();
+		$this->assertSame( array( $ids[0] ), $state['in_flight']['product_ids'] );
+		$this->assertSame( array_slice( $ids, 1, 19 ), $state['single'] );
+		$this->assertSame( array_slice( $ids, 1 ), $state['queue'] );
+	}
+
+	/**
+	 * Only the invalid product of a rejected batch fails, with the API's message; the other 19
+	 * are copied one by one, then batches of 20 resume.
+	 */
+	public function test_400_fails_only_the_invalid_product_then_batches_resume() {
+		$ids = $this->products( 25 );
+		$bad = $ids[3];
+		$msg = 'products.0.name must be shorter than or equal to 255 characters';
+		// The batch of 20, then ids[0..2] alone, then the bad one alone, then the rest.
+		$this->fake->on( 'POST', self::BATCH, 400, $this->rejected( 'products.3.name must be shorter than or equal to 255 characters' ) );
+		for ( $i = 0; $i < 3; $i++ ) {
+			$this->accepted();
+		}
+		$this->fake->on( 'POST', self::BATCH, 400, $this->rejected( $msg ) );
+		$this->accepted();
+		$this->completed(
+			'j1',
+			array_map(
+				function ( $i ) {
+					return $this->result( $i, 'created' );
+				},
+				$ids
+			)
+		);
+		$id = $this->start( $ids );
+
+		$this->send( $id );
+		for ( $i = 0; $i < 20; $i++ ) {
+			$this->send( $id );
+			if ( null !== $this->state()['in_flight'] ) {
+				$this->poll( $id );
+			}
+		}
+		$this->send( $id );
+
+		$calls = $this->fake->calls( self::BATCH );
+		$this->assertCount( 22, $calls, 'The batch, one per product of it, then the next batch.' );
+		foreach ( array_slice( $calls, 1, 20 ) as $call ) {
+			$this->assertCount( 1, $this->body( $call )['products'] );
+		}
+		$this->assertSame( array( $bad ), $this->sent_ids( $calls[4] ) );
+		$this->assertSame( array_slice( $ids, 20 ), $this->sent_ids( end( $calls ) ) );
+
+		$state = $this->state();
+		$this->assertSame( 19, $state['counts']['created'] );
+		$this->assertSame( 1, $state['counts']['failed'] );
+		$this->assertSame( array( $bad ), array_keys( $state['issues'] ) );
+		$this->assertSame( 'BATCH_REJECTED', $state['issues'][ $bad ]['error']['code'] );
+		$this->assertSame( $msg . '; bad', $state['issues'][ $bad ]['error']['message'] );
+		$this->assertSame( array(), $state['single'] );
+		$this->assertSame( array_slice( $ids, 20 ), $state['in_flight']['product_ids'] );
+	}
+
+	/**
+	 * 400 for a batch of one product: that product fails with BATCH_REJECTED and the copy goes on.
+	 */
+	public function test_400_on_a_single_product_batch_fails_that_product() {
+		$ids = $this->products( 1 );
+		$this->fake->on( 'POST', self::BATCH, 400, $this->rejected( 'products.0.images must contain no more than 20 elements' ) );
+		$id = $this->start( $ids );
+		$this->send( $id );
+
+		$state = $this->state();
+		$this->assertSame( 1, $state['counts']['failed'] );
+		$this->assertSame( array(), $state['queue'] );
+		$this->assertCount( 1, $state['issues'] );
 		$this->assertSame( 'BATCH_REJECTED', $state['issues'][ $ids[0] ]['error']['code'] );
 		$this->assertSame( 'products.0.images must contain no more than 20 elements; bad', $state['issues'][ $ids[0] ]['error']['message'] );
 		$this->assertSame( 'failed', $state['issues'][ $ids[0] ]['result'] );
-		$this->assertSame( 'running', $state['status'] );
-		$this->assertTrue( $this->next( Copy_Runner::SEND_HOOK, $id ) );
+		$this->assertSame( 'completed', $state['status'] );
+		$this->assertSame( 1, $this->fake->count( self::BATCH ) );
 	}
 
 	/**
