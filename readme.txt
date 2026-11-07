@@ -23,6 +23,8 @@ Moving from WooCommerce to [EcomWeb](https://ecomweb.app)? EcomWeb for WooCommer
 
 Nothing is sent to EcomWeb until you click **Sign in with EcomWeb**.
 
+The source code, unminified and with its tests, is on GitHub: https://github.com/travistech20/ecomweb-for-woocommerce
+
 == Installation ==
 
 1. Install and activate WooCommerce 8.0 or later.
