@@ -32,8 +32,8 @@ jobs:
           npm run test:php
           npm run test:js
 
-      - name: Build the zip
-        run: bash bin/build-zip.sh
+      - name: Build the zip and check what it holds
+        run: npm run test:build
 
       - name: Plugin Check
         uses: wordpress/plugin-check-action@v1
