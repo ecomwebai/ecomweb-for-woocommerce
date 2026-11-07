@@ -57,7 +57,7 @@ class Preflight {
 		}
 		$connection = $this->connection->current();
 		if ( null === $connection ) {
-			return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an ecomweb store first.', 'ecomweb-for-woocommerce' ) );
+			return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an EcomWeb store first.', 'ecomweb-for-woocommerce' ) );
 		}
 
 		$ids    = array_values( array_unique( array_map( 'intval', $ids ) ) );
@@ -86,7 +86,7 @@ class Preflight {
 				return $response;
 			}
 			if ( 403 === $response->status ) {
-				return new \WP_Error( 'ecomweb_no_access', __( "You don't have access to that store in ecomweb.", 'ecomweb-for-woocommerce' ) );
+				return new \WP_Error( 'ecomweb_no_access', __( "You don't have access to that store in EcomWeb.", 'ecomweb-for-woocommerce' ) );
 			}
 			if ( 429 === $response->status ) {
 				return new \WP_Error( 'ecomweb_throttled', __( 'Checked too often. Try again in a minute.', 'ecomweb-for-woocommerce' ) );
@@ -96,7 +96,7 @@ class Preflight {
 			}
 			$json = (array) $response->json;
 			if ( ! isset( $json['products'], $json['plan']['limit'], $json['plan']['current'] ) || ! is_array( $json['products'] ) ) {
-				return new \WP_Error( 'ecomweb_api', __( 'ecomweb sent an answer this plugin does not understand.', 'ecomweb-for-woocommerce' ) );
+				return new \WP_Error( 'ecomweb_api', __( 'EcomWeb sent an answer this plugin does not understand.', 'ecomweb-for-woocommerce' ) );
 			}
 
 			if ( 0 === $index ) {

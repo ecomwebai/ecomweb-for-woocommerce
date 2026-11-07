@@ -112,16 +112,32 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The menu sits under WooCommerce.
+	 * The menu is a top-level item with the ecomweb mark, below WooCommerce's Products.
 	 */
-	public function test_menu_registered_under_woocommerce_with_capability() {
+	public function test_menu_registered_at_top_level_with_capability() {
 		global $menu, $submenu;
 		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- admin_menu callbacks expect the menu globals to exist.
 		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$this->page->register();
 		do_action( 'admin_menu' );
 
-		$this->assertContains( array( 'ecomweb', 'manage_woocommerce', 'ecomweb', 'ecomweb' ), $submenu['woocommerce'] );
+		$this->assertArrayHasKey( '55.6', $menu );
+		$item = $menu['55.6'];
+		$this->assertSame( array( 'EcomWeb', 'manage_woocommerce', 'ecomweb' ), array_slice( $item, 0, 3 ) );
+		$this->assertSame( 'toplevel_page_ecomweb', $item[5] );
+		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', $item[6] );
+		$this->assertNotContains( 'ecomweb', array_column( $submenu['woocommerce'] ?? array(), 2 ) );
+	}
+
+	/**
+	 * The header shows the logo as the page title and links to the help guide.
+	 */
+	public function test_header_has_logo_and_help_link() {
+		$html = $this->render();
+		$this->assertMatchesRegularExpression( '/<h1 class="ecomweb-brand"><img src="[^"]*assets\/images\/ecomweb-logo\.svg" alt="EcomWeb"/', $html );
+		$this->assertStringContainsString( 'href="https://help.ecomweb.app/en/migrate-to-ecomweb/import-from-woocommerce"', $html );
+		$this->assertStringContainsString( '<hr class="wp-header-end">', $html );
+		$this->assertStringContainsString( 'aria-current="step"', $html );
 	}
 
 	/**
@@ -130,9 +146,9 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	public function test_signed_out_view_has_sign_in_button_and_host_note() {
 		$html = $this->render();
 
-		$this->assertStringContainsString( 'Sign in with ecomweb', $html );
-		$this->assertStringContainsString( 'ecomweb will show your web host&#039;s location, not yours.', $html );
-		$this->assertStringNotContainsString( 'Connect to ecomweb', $html );
+		$this->assertStringContainsString( 'Sign in with EcomWeb', $html );
+		$this->assertStringContainsString( 'EcomWeb will show your web host&#039;s location, not yours.', $html );
+		$this->assertStringNotContainsString( 'Connect to EcomWeb', $html );
 	}
 
 	/**
@@ -140,7 +156,7 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 */
 	public function test_revoked_notice_shown() {
 		update_option( Session_Store::REASON_OPTION, 'revoked', false );
-		$this->assertStringContainsString( 'Signed out of ecomweb. Sign in again.', $this->render() );
+		$this->assertStringContainsString( 'Signed out of EcomWeb. Sign in again.', $this->render() );
 	}
 
 	/**
@@ -150,7 +166,7 @@ class Test_Admin_Page extends WP_UnitTestCase {
 		update_option( Session_Store::REASON_OPTION, 'salts_changed', false );
 		$this->assertStringContainsString( 'Your WordPress security keys changed, so the saved sign-in can&#039;t be read. Sign in again.', $this->render() );
 		update_option( Session_Store::REASON_OPTION, 'site_moved', false );
-		$this->assertStringContainsString( 'This site&#039;s address changed, so you were signed out of ecomweb. Sign in again.', $this->render() );
+		$this->assertStringContainsString( 'This site&#039;s address changed, so you were signed out of EcomWeb. Sign in again.', $this->render() );
 	}
 
 	/**
@@ -160,8 +176,8 @@ class Test_Admin_Page extends WP_UnitTestCase {
 		set_transient( "ecomweb_device_{$this->admin}", array( 'device_code' => 'DC-secret' ), 600 );
 		$html = $this->render();
 
-		$this->assertStringContainsString( 'Check that ecomweb shows the same code, then approve.', $html );
-		$this->assertStringContainsString( 'Open ecomweb', $html );
+		$this->assertStringContainsString( 'Check that EcomWeb shows the same code, then approve.', $html );
+		$this->assertStringContainsString( 'Open EcomWeb', $html );
 		$this->assertStringContainsString( 'rel="noopener noreferrer"', $html );
 		$this->assertStringNotContainsString( 'DC-secret', $html );
 	}
@@ -277,14 +293,12 @@ class Test_Admin_Page extends WP_UnitTestCase {
 	 * The script is loaded on the plugin page only, with translated strings and a nonce.
 	 */
 	public function test_enqueue_only_on_plugin_page() {
-		global $admin_page_hooks;
-		$admin_page_hooks['woocommerce'] = 'woocommerce'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WooCommerce's own menu isn't loaded here.
 		$this->page->register_menu();
 
 		$this->page->enqueue( 'index.php' );
 		$this->assertFalse( wp_script_is( 'ecomweb-admin', 'enqueued' ) );
 
-		$this->page->enqueue( 'woocommerce_page_ecomweb' );
+		$this->page->enqueue( 'toplevel_page_ecomweb' );
 		$this->assertTrue( wp_script_is( 'ecomweb-admin', 'enqueued' ) );
 		$data = wp_scripts()->get_data( 'ecomweb-admin', 'data' );
 		$this->assertStringContainsString( 'ecomwebWoo', $data );

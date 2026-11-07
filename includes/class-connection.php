@@ -111,7 +111,7 @@ class Connection {
 			return $response;
 		}
 		if ( 403 === $response->status ) {
-			return new \WP_Error( 'ecomweb_no_access', __( "You don't have access to that store in ecomweb.", 'ecomweb-for-woocommerce' ) );
+			return new \WP_Error( 'ecomweb_no_access', __( "You don't have access to that store in EcomWeb.", 'ecomweb-for-woocommerce' ) );
 		}
 		if ( ! $response->ok() ) {
 			return new \WP_Error( 'ecomweb_api', $response->error_message() );
@@ -122,7 +122,7 @@ class Connection {
 		$id    = $json['connection_id'] ?? null;
 		$mode  = $json['images_mode'] ?? null;
 		if ( ! is_string( $id ) || '' === $id || ! in_array( $mode, array( 'fetch', 'upload' ), true ) ) {
-			return new \WP_Error( 'ecomweb_api', __( 'ecomweb sent an answer this plugin does not understand.', 'ecomweb-for-woocommerce' ) );
+			return new \WP_Error( 'ecomweb_api', __( 'EcomWeb sent an answer this plugin does not understand.', 'ecomweb-for-woocommerce' ) );
 		}
 
 		$connection = array(
@@ -184,7 +184,7 @@ class Connection {
 	public function recheck_images() {
 		$connection = $this->current();
 		if ( null === $connection ) {
-			return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an ecomweb store first.', 'ecomweb-for-woocommerce' ) );
+			return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an EcomWeb store first.', 'ecomweb-for-woocommerce' ) );
 		}
 
 		$path     = Api_Client::store_path( $connection['store']['ref'], '/integrations/woocommerce/connections/' . rawurlencode( $connection['connection_id'] ) . '/probe' );
@@ -196,11 +196,11 @@ class Connection {
 			return new \WP_Error( 'ecomweb_throttled', __( 'Checked too often. Try again in a minute.', 'ecomweb-for-woocommerce' ) );
 		}
 		if ( 403 === $response->status ) {
-			return new \WP_Error( 'ecomweb_no_access', __( "You don't have access to that store in ecomweb.", 'ecomweb-for-woocommerce' ) );
+			return new \WP_Error( 'ecomweb_no_access', __( "You don't have access to that store in EcomWeb.", 'ecomweb-for-woocommerce' ) );
 		}
 		$mode = $response->json['images_mode'] ?? null;
 		if ( ! $response->ok() || ! in_array( $mode, array( 'fetch', 'upload' ), true ) ) {
-			return new \WP_Error( 'ecomweb_api', $response->ok() ? __( 'ecomweb sent an answer this plugin does not understand.', 'ecomweb-for-woocommerce' ) : $response->error_message() );
+			return new \WP_Error( 'ecomweb_api', $response->ok() ? __( 'EcomWeb sent an answer this plugin does not understand.', 'ecomweb-for-woocommerce' ) : $response->error_message() );
 		}
 
 		$connection['images_mode'] = $mode;

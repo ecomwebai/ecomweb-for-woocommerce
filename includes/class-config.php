@@ -36,6 +36,16 @@ class Config {
 	}
 
 	/**
+	 * The help guide for this plugin, in Vietnamese for a Vietnamese admin and English otherwise.
+	 *
+	 * @return string
+	 */
+	public static function help_url(): string {
+		$lang = 0 === strpos( get_user_locale(), 'vi' ) ? 'vi' : 'en';
+		return 'https://help.ecomweb.app/' . $lang . '/migrate-to-ecomweb/import-from-woocommerce';
+	}
+
+	/**
 	 * Plugin version.
 	 *
 	 * @return string

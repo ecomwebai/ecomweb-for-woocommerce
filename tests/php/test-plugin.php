@@ -90,7 +90,7 @@ class Test_Plugin extends WP_UnitTestCase {
 		ob_start();
 		$plugin->requirements_notice();
 		$output = ob_get_clean();
-		$this->assertStringContainsString( 'ecomweb for WooCommerce needs WooCommerce 8.0 or later.', $output );
+		$this->assertStringContainsString( 'EcomWeb for WooCommerce needs WooCommerce 8.0 or later.', $output );
 	}
 
 	/**

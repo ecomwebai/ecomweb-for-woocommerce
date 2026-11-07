@@ -19,6 +19,7 @@
 		var progress = document.getElementById( 'ecomweb-progress' );
 		var counts = document.getElementById( 'ecomweb-counts' );
 		var note = document.getElementById( 'ecomweb-poll-note' );
+		var bar = document.getElementById( 'ecomweb-bar' );
 		var failures = 0;
 
 		// Fills %1$d, %2$d… (or %d) from values.
@@ -47,6 +48,11 @@
 			var c = data.counts || {};
 			if ( progress ) {
 				progress.textContent = format( cfg.i18n.progress, [ data.done, data.total ] );
+			}
+			if ( bar && bar.style ) {
+				var total = parseInt( data.total, 10 ) || 0;
+				var done = parseInt( data.done, 10 ) || 0;
+				bar.style.width = ( total > 0 ? Math.min( 100, Math.round( ( 100 * done ) / total ) ) : 0 ) + '%';
 			}
 			if ( counts ) {
 				counts.textContent = format( cfg.i18n.counts, [ c.created, c.updated, c.skipped, c.failed ] );
@@ -136,9 +142,15 @@
 		statusEl.textContent = text;
 	}
 
+	// The spinner beside the status turns while a sign-in is waiting on ecomweb.
+	function busy( on ) {
+		panel.classList.toggle( 'is-busy', on );
+	}
+
 	// Back to the button, with a message.
 	function reset( text ) {
 		window.clearTimeout( timer );
+		busy( false );
 		panel.hidden = true;
 		codeBox.hidden = true;
 		if ( signedOut ) {
@@ -186,6 +198,7 @@
 
 	function start() {
 		button.disabled = true;
+		busy( true );
 		panel.hidden = false;
 		codeBox.hidden = true;
 		say( cfg.i18n.starting );
@@ -218,7 +231,72 @@
 		button.addEventListener( 'click', start );
 	}
 	if ( '1' === panel.getAttribute( 'data-resume' ) ) {
+		// Often this is the EcomWeb tab coming back after Approve: check straight away.
 		say( cfg.i18n.waiting );
-		schedule( 5 );
+		schedule( 1 );
+	}
+}() );
+
+( function () {
+	'use strict';
+
+	// Connected page: the product list. "Copy N selected" counts the ticked products; the header box
+	// ticks or clears every product on the page that can be copied.
+	var cfg = window.ecomwebWoo;
+	var form = document.getElementById( 'ecomweb-pick-form' );
+	if ( ! form ) {
+		return;
+	}
+	var all = document.getElementById( 'ecomweb-check-all' );
+	var submit = document.getElementById( 'ecomweb-copy-selected' );
+	var boxes = Array.prototype.filter.call( form.querySelectorAll( 'input[name="product_ids[]"]' ), function ( box ) {
+		return ! box.disabled;
+	} );
+	var label = submit ? submit.textContent : '';
+
+	function sync() {
+		var n = boxes.filter( function ( box ) {
+			return box.checked;
+		} ).length;
+		if ( submit ) {
+			submit.disabled = 0 === n;
+			submit.textContent = n > 0 && cfg && cfg.i18n.copySelected ? cfg.i18n.copySelected.replace( '%d', String( n ) ) : label;
+		}
+		if ( all ) {
+			all.checked = n > 0 && n === boxes.length;
+			all.indeterminate = n > 0 && n < boxes.length;
+		}
+	}
+
+	boxes.forEach( function ( box ) {
+		box.addEventListener( 'change', sync );
+	} );
+	if ( all ) {
+		all.disabled = all.disabled || 0 === boxes.length;
+		all.addEventListener( 'change', function () {
+			boxes.forEach( function ( box ) {
+				box.checked = all.checked;
+			} );
+			sync();
+		} );
+	}
+	sync();
+}() );
+
+( function () {
+	'use strict';
+
+	// Store picker: WooCommerce's searchable select, when WooCommerce has loaded it.
+	var $ = window.jQuery;
+	if ( ! $ || ! $.fn || ! $.fn.selectWoo ) {
+		return;
+	}
+	var select = $( '#ecomweb-store' );
+	if ( select.length ) {
+		select.selectWoo( {
+			width: '100%',
+			placeholder: select.find( 'option[value=""]' ).text(),
+			dropdownCssClass: 'ecomweb-select-dropdown',
+		} );
 	}
 }() );

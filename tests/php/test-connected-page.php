@@ -137,7 +137,7 @@ class Test_Connected_Page extends WP_UnitTestCase {
 	public function test_null_email_has_no_blank_header() {
 		$this->sign_in( null );
 		$html = $this->render();
-		$this->assertStringContainsString( 'Signed in to ecomweb', $html );
+		$this->assertStringContainsString( 'Signed in to EcomWeb', $html );
 		$this->assertStringNotContainsString( 'Signed in as', $html );
 	}
 
@@ -167,18 +167,18 @@ class Test_Connected_Page extends WP_UnitTestCase {
 	 */
 	public function test_images_mode_text_and_buttons() {
 		$html = $this->render();
-		$this->assertStringContainsString( 'this site uploads them to ecomweb', $html );
+		$this->assertStringContainsString( 'this site uploads them to EcomWeb', $html );
 		foreach ( array( 'Recheck images', 'Change store', 'Disconnect', 'Copy all products not copied yet' ) as $label ) {
 			$this->assertStringContainsString( $label, $html );
 		}
 		foreach ( array( 'ecomweb_recheck_images', 'ecomweb_change_store', 'ecomweb_disconnect', 'ecomweb_prepare_copy_all' ) as $action ) {
 			$this->assertStringContainsString( 'value="' . $action . '"', $html );
 		}
-		$this->assertStringContainsString( 'data-confirm="Disconnect from ecomweb? Copied products stay in ecomweb."', $html );
+		$this->assertStringContainsString( 'data-confirm="Disconnect from EcomWeb? Copied products stay in EcomWeb."', $html );
 		$this->assertStringNotContainsString( 'Overwrite products already copied', $html );
 
 		$this->connect( 'fetch', 'https://ecomweb.app/store/s1' );
-		$this->assertStringContainsString( 'Images: ecomweb downloads them from this site.', $this->render() );
+		$this->assertStringContainsString( 'Images: EcomWeb downloads them from this site.', $this->render() );
 	}
 
 	/**
@@ -235,7 +235,7 @@ class Test_Connected_Page extends WP_UnitTestCase {
 			)
 		);
 		$html = $this->render();
-		$this->assertStringContainsString( 'ecomweb took too long to answer.', $html );
+		$this->assertStringContainsString( 'EcomWeb took too long to answer.', $html );
 		$this->assertStringNotContainsString( '>raw<', $html );
 	}
 
@@ -272,7 +272,7 @@ class Test_Connected_Page extends WP_UnitTestCase {
 			)
 		);
 		$html = $this->render();
-		$this->assertStringContainsString( 'Recreate these sales as promotions in ecomweb', $html );
+		$this->assertStringContainsString( 'Recreate these sales as promotions in EcomWeb', $html );
 		$list = substr( $html, strpos( $html, 'ecomweb-on-sale' ) );
 		$this->assertStringContainsString( 'On sale in WooCommerce; regular price', $list );
 		$this->assertStringContainsString( '25.00', $list );
@@ -308,7 +308,7 @@ class Test_Connected_Page extends WP_UnitTestCase {
 		);
 		$html = $this->render();
 		$this->assertStringNotContainsString( 'Recreate these sales', $html );
-		$this->assertStringContainsString( 'ecomweb couldn&#039;t copy this product.', $html );
+		$this->assertStringContainsString( 'EcomWeb couldn&#039;t copy this product.', $html );
 	}
 
 	/**

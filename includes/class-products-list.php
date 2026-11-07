@@ -57,7 +57,7 @@ class Products_List {
 	 * @return array
 	 */
 	public function add_column( array $cols ): array {
-		$label  = __( 'ecomweb', 'ecomweb-for-woocommerce' );
+		$label  = __( 'EcomWeb', 'ecomweb-for-woocommerce' );
 		$result = array();
 		$added  = false;
 		foreach ( $cols as $key => $title ) {
@@ -114,7 +114,7 @@ class Products_List {
 		}
 		$current = $this->requested_filter();
 		$options = array(
-			''    => __( 'ecomweb: all', 'ecomweb-for-woocommerce' ),
+			''    => __( 'EcomWeb: all', 'ecomweb-for-woocommerce' ),
 			'yes' => __( 'Copied', 'ecomweb-for-woocommerce' ),
 			'no'  => __( 'Not copied', 'ecomweb-for-woocommerce' ),
 		);
@@ -141,27 +141,39 @@ class Products_List {
 		if ( null === $id || '' === $filter ) {
 			return;
 		}
-		$clause = 'yes' === $filter
-			? array(
-				'key'   => Product_Meta::CONNECTION_ID,
-				'value' => $id,
-			)
-			: array(
-				'relation' => 'OR',
-				array(
-					'key'     => Product_Meta::CONNECTION_ID,
-					'compare' => 'NOT EXISTS',
-				),
-				array(
-					'key'     => Product_Meta::CONNECTION_ID,
-					'value'   => $id,
-					'compare' => '!=',
-				),
-			);
+		$clause = self::copied_clause( $id, $filter );
 		$meta   = $q->get( 'meta_query' );
 		$meta   = is_array( $meta ) ? $meta : array();
 		$meta[] = $clause;
 		$q->set( 'meta_query', $meta );
+	}
+
+	/**
+	 * The meta query that keeps copied ('yes') or not-copied ('no') products for a connection.
+	 *
+	 * @param string $connection_id Connection ID.
+	 * @param string $filter        'yes' or 'no'.
+	 * @return array
+	 */
+	public static function copied_clause( string $connection_id, string $filter ): array {
+		if ( 'yes' === $filter ) {
+			return array(
+				'key'   => Product_Meta::CONNECTION_ID,
+				'value' => $connection_id,
+			);
+		}
+		return array(
+			'relation' => 'OR',
+			array(
+				'key'     => Product_Meta::CONNECTION_ID,
+				'compare' => 'NOT EXISTS',
+			),
+			array(
+				'key'     => Product_Meta::CONNECTION_ID,
+				'value'   => $connection_id,
+				'compare' => '!=',
+			),
+		);
 	}
 
 	/**
@@ -174,7 +186,7 @@ class Products_List {
 		if ( ! current_user_can( Admin_Page::CAPABILITY ) ) {
 			return $a;
 		}
-		$a[ self::ACTION ] = __( 'Copy to ecomweb', 'ecomweb-for-woocommerce' );
+		$a[ self::ACTION ] = __( 'Copy to EcomWeb', 'ecomweb-for-woocommerce' );
 		return $a;
 	}
 

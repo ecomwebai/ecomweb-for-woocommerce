@@ -226,7 +226,7 @@ class Test_Products_List extends WP_UnitTestCase {
 	 * Bulk action listed.
 	 */
 	public function test_bulk_action_listed() {
-		$this->assertSame( 'Copy to ecomweb', $this->list->add_bulk_action( array() )['ecomweb_copy'] );
+		$this->assertSame( 'Copy to EcomWeb', $this->list->add_bulk_action( array() )['ecomweb_copy'] );
 	}
 
 	/**

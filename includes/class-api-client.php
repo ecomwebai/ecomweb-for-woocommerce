@@ -138,7 +138,7 @@ class Api_Client {
 			if ( is_wp_error( $response ) ) {
 				return new \WP_Error(
 					'ecomweb_unreachable',
-					__( 'Could not reach ecomweb. Try again in a moment.', 'ecomweb-for-woocommerce' ),
+					__( 'Could not reach EcomWeb. Try again in a moment.', 'ecomweb-for-woocommerce' ),
 					array( 'cause' => $response->get_error_code() )
 				);
 			}
@@ -151,6 +151,6 @@ class Api_Client {
 		}
 
 		$this->auth->sign_out_local( 'revoked' );
-		return new \WP_Error( 'ecomweb_signed_out', __( 'You were signed out of ecomweb. Sign in again.', 'ecomweb-for-woocommerce' ), array( 'reason' => 'revoked' ) );
+		return new \WP_Error( 'ecomweb_signed_out', __( 'You were signed out of EcomWeb. Sign in again.', 'ecomweb-for-woocommerce' ), array( 'reason' => 'revoked' ) );
 	}
 }

@@ -12,26 +12,19 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div id="ecomweb-signing-in" class="ecomweb-card" data-resume="<?php echo $resume ? '1' : '0'; ?>"<?php echo $resume ? '' : ' hidden'; ?>>
+<div id="ecomweb-signing-in" class="ecomweb-card ecomweb-signing<?php echo $resume ? ' is-busy' : ''; ?>" data-resume="<?php echo $resume ? '1' : '0'; ?>"<?php echo $resume ? '' : ' hidden'; ?>>
 	<div id="ecomweb-code-box" hidden>
-		<p class="ecomweb-code-line">
-			<?php
-			echo wp_kses(
-				sprintf(
-					/* translators: %s: the sign-in code, in bold. */
-					__( 'Your code: %s', 'ecomweb-for-woocommerce' ),
-					'<strong><code id="ecomweb-user-code"></code></strong>'
-				),
-				array(
-					'strong' => array(),
-					'code'   => array( 'id' => array() ),
-				)
-			);
-			?>
-		</p>
-		<p><?php esc_html_e( 'Check that ecomweb shows the same code, then approve.', 'ecomweb-for-woocommerce' ); ?></p>
-		<p><a id="ecomweb-open" class="button" href="#" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open ecomweb', 'ecomweb-for-woocommerce' ); ?></a></p>
+		<h2 class="ecomweb-card__title"><?php esc_html_e( 'Approve the sign-in in EcomWeb', 'ecomweb-for-woocommerce' ); ?></h2>
+		<p><?php esc_html_e( 'Check that EcomWeb shows the same code, then approve.', 'ecomweb-for-woocommerce' ); ?></p>
+		<div class="ecomweb-code">
+			<span class="ecomweb-code__label"><?php esc_html_e( 'Your code', 'ecomweb-for-woocommerce' ); ?></span>
+			<code id="ecomweb-user-code" class="ecomweb-code__value"></code>
+		</div>
+		<p><a id="ecomweb-open" class="button button-primary" href="#" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Open EcomWeb', 'ecomweb-for-woocommerce' ); ?><span class="dashicons dashicons-external" aria-hidden="true"></span></a></p>
 	</div>
-	<p class="description"><?php esc_html_e( "ecomweb will show your web host's location, not yours.", 'ecomweb-for-woocommerce' ); ?></p>
-	<p id="ecomweb-status" role="status" aria-live="polite"></p>
+	<div class="ecomweb-status-row">
+		<span class="spinner" aria-hidden="true"></span>
+		<p id="ecomweb-status" role="status" aria-live="polite"></p>
+	</div>
+	<p class="ecomweb-muted"><?php esc_html_e( "EcomWeb will show your web host's location, not yours.", 'ecomweb-for-woocommerce' ); ?></p>
 </div>

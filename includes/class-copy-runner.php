@@ -106,7 +106,7 @@ class Copy_Runner {
 			}
 			$connection = $this->connection->current();
 			if ( null === $connection ) {
-				return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an ecomweb store first.', 'ecomweb-for-woocommerce' ) );
+				return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an EcomWeb store first.', 'ecomweb-for-woocommerce' ) );
 			}
 
 			$ids   = array_values(
@@ -282,7 +282,7 @@ class Copy_Runner {
 	private function send( array $state ): void {
 		$connection = $this->connection->current();
 		if ( null === $connection || (string) $connection['connection_id'] !== $state['connection_id'] ) {
-			$this->fail( $state, 'WOOCOMMERCE_CONNECTION_NOT_FOUND', __( 'This site is no longer connected to that ecomweb store. Choose the store again.', 'ecomweb-for-woocommerce' ) );
+			$this->fail( $state, 'WOOCOMMERCE_CONNECTION_NOT_FOUND', __( 'This site is no longer connected to that EcomWeb store. Choose the store again.', 'ecomweb-for-woocommerce' ) );
 			return;
 		}
 
@@ -404,7 +404,7 @@ class Copy_Runner {
 		$status = $response->ok() ? ( $response->json['status'] ?? null ) : null;
 		if ( 'processing' === $status ) {
 			if ( time() - (int) $state['in_flight']['submitted_at'] > self::POLL_TIMEOUT ) {
-				$this->fail( $state, 'JOB_TIMEOUT', __( 'ecomweb took too long to copy a batch.', 'ecomweb-for-woocommerce' ) );
+				$this->fail( $state, 'JOB_TIMEOUT', __( 'EcomWeb took too long to copy a batch.', 'ecomweb-for-woocommerce' ) );
 				return;
 			}
 			$state['retry'] = self::no_retry();
@@ -454,7 +454,7 @@ class Copy_Runner {
 			}
 		}
 
-		$missing = $job_error ?? self::error_item( 'INTERNAL', __( 'ecomweb did not report a result for this product.', 'ecomweb-for-woocommerce' ) );
+		$missing = $job_error ?? self::error_item( 'INTERNAL', __( 'EcomWeb did not report a result for this product.', 'ecomweb-for-woocommerce' ) );
 		foreach ( array_keys( $pending ) as $id ) {
 			++$state['counts']['failed'];
 			$state['issues'][ $id ] = self::issue( $id, 'failed', null, $local[ $id ] ?? array(), $missing );

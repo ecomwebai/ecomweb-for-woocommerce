@@ -36,13 +36,13 @@ class Messages {
 			case 'IMAGES_TRUNCATED':
 				return __( 'Only the first 20 images were copied.', 'ecomweb-for-woocommerce' );
 			case 'NEEDS_CATEGORY':
-				return __( 'Choose a product category for it in ecomweb.', 'ecomweb-for-woocommerce' );
+				return __( 'Choose a product category for it in EcomWeb.', 'ecomweb-for-woocommerce' );
 			case 'SLUG_SUFFIXED':
-				return __( 'Its URL slug was taken in ecomweb, so a suffix was added.', 'ecomweb-for-woocommerce' );
+				return __( 'Its URL slug was taken in EcomWeb, so a suffix was added.', 'ecomweb-for-woocommerce' );
 			case 'CONTENT_REMOVED':
 				return __( 'Some description markup (scripts, styles, forms or embeds) was removed.', 'ecomweb-for-woocommerce' );
 			case 'VARIANT_DEACTIVATED':
-				return __( 'A variation removed in WooCommerce was set to inactive in ecomweb.', 'ecomweb-for-woocommerce' );
+				return __( 'A variation removed in WooCommerce was set to inactive in EcomWeb.', 'ecomweb-for-woocommerce' );
 		}
 		return (string) ( $w['message'] ?? '' );
 	}
@@ -60,38 +60,38 @@ class Messages {
 			case 'UNSUPPORTED_PRODUCT_TYPE':
 				return __( "This product can't be copied: grouped and external products, and variable products without variations, aren't supported.", 'ecomweb-for-woocommerce' );
 			case 'TOO_MANY_VARIANT_AXES':
-				return __( 'ecomweb supports up to 3 variation attributes; this product has more.', 'ecomweb-for-woocommerce' );
+				return __( 'EcomWeb supports up to 3 variation attributes; this product has more.', 'ecomweb-for-woocommerce' );
 			case 'TOO_MANY_VARIANTS':
-				return __( 'Too many variations for ecomweb once “Any” values are expanded.', 'ecomweb-for-woocommerce' );
+				return __( 'Too many variations for EcomWeb once “Any” values are expanded.', 'ecomweb-for-woocommerce' );
 			case 'ANY_ATTRIBUTE_WITHOUT_VALUES':
 				return __( 'A variation uses “Any” for an attribute that has no values.', 'ecomweb-for-woocommerce' );
 			case 'INTERNAL':
-				return __( "ecomweb couldn't copy this product. Try again later.", 'ecomweb-for-woocommerce' );
+				return __( "EcomWeb couldn't copy this product. Try again later.", 'ecomweb-for-woocommerce' );
 			case 'BATCH_REJECTED':
 				/* translators: %s: the reason ecomweb gave. */
-				return sprintf( __( 'ecomweb rejected this batch: %s', 'ecomweb-for-woocommerce' ), $message );
+				return sprintf( __( 'EcomWeb rejected this batch: %s', 'ecomweb-for-woocommerce' ), $message );
 			case 'PLAN_LIMIT_EXCEEDED':
-				return __( "Your ecomweb plan's product limit was reached. Upgrade, then copy again.", 'ecomweb-for-woocommerce' );
+				return __( "Your EcomWeb plan's product limit was reached. Upgrade, then copy again.", 'ecomweb-for-woocommerce' );
 			case 'WOOCOMMERCE_CURRENCY_MISMATCH':
 				return __( 'The store currency no longer matches WooCommerce.', 'ecomweb-for-woocommerce' );
 			case 'WOOCOMMERCE_CONNECTION_NOT_FOUND':
-				return __( "This site's connection was removed in ecomweb. Choose the store again.", 'ecomweb-for-woocommerce' );
+				return __( "This site's connection was removed in EcomWeb. Choose the store again.", 'ecomweb-for-woocommerce' );
 			case 'SIGNED_OUT':
-				return __( 'Signed out of ecomweb. Sign in again.', 'ecomweb-for-woocommerce' );
+				return __( 'Signed out of EcomWeb. Sign in again.', 'ecomweb-for-woocommerce' );
 			case 'NO_ACCESS':
-				return __( 'You no longer have access to this store in ecomweb.', 'ecomweb-for-woocommerce' );
+				return __( 'You no longer have access to this store in EcomWeb.', 'ecomweb-for-woocommerce' );
 			case 'API_UNREACHABLE':
-				return __( "ecomweb can't be reached right now. Copy again later; products already copied are skipped.", 'ecomweb-for-woocommerce' );
+				return __( "EcomWeb can't be reached right now. Copy again later; products already copied are skipped.", 'ecomweb-for-woocommerce' );
 			case 'JOB_TIMEOUT':
-				return __( 'ecomweb took too long to answer. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
+				return __( 'EcomWeb took too long to answer. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
 			case 'COPY_NOT_STARTED':
 				return __( "The copy couldn't be scheduled on this site. Try again.", 'ecomweb-for-woocommerce' );
 			case 'COPY_INTERRUPTED':
 				return __( 'The copy stopped unexpectedly on this site. Copy again; products already copied are skipped.', 'ecomweb-for-woocommerce' );
 			case 'WOOCOMMERCE_COPY_IN_PROGRESS':
-				return __( 'ecomweb is still busy with another copy of this site. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
+				return __( 'EcomWeb is still busy with another copy of this site. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
 			case 'WOOCOMMERCE_RATE_LIMITED':
-				return __( 'ecomweb is limiting requests right now. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
+				return __( 'EcomWeb is limiting requests right now. Copy again later; products already copied are skipped.', 'ecomweb-for-woocommerce' );
 		}
 		return '' !== $message ? $message : __( 'Something went wrong. Try again.', 'ecomweb-for-woocommerce' );
 	}

@@ -219,7 +219,7 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'href="https://ecomweb.app/store/s1/settings/subscription"', $html );
 		$this->assertStringContainsString( 'target="_blank"', $html );
 		$this->assertStringContainsString( 'Your plan allows 20 products and the store has 18, so 2 of these 5 fit.', $html );
-		$this->assertStringContainsString( 'Products deleted in ecomweb are left out.', $html );
+		$this->assertStringContainsString( 'Products deleted in EcomWeb are left out.', $html );
 		$this->assertStringContainsString( 'Upgrade your plan', $html );
 	}
 
@@ -254,14 +254,14 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$html = $this->render();
 
 		$this->assertStringContainsString( 'Your plan allows 20 products and the store has 20, so 0 of these 2 fit.', $html );
-		$this->assertStringContainsString( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.', $html );
+		$this->assertStringContainsString( 'Your plan has no room for more products. Upgrade your plan, or delete products in EcomWeb, then copy again.', $html );
 		$this->assertStringContainsString( 'href="https://ecomweb.app/store/s1/settings/subscription"', $html );
 		$this->assertStringContainsString( 'Upgrade your plan', $html );
 		$this->assertStringContainsString( 'Cancel', $html );
 		$this->assertStringNotContainsString( 'Start copying', $html );
 		$this->assertStringNotContainsString( 'Copy the first', $html );
 		$this->assertStringNotContainsString( 'value="ecomweb_start_copy"', $html );
-		$this->assertStringNotContainsString( 'already in ecomweb.</', $html );
+		$this->assertStringNotContainsString( 'already in EcomWeb.</', $html );
 	}
 
 	/**
@@ -283,7 +283,7 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Your plan has no room for new products. You can still overwrite the 2 products already copied.', $html );
 		$this->assertStringContainsString( 'value="ecomweb_start_copy"', $html );
 		$this->assertStringContainsString( 'id="ecomweb-overwrite"', $html );
-		$this->assertStringContainsString( 'Yes, overwrite 2 products in ecomweb.', $html );
+		$this->assertStringContainsString( 'Yes, overwrite 2 products in EcomWeb.', $html );
 		$this->assertMatchesRegularExpression( '#<input type="hidden" name="limit_to_fits" value="1">\s*<span id="ecomweb-overwrite-start"><input[^>]*value="Start copying"#', $html );
 		$this->assertStringContainsString( 'Upgrade your plan', $html );
 		$this->assertStringNotContainsString( 'Copy the first', $html );
@@ -319,7 +319,7 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
-	 * No room and Overwrite not ticked: refused with the plan-cap message, not "already in ecomweb".
+	 * No room and Overwrite not ticked: refused with the plan-cap message, not "already in EcomWeb".
 	 */
 	public function test_start_with_no_room_without_overwrite_is_refused() {
 		$ids = $this->products( 2 );
@@ -334,7 +334,7 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$this->redirect_of( 'handle_start_copy' );
 
 		$this->assertFalse( get_option( 'ecomweb_copy_state' ) );
-		$this->assertSame( array( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.' ), get_transient( 'ecomweb_notice_' . $this->admin )['args'] );
+		$this->assertSame( array( 'Your plan has no room for more products. Upgrade your plan, or delete products in EcomWeb, then copy again.' ), get_transient( 'ecomweb_notice_' . $this->admin )['args'] );
 	}
 
 	/**
@@ -396,11 +396,11 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		);
 		$html = $this->render();
 
-		$this->assertStringContainsString( 'ecomweb doesn&#039;t convert prices', $html );
-		$this->assertStringContainsString( 'Your ecomweb store uses VND and WooCommerce uses USD.', $html );
+		$this->assertStringContainsString( 'EcomWeb doesn&#039;t convert prices', $html );
+		$this->assertStringContainsString( 'Your EcomWeb store uses VND and WooCommerce uses USD.', $html );
 		$this->assertStringNotContainsString( 'Start copying', $html );
 		$this->assertStringContainsString( '2 products can&#039;t be copied (grouped or external).', $html );
-		$this->assertStringNotContainsString( 'Products deleted in ecomweb are left out.', $html );
+		$this->assertStringNotContainsString( 'Products deleted in EcomWeb are left out.', $html );
 	}
 
 	/**
@@ -440,7 +440,7 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$html = $this->render();
 
 		$this->assertStringContainsString( 'Overwrite products already copied', $html );
-		$this->assertStringContainsString( 'Yes, overwrite 1 products in ecomweb. Their ecomweb status stays as it is.', $html );
+		$this->assertStringContainsString( 'Yes, overwrite 1 products in EcomWeb. Their EcomWeb status stays as it is.', $html );
 	}
 
 	/**
@@ -547,7 +547,7 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$this->redirect_of( 'handle_start_copy' );
 
 		$this->assertFalse( get_option( 'ecomweb_copy_state' ) );
-		$this->assertSame( array( 'Nothing to copy: every selected product is already in ecomweb.' ), get_transient( 'ecomweb_notice_' . $this->admin )['args'] );
+		$this->assertSame( array( 'Nothing to copy: every selected product is already in EcomWeb.' ), get_transient( 'ecomweb_notice_' . $this->admin )['args'] );
 	}
 
 	/**

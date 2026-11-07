@@ -1,14 +1,16 @@
 <?php
 /**
- * Plugin Name:       ecomweb for WooCommerce
- * Description:       Copy your WooCommerce products into an ecomweb store.
+ * Plugin Name:       EcomWeb for WooCommerce
+ * Plugin URI:        https://help.ecomweb.app/en/migrate-to-ecomweb/import-from-woocommerce
+ * Description:       Move your WooCommerce products to EcomWeb in a few clicks: images, prices, stock and variations, copied as drafts you can review.
  * Version:           1.0.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
  * WC requires at least: 8.0
  * WC tested up to:   11.2
- * Author:            ecomweb
+ * Author:            EcomWeb
+ * Author URI:        https://ecomweb.app
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       ecomweb-for-woocommerce

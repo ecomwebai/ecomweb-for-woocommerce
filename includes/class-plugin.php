@@ -205,7 +205,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function requirements_notice(): void {
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'ecomweb for WooCommerce needs WooCommerce 8.0 or later.', 'ecomweb-for-woocommerce' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'EcomWeb for WooCommerce needs WooCommerce 8.0 or later.', 'ecomweb-for-woocommerce' ) . '</p></div>';
 	}
 
 	/**

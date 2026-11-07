@@ -1,6 +1,6 @@
 <?php
 /**
- * The WooCommerce → ecomweb admin page.
+ * The ecomweb admin page, a top-level menu item.
  *
  * @package ecomweb-for-woocommerce
  */
@@ -16,15 +16,16 @@ class Admin_Page {
 
 	const SLUG       = 'ecomweb';
 	const CAPABILITY = 'manage_woocommerce';
-	const HOOK       = 'woocommerce_page_ecomweb';
+	const HOOK       = 'toplevel_page_ecomweb';
 	const ACTIONS    = array(
-		'ecomweb_select_store'     => 'handle_select_store',
-		'ecomweb_change_store'     => 'handle_change_store',
-		'ecomweb_disconnect'       => 'handle_disconnect',
-		'ecomweb_recheck_images'   => 'handle_recheck_images',
-		'ecomweb_prepare_copy_all' => 'handle_prepare_copy_all',
-		'ecomweb_start_copy'       => 'handle_start_copy',
-		'ecomweb_stop_copy'        => 'handle_stop_copy',
+		'ecomweb_select_store'          => 'handle_select_store',
+		'ecomweb_change_store'          => 'handle_change_store',
+		'ecomweb_disconnect'            => 'handle_disconnect',
+		'ecomweb_recheck_images'        => 'handle_recheck_images',
+		'ecomweb_prepare_copy_all'      => 'handle_prepare_copy_all',
+		'ecomweb_prepare_copy_selected' => 'handle_prepare_copy_selected',
+		'ecomweb_start_copy'            => 'handle_start_copy',
+		'ecomweb_stop_copy'             => 'handle_stop_copy',
 	);
 	const FLASH      = 'ecomweb_notice_';
 
@@ -67,22 +68,32 @@ class Admin_Page {
 	 */
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 20 ); // After WooCommerce registers selectWoo.
 		foreach ( self::ACTIONS as $action => $handler ) {
 			add_action( 'admin_post_' . $action, array( $this, $handler ) );
 		}
 	}
 
 	/**
-	 * Adds WooCommerce → ecomweb.
+	 * Adds ecomweb as a top-level menu item, just below WooCommerce's Products.
 	 *
 	 * @return void
 	 */
 	public function register_menu(): void {
-		$hook = add_submenu_page( 'woocommerce', 'ecomweb', 'ecomweb', self::CAPABILITY, self::SLUG, array( $this, 'render' ) );
+		$hook = add_menu_page( 'EcomWeb', 'EcomWeb', self::CAPABILITY, self::SLUG, array( $this, 'render' ), self::menu_icon(), '55.6' );
 		if ( is_string( $hook ) ) {
 			$this->hook = $hook;
 		}
+	}
+
+	/**
+	 * The ecomweb mark as a data-URI SVG. WordPress repaints its fill to match the admin colour scheme.
+	 *
+	 * @return string
+	 */
+	public static function menu_icon(): string {
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="black" d="M2 4.5h4v7.5h2V7h4v5h2V2h4v16H2z"/></svg>';
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- WordPress menu icons take a base64 data URI.
 	}
 
 	/**
@@ -105,8 +116,10 @@ class Admin_Page {
 		if ( $hook !== $this->hook ) {
 			return;
 		}
-		wp_enqueue_style( 'ecomweb-admin', plugins_url( 'assets/css/admin.css', ECOMWEB_WOO_FILE ), array(), ECOMWEB_WOO_VERSION );
-		wp_enqueue_script( 'ecomweb-admin', plugins_url( 'assets/js/admin.js', ECOMWEB_WOO_FILE ), array(), ECOMWEB_WOO_VERSION, true );
+		// WooCommerce's searchable select for the store picker, when WooCommerce has registered it.
+		$searchable = wp_script_is( 'selectWoo', 'registered' );
+		wp_enqueue_style( 'ecomweb-admin', plugins_url( 'assets/css/admin.css', ECOMWEB_WOO_FILE ), $searchable && wp_style_is( 'woocommerce_admin_styles', 'registered' ) ? array( 'woocommerce_admin_styles' ) : array(), ECOMWEB_WOO_VERSION );
+		wp_enqueue_script( 'ecomweb-admin', plugins_url( 'assets/js/admin.js', ECOMWEB_WOO_FILE ), $searchable ? array( 'jquery', 'selectWoo' ) : array(), ECOMWEB_WOO_VERSION, true );
 		wp_localize_script(
 			'ecomweb-admin',
 			'ecomwebWoo',
@@ -114,17 +127,19 @@ class Admin_Page {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( Ajax::NONCE_ACTION ),
 				'i18n'    => array(
-					'starting'   => __( 'Starting…', 'ecomweb-for-woocommerce' ),
-					'waiting'    => __( 'Waiting for you to approve in ecomweb…', 'ecomweb-for-woocommerce' ),
-					'approved'   => __( 'Signed in. Loading…', 'ecomweb-for-woocommerce' ),
-					'denied'     => __( 'Sign-in was denied. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
-					'expired'    => __( 'The code expired. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
-					'error'      => __( 'Something went wrong. Click Sign in with ecomweb to try again.', 'ecomweb-for-woocommerce' ),
+					'starting'     => __( 'Starting…', 'ecomweb-for-woocommerce' ),
+					'waiting'      => __( 'Waiting for you to approve in EcomWeb…', 'ecomweb-for-woocommerce' ),
+					'approved'     => __( 'Signed in. Loading…', 'ecomweb-for-woocommerce' ),
+					'denied'       => __( 'Sign-in was denied. Click Sign in with EcomWeb to try again.', 'ecomweb-for-woocommerce' ),
+					'expired'      => __( 'The code expired. Click Sign in with EcomWeb to try again.', 'ecomweb-for-woocommerce' ),
+					'error'        => __( 'Something went wrong. Click Sign in with EcomWeb to try again.', 'ecomweb-for-woocommerce' ),
 					/* translators: 1: products handled so far, 2: products in this copy. */
-					'progress'   => __( 'Copying %1$d of %2$d…', 'ecomweb-for-woocommerce' ),
+					'progress'     => __( 'Copying %1$d of %2$d…', 'ecomweb-for-woocommerce' ),
 					/* translators: 1: created, 2: updated, 3: skipped (already copied), 4: failed. */
-					'counts'     => __( '%1$d created, %2$d updated, %3$d skipped (already copied), %4$d failed.', 'ecomweb-for-woocommerce' ),
-					'pollFailed' => __( "Couldn't check the copy's progress. Trying again; reload the page if this keeps happening.", 'ecomweb-for-woocommerce' ),
+					'counts'       => __( '%1$d created, %2$d updated, %3$d skipped (already copied), %4$d failed.', 'ecomweb-for-woocommerce' ),
+					'pollFailed'   => __( "Couldn't check the copy's progress. Trying again; reload the page if this keeps happening.", 'ecomweb-for-woocommerce' ),
+					/* translators: %d: number of products ticked in the list. */
+					'copySelected' => __( 'Copy %d selected', 'ecomweb-for-woocommerce' ),
 				),
 			)
 		);
@@ -147,9 +162,14 @@ class Admin_Page {
 		$notice    = $this->reason_message( $reason );
 		$flashes   = $this->notices();
 
-		echo '<div class="wrap ecomweb-wrap"><h1>' . esc_html__( 'ecomweb', 'ecomweb-for-woocommerce' ) . '</h1>';
+		$this->render_header( $signed_in );
 		foreach ( $flashes as $flash ) {
-			echo '<div class="notice notice-' . esc_attr( $flash[0] ) . ' inline"><p>' . esc_html( $flash[1] ) . '</p></div>';
+			echo '<div class="notice notice-' . esc_attr( $flash[0] ) . ' inline ecomweb-notice"><p>' . esc_html( $flash[1] ) . '</p></div>';
+		}
+		if ( ! $signed_in ) {
+			$this->render_steps( 1 );
+		} elseif ( null === $this->connection->current() ) {
+			$this->render_steps( 2 );
 		}
 		if ( $signed_in && null === $this->connection->current() ) {
 			$stores  = $this->connection->list_stores();
@@ -167,6 +187,42 @@ class Admin_Page {
 	}
 
 	/**
+	 * The branded page header: the logo as the page title, and a help link.
+	 *
+	 * @param bool $signed_in Whether a session exists.
+	 * @return void
+	 */
+	private function render_header( bool $signed_in ): void {
+		$logo = plugins_url( 'assets/images/ecomweb-logo.svg', ECOMWEB_WOO_FILE );
+		echo '<div class="wrap ecomweb-wrap' . ( $signed_in ? ' is-signed-in' : '' ) . '">';
+		echo '<div class="ecomweb-topbar">';
+		echo '<h1 class="ecomweb-brand"><img src="' . esc_url( $logo ) . '" alt="' . esc_attr__( 'EcomWeb', 'ecomweb-for-woocommerce' ) . '" width="128" height="32"><span class="ecomweb-brand__for">' . esc_html__( 'for WooCommerce', 'ecomweb-for-woocommerce' ) . '</span></h1>';
+		echo '<a class="ecomweb-topbar__help" href="' . esc_url( Config::help_url() ) . '" target="_blank" rel="noopener noreferrer"><span class="dashicons dashicons-editor-help" aria-hidden="true"></span>' . esc_html__( 'Help', 'ecomweb-for-woocommerce' ) . '</a>';
+		echo '</div>';
+		echo '<hr class="wp-header-end">';
+	}
+
+	/**
+	 * The three setup steps, shown until a store is chosen.
+	 *
+	 * @param int $current Current step, 1 to 3.
+	 * @return void
+	 */
+	private function render_steps( int $current ): void {
+		$steps = array(
+			1 => __( 'Sign in', 'ecomweb-for-woocommerce' ),
+			2 => __( 'Choose a store', 'ecomweb-for-woocommerce' ),
+			3 => __( 'Copy products', 'ecomweb-for-woocommerce' ),
+		);
+		echo '<ol class="ecomweb-steps">';
+		foreach ( $steps as $n => $label ) {
+			$class = $n < $current ? 'is-done' : ( $n === $current ? 'is-current' : '' );
+			echo '<li class="' . esc_attr( $class ) . '"' . ( $n === $current ? ' aria-current="step"' : '' ) . '><span class="ecomweb-steps__n">' . esc_html( (string) $n ) . '</span>' . esc_html( $label ) . '</li>';
+		}
+		echo '</ol>';
+	}
+
+	/**
 	 * The connected view.
 	 *
 	 * @return void
@@ -175,6 +231,8 @@ class Admin_Page {
 		$email      = $this->auth->email();
 		$connection = (array) $this->connection->current();
 		$state      = Copy_State::get();
+		$list_args  = Product_Picker::request();
+		$products   = Product_Picker::page( (string) ( $connection['connection_id'] ?? '' ), $list_args );
 		require ECOMWEB_WOO_DIR . 'includes/views/page-connected.php';
 	}
 
@@ -266,23 +324,26 @@ class Admin_Page {
 					$out[] = array( 'warning', __( 'Wait for the current copy to finish.', 'ecomweb-for-woocommerce' ) );
 					break;
 				case 'not_connected':
-					$out[] = array( 'warning', __( 'Sign in with ecomweb and choose a store first.', 'ecomweb-for-woocommerce' ) );
+					$out[] = array( 'warning', __( 'Sign in with EcomWeb and choose a store first.', 'ecomweb-for-woocommerce' ) );
+					break;
+				case 'no_selection':
+					$out[] = array( 'warning', __( 'Select at least one product to copy.', 'ecomweb-for-woocommerce' ) );
 					break;
 				case 'pick_store':
 					$out[] = array( 'warning', __( 'Choose a store first.', 'ecomweb-for-woocommerce' ) );
 					break;
 				case 'no_access':
-					$out[] = array( 'error', __( "You don't have access to that store in ecomweb.", 'ecomweb-for-woocommerce' ) );
+					$out[] = array( 'error', __( "You don't have access to that store in EcomWeb.", 'ecomweb-for-woocommerce' ) );
 					break;
 				case 'lost_access':
 					/* translators: %s: store name. */
-					$out[] = array( 'error', sprintf( __( 'You no longer have access to %s in ecomweb.', 'ecomweb-for-woocommerce' ), $arg ) );
+					$out[] = array( 'error', sprintf( __( 'You no longer have access to %s in EcomWeb.', 'ecomweb-for-woocommerce' ), $arg ) );
 					break;
 				case 'throttled':
 					$out[] = array( 'warning', __( 'Checked too often. Try again in a minute.', 'ecomweb-for-woocommerce' ) );
 					break;
 				case 'images_fetch':
-					$out[] = array( 'success', __( 'ecomweb can fetch your product images from this site.', 'ecomweb-for-woocommerce' ) );
+					$out[] = array( 'success', __( 'EcomWeb can fetch your product images from this site.', 'ecomweb-for-woocommerce' ) );
 					break;
 				case 'images_upload':
 					$out[] = array( 'success', __( 'Product images will be uploaded from this site.', 'ecomweb-for-woocommerce' ) );
@@ -429,6 +490,25 @@ class Admin_Page {
 	}
 
 	/**
+	 * The products ticked in the page's product list go to the confirm screen, like the bulk action.
+	 *
+	 * @return void
+	 */
+	public function handle_prepare_copy_selected(): void {
+		$this->guard( 'ecomweb_prepare_copy_selected' );
+		if ( null === $this->connection->current() ) {
+			$this->finish( 'pick_store' );
+		}
+		$ids = isset( $_POST['product_ids'] ) ? array_filter( array_map( 'absint', (array) wp_unslash( $_POST['product_ids'] ) ) ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guard() checked the nonce.
+		if ( empty( $ids ) ) {
+			$this->finish( 'no_selection' );
+		}
+		$split = Product_Query::split( $ids );
+		Selection::save( get_current_user_id(), $split['supported'], true, count( $split['not_supported'] ) );
+		$this->go_confirm();
+	}
+
+	/**
 	 * Starts the copy, after checking the plan again.
 	 *
 	 * @return void
@@ -454,16 +534,16 @@ class Admin_Page {
 			$this->refuse( __( "The currencies don't match, so nothing was copied.", 'ecomweb-for-woocommerce' ) );
 		}
 		if ( $plan['over_cap'] && 0 === $plan['fits'] && 0 === $plan['overwrite_count'] ) {
-			$this->refuse( __( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.', 'ecomweb-for-woocommerce' ) );
+			$this->refuse( __( 'Your plan has no room for more products. Upgrade your plan, or delete products in EcomWeb, then copy again.', 'ecomweb-for-woocommerce' ) );
 		}
 		if ( $plan['over_cap'] && ! $limit_to_fits ) {
 			$this->refuse( __( "Your plan doesn't fit every product. Copy the first ones or upgrade your plan.", 'ecomweb-for-woocommerce' ) );
 		}
 		if ( $plan['overwrite_count'] > 0 && ! $confirm_overwrite ) {
-			$this->refuse( __( 'Tick the box to confirm that you want to overwrite products in ecomweb.', 'ecomweb-for-woocommerce' ) );
+			$this->refuse( __( 'Tick the box to confirm that you want to overwrite products in EcomWeb.', 'ecomweb-for-woocommerce' ) );
 		}
 		if ( empty( $plan['queue'] ) ) {
-			$this->refuse( __( 'Nothing to copy: every selected product is already in ecomweb.', 'ecomweb-for-woocommerce' ) );
+			$this->refuse( __( 'Nothing to copy: every selected product is already in EcomWeb.', 'ecomweb-for-woocommerce' ) );
 		}
 
 		$started = Plugin::instance()->runner()->start( $plan['queue'], $overwrite, $selection['not_supported'] );
@@ -511,11 +591,11 @@ class Admin_Page {
 	private function reason_message( ?string $reason ): string {
 		switch ( $reason ) {
 			case 'revoked':
-				return __( 'Signed out of ecomweb. Sign in again.', 'ecomweb-for-woocommerce' );
+				return __( 'Signed out of EcomWeb. Sign in again.', 'ecomweb-for-woocommerce' );
 			case 'salts_changed':
 				return __( "Your WordPress security keys changed, so the saved sign-in can't be read. Sign in again.", 'ecomweb-for-woocommerce' );
 			case 'site_moved':
-				return __( "This site's address changed, so you were signed out of ecomweb. Sign in again.", 'ecomweb-for-woocommerce' );
+				return __( "This site's address changed, so you were signed out of EcomWeb. Sign in again.", 'ecomweb-for-woocommerce' );
 		}
 		return '';
 	}

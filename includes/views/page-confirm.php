@@ -13,15 +13,16 @@ defined( 'ABSPATH' ) || exit;
 $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 ?>
 <div class="ecomweb-card ecomweb-confirm">
+	<h2 class="ecomweb-card__title"><?php esc_html_e( 'Review the copy', 'ecomweb-for-woocommerce' ); ?></h2>
 <?php if ( null === $selection ) : ?>
 	<p><?php esc_html_e( 'Choose the products to copy first.', 'ecomweb-for-woocommerce' ); ?></p>
-	<p><a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a></p>
+	<div class="ecomweb-actions"><a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a></div>
 <?php elseif ( is_wp_error( $preflight ) ) : ?>
 	<p><?php echo esc_html( $preflight->get_error_message() ); ?></p>
-	<p>
+	<div class="ecomweb-actions">
 		<a class="button" href="<?php echo esc_url( Ecomweb\Woo\Admin_Page::url( array( 'view' => 'confirm' ) ) ); ?>"><?php esc_html_e( 'Refresh', 'ecomweb-for-woocommerce' ); ?></a>
 		<a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a>
-	</p>
+	</div>
 <?php else : ?>
 	<?php
 	$ecomweb_new      = count( $preflight['products'] ) - $plan['already_copied'] - $plan['deleted'];
@@ -29,14 +30,14 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 	$ecomweb_no_room  = $plan['over_cap'] && 0 === $plan['fits'];
 	$ecomweb_upgrade  = $plan['over_cap'] ? esc_url( (string) ( $preflight['upgrade_url'] ?? '' ), array( 'http', 'https' ) ) : '';
 	?>
-	<p>
+	<p class="ecomweb-lead">
 		<?php
 		echo esc_html(
 			sprintf(
 				/* translators: 1: products selected, 2: new, 3: already in ecomweb, 4: deleted in ecomweb. */
 				_n(
-					'%1$d product selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb.',
-					'%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb.',
+					'%1$d product selected: %2$d new, %3$d already in EcomWeb, %4$d deleted in EcomWeb.',
+					'%1$d products selected: %2$d new, %3$d already in EcomWeb, %4$d deleted in EcomWeb.',
 					count( $preflight['products'] ),
 					'ecomweb-for-woocommerce'
 				),
@@ -47,7 +48,7 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 			)
 		);
 		if ( ! $selection['explicit'] ) {
-			echo ' ' . esc_html__( 'Products deleted in ecomweb are left out.', 'ecomweb-for-woocommerce' );
+			echo ' ' . esc_html__( 'Products deleted in EcomWeb are left out.', 'ecomweb-for-woocommerce' );
 		}
 		?>
 	</p>
@@ -61,12 +62,12 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 	<?php endif; ?>
 
 	<?php if ( $plan['currency_blocked'] ) : ?>
-		<div class="notice notice-error inline"><p>
+		<div class="notice notice-error inline ecomweb-notice"><p>
 			<?php
 			echo esc_html(
 				sprintf(
 					/* translators: 1: ecomweb store currency, 2: WooCommerce currency. */
-					__( "Your ecomweb store uses %1\$s and WooCommerce uses %2\$s. ecomweb doesn't convert prices: make the currencies match, then try again.", 'ecomweb-for-woocommerce' ),
+					__( "Your EcomWeb store uses %1\$s and WooCommerce uses %2\$s. EcomWeb doesn't convert prices: make the currencies match, then try again.", 'ecomweb-for-woocommerce' ),
 					(string) ( $ecomweb_currency['store'] ?? '' ),
 					(string) ( $ecomweb_currency['woocommerce'] ?? '' )
 				)
@@ -76,7 +77,7 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 	<?php endif; ?>
 
 	<?php if ( $plan['over_cap'] ) : ?>
-		<div class="notice notice-warning inline"><p>
+		<div class="notice notice-warning inline ecomweb-notice"><p>
 			<?php
 			echo esc_html(
 				sprintf(
@@ -89,14 +90,14 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 				)
 			);
 			if ( $ecomweb_no_room ) {
-				echo ' ' . esc_html__( 'Your plan has no room for more products. Upgrade your plan, or delete products in ecomweb, then copy again.', 'ecomweb-for-woocommerce' );
+				echo ' ' . esc_html__( 'Your plan has no room for more products. Upgrade your plan, or delete products in EcomWeb, then copy again.', 'ecomweb-for-woocommerce' );
 			}
 			?>
 		</p></div>
 	<?php endif; ?>
 
 	<?php if ( ! empty( $preflight['storage'] ) ) : ?>
-		<div class="notice notice-info inline"><p>
+		<div class="notice notice-info inline ecomweb-notice"><p>
 			<?php
 			echo esc_html(
 				sprintf(
@@ -111,31 +112,31 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 	<?php endif; ?>
 
 	<?php if ( $ecomweb_no_room && 0 === $all['already_copied'] && ! $plan['currency_blocked'] ) : ?>
-		<p>
+		<div class="ecomweb-actions">
 			<?php if ( '' !== $ecomweb_upgrade ) : ?>
 				<a class="button button-primary" href="<?php echo esc_url( $ecomweb_upgrade, array( 'http', 'https' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
 			<?php endif; ?>
 			<a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a>
-		</p>
+		</div>
 	<?php elseif ( ! $plan['currency_blocked'] ) : ?>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="ecomweb-confirm-form">
 		<input type="hidden" name="action" value="ecomweb_start_copy">
 		<?php wp_nonce_field( 'ecomweb_start_copy' ); ?>
 		<?php if ( $all['already_copied'] > 0 ) : ?>
-			<p>
+			<p class="ecomweb-check">
 				<label>
 					<input type="checkbox" name="overwrite" value="1" id="ecomweb-overwrite">
 					<?php esc_html_e( 'Overwrite products already copied', 'ecomweb-for-woocommerce' ); ?>
 				</label>
 			</p>
-			<p id="ecomweb-overwrite-confirm">
+			<p id="ecomweb-overwrite-confirm" class="ecomweb-check is-danger">
 				<label>
 					<input type="checkbox" name="confirm_overwrite" value="1">
 					<?php
 					echo esc_html(
 						sprintf(
 							/* translators: %d: number of products. */
-							__( 'Yes, overwrite %d products in ecomweb. Their ecomweb status stays as it is.', 'ecomweb-for-woocommerce' ),
+							__( 'Yes, overwrite %d products in EcomWeb. Their EcomWeb status stays as it is.', 'ecomweb-for-woocommerce' ),
 							$all['already_copied']
 						)
 					);
@@ -151,7 +152,7 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 				?>
 			</p>
 		<?php endif; ?>
-		<p>
+		<div class="ecomweb-actions">
 			<?php if ( $ecomweb_no_room ) : ?>
 				<?php // Overwrite only: shown while Overwrite is ticked (admin.js); the handler refuses it unticked. ?>
 				<input type="hidden" name="limit_to_fits" value="1">
@@ -170,13 +171,13 @@ $ecomweb_back = Ecomweb\Woo\Admin_Page::url();
 				<a class="button" href="<?php echo esc_url( $ecomweb_upgrade, array( 'http', 'https' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Upgrade your plan', 'ecomweb-for-woocommerce' ); ?></a>
 			<?php endif; ?>
 			<a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a>
-		</p>
+		</div>
 	</form>
 	<?php else : ?>
-		<p>
+		<div class="ecomweb-actions">
 			<a class="button" href="<?php echo esc_url( Ecomweb\Woo\Admin_Page::url( array( 'view' => 'confirm' ) ) ); ?>"><?php esc_html_e( 'Refresh', 'ecomweb-for-woocommerce' ); ?></a>
 			<a class="button" href="<?php echo esc_url( $ecomweb_back ); ?>"><?php esc_html_e( 'Cancel', 'ecomweb-for-woocommerce' ); ?></a>
-		</p>
+		</div>
 	<?php endif; ?>
 <?php endif; ?>
 </div>

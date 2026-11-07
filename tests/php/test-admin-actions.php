@@ -365,9 +365,10 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 		);
 		$html = $this->render();
 
-		$this->assertMatchesRegularExpression( '/<input type="radio"[^>]*value="s3" disabled/', $html );
-		$this->assertDoesNotMatchRegularExpression( '/<input type="radio"[^>]*value="s1"[^>]*disabled/', $html );
-		$this->assertStringContainsString( 'Only the store owner or an admin can copy products', $html );
+		$this->assertMatchesRegularExpression( '/<select id="ecomweb-store" name="store_ref"[^>]*required>/', $html );
+		$this->assertMatchesRegularExpression( '/<option value="s3"[^>]*disabled=\'disabled\'>C \(Only the store owner or an admin can copy products\)<\/option>/', $html );
+		// The only store that can be chosen is chosen already.
+		$this->assertMatchesRegularExpression( '/<option value="s1" selected=\'selected\'>A<\/option>/', $html );
 		$this->assertStringContainsString( 'Use this store', $html );
 		$this->assertStringContainsString( 'Signed in as merchant@example.com', $html );
 		$this->assertStringContainsString( 'Disconnect', $html );
@@ -395,7 +396,7 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 		);
 		$html = $this->render();
 
-		$this->assertStringContainsString( 'Signed in to ecomweb', $html );
+		$this->assertStringContainsString( 'Signed in to EcomWeb', $html );
 		$this->assertStringNotContainsString( 'Signed in as', $html );
 		$this->assertStringContainsString( 'Use this store', $html );
 	}
@@ -407,7 +408,7 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 		$this->fake->on( 'GET', '/stores', 200, array() );
 		$html = $this->render();
 
-		$this->assertStringContainsString( "You don't have an ecomweb store yet.", str_replace( '&#039;', "'", $html ) );
+		$this->assertStringContainsString( "You don't have an EcomWeb store yet.", str_replace( '&#039;', "'", $html ) );
 		$this->assertStringContainsString( 'href="https://ecomweb.app/store/signup" target="_blank"', $html );
 		$this->assertStringContainsString( 'Create a store', $html );
 		$this->assertStringContainsString( 'Refresh', $html );
@@ -431,7 +432,7 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 		Admin_Page::flash( 'lost_access', array( 'Shop One' ) );
 		$this->fake->on( 'GET', '/stores', 200, array() );
 
-		$this->assertStringContainsString( 'You no longer have access to Shop One in ecomweb.', $this->render() );
+		$this->assertStringContainsString( 'You no longer have access to Shop One in EcomWeb.', $this->render() );
 		$this->assertStringNotContainsString( 'You no longer have access', $this->render() );
 	}
 

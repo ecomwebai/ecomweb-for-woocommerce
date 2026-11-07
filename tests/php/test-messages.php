@@ -46,7 +46,7 @@ class Test_Messages extends WP_UnitTestCase {
 			)
 		);
 		$this->assertSame(
-			'Signed out of ecomweb. Sign in again.',
+			'Signed out of EcomWeb. Sign in again.',
 			Messages::error(
 				array(
 					'code'    => 'SIGNED_OUT',
@@ -124,7 +124,7 @@ class Test_Messages extends WP_UnitTestCase {
 	 */
 	public function test_batch_rejected_includes_reason() {
 		$this->assertSame(
-			'ecomweb rejected this batch: bad price',
+			'EcomWeb rejected this batch: bad price',
 			Messages::error(
 				array(
 					'code'    => 'BATCH_REJECTED',

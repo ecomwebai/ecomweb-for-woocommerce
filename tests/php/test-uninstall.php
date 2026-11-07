@@ -109,7 +109,7 @@ class Test_Uninstall extends WP_UnitTestCase {
 		}
 		$locks = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '\\_ecomweb\\_lock\\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$this->assertSame( '0', $locks );
-		$left = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '%transient%ecomweb\\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$left = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE '%transient%EcomWeb\\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$this->assertSame( '0', $left );
 		$this->assertSame( 'keep', get_transient( 'unrelated_transient' ) );
 		$this->assertSame( $uuid, get_option( 'ecomweb_site_uuid' ) );
@@ -167,8 +167,8 @@ class Test_Uninstall extends WP_UnitTestCase {
 		preg_match( '/= How do I revoke the plugin\'s access\? =\s*(.+?)\n\n=/s', $readme, $m );
 		$this->assertNotEmpty( $m, 'FAQ entry present' );
 		$this->assertStringNotContainsString( 'Either revokes', $m[1] );
-		$this->assertStringContainsString( 'try to sign this site out of ecomweb', $m[1] );
+		$this->assertStringContainsString( 'try to sign this site out of EcomWeb', $m[1] );
 		$this->assertStringContainsString( "the site's address changed", $m[1] );
-		$this->assertStringContainsString( 'So also open ecomweb, go to Profile → Sessions', $m[1] );
+		$this->assertStringContainsString( 'So also open EcomWeb, go to Profile → Sessions', $m[1] );
 	}
 }
