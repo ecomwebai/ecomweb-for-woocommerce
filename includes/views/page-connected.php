@@ -58,7 +58,7 @@ $ecomweb_results = array(
 		<?php
 		$ecomweb_name = (string) ( $ecomweb_store['name'] ?? '' );
 		if ( '' !== $ecomweb_dash ) {
-			/* translators: %s: store name, as a link. */
+			/* translators: %s: store name. */
 			$ecomweb_label = sprintf( esc_html__( 'Store: %s', 'ecomweb-for-woocommerce' ), '<a href="' . esc_url( $ecomweb_dash ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $ecomweb_name ) . '</a>' );
 			echo wp_kses(
 				$ecomweb_label,

@@ -37,12 +37,19 @@ class Test_Session_Store extends WP_UnitTestCase {
 	public function test_write_read_round_trip_and_raw_option_is_encrypted() {
 		global $wpdb;
 		$store = new Session_Store();
-		$store->write( $this->session() );
+		// Long unique tokens: a short one like "AT" can occur by chance in random base64 ciphertext.
+		$access  = 'access-token-' . wp_generate_password( 40, false );
+		$refresh = 'refresh-token-' . wp_generate_password( 40, false );
+		$session = array_merge(
+			$this->session( $access ),
+			array( 'refresh_token' => $refresh )
+		);
+		$store->write( $session );
 		$raw = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s", 'ecomweb_session' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$this->assertStringNotContainsString( 'AT', $raw );
-		$this->assertStringNotContainsString( 'RT', $raw );
-		$this->assertSame( 'AT', $store->read()['access_token'] );
-		$this->assertSame( $this->session(), $store->read() );
+		$this->assertStringNotContainsString( $access, $raw );
+		$this->assertStringNotContainsString( $refresh, $raw );
+		$this->assertSame( $access, $store->read()['access_token'] );
+		$this->assertSame( $session, $store->read() );
 	}
 
 	/**

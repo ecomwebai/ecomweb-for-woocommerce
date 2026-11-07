@@ -1,0 +1,541 @@
+# Copyright (C) 2026 ecomweb
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ecomweb for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ecomweb-for-woocommerce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-07T01:37:20+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.7.1\n"
+"X-Domain: ecomweb-for-woocommerce\n"
+
+#. Plugin Name of the plugin
+msgid "ecomweb for WooCommerce"
+msgstr ""
+
+#. Description of the plugin
+msgid "Copy your WooCommerce products into an ecomweb store."
+msgstr ""
+
+#. Author of the plugin
+#: includes/class-admin-page.php:144
+#: includes/class-products-list.php:60
+msgid "ecomweb"
+msgstr ""
+
+#: includes/class-admin-page.php:116
+msgid "Starting…"
+msgstr ""
+
+#: includes/class-admin-page.php:117
+msgid "Waiting for you to approve in ecomweb…"
+msgstr ""
+
+#: includes/class-admin-page.php:118
+msgid "Signed in. Loading…"
+msgstr ""
+
+#: includes/class-admin-page.php:119
+msgid "Sign-in was denied. Click Sign in with ecomweb to try again."
+msgstr ""
+
+#: includes/class-admin-page.php:120
+msgid "The code expired. Click Sign in with ecomweb to try again."
+msgstr ""
+
+#: includes/class-admin-page.php:121
+msgid "Something went wrong. Click Sign in with ecomweb to try again."
+msgstr ""
+
+#: includes/class-admin-page.php:134
+msgid "You do not have permission to view this page."
+msgstr ""
+
+#: includes/class-admin-page.php:260
+#: includes/class-copy-runner.php:729
+msgid "Wait for the current copy to finish."
+msgstr ""
+
+#: includes/class-admin-page.php:263
+msgid "Sign in with ecomweb and choose a store first."
+msgstr ""
+
+#: includes/class-admin-page.php:266
+msgid "Choose a store first."
+msgstr ""
+
+#: includes/class-admin-page.php:269
+#: includes/class-connection.php:114
+#: includes/class-connection.php:199
+#: includes/class-preflight.php:89
+msgid "You don't have access to that store in ecomweb."
+msgstr ""
+
+#. translators: %s: store name.
+#: includes/class-admin-page.php:273
+msgid "You no longer have access to %s in ecomweb."
+msgstr ""
+
+#: includes/class-admin-page.php:276
+#: includes/class-connection.php:196
+#: includes/class-preflight.php:92
+msgid "Checked too often. Try again in a minute."
+msgstr ""
+
+#: includes/class-admin-page.php:279
+msgid "ecomweb can fetch your product images from this site."
+msgstr ""
+
+#: includes/class-admin-page.php:282
+msgid "Product images will be uploaded from this site."
+msgstr ""
+
+#: includes/class-admin-page.php:288
+#: includes/class-messages.php:94
+msgid "Something went wrong. Try again."
+msgstr ""
+
+#: includes/class-admin-page.php:303
+#: includes/class-products-list.php:191
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/class-admin-page.php:424
+#: includes/views/page-confirm.php:17
+msgid "Choose the products to copy first."
+msgstr ""
+
+#: includes/class-admin-page.php:437
+msgid "The currencies don't match, so nothing was copied."
+msgstr ""
+
+#: includes/class-admin-page.php:440
+msgid "Your plan doesn't fit every product. Copy the first ones or upgrade your plan."
+msgstr ""
+
+#: includes/class-admin-page.php:443
+msgid "Tick the box to confirm that you want to overwrite products in ecomweb."
+msgstr ""
+
+#: includes/class-admin-page.php:446
+msgid "Nothing to copy: every selected product is already in ecomweb."
+msgstr ""
+
+#: includes/class-admin-page.php:494
+#: includes/class-messages.php:80
+msgid "Signed out of ecomweb. Sign in again."
+msgstr ""
+
+#: includes/class-admin-page.php:496
+msgid "Your WordPress security keys changed, so the saved sign-in can't be read. Sign in again."
+msgstr ""
+
+#: includes/class-admin-page.php:498
+msgid "This site's address changed, so you were signed out of ecomweb. Sign in again."
+msgstr ""
+
+#: includes/class-api-client.php:104
+msgid "The image file could not be read."
+msgstr ""
+
+#: includes/class-api-client.php:141
+#: includes/class-auth.php:552
+msgid "Could not reach ecomweb. Try again in a moment."
+msgstr ""
+
+#: includes/class-api-client.php:154
+#: includes/class-auth.php:525
+msgid "You were signed out of ecomweb. Sign in again."
+msgstr ""
+
+#: includes/class-auth.php:534
+msgid "Sign in to ecomweb first."
+msgstr ""
+
+#: includes/class-auth.php:543
+msgid "ecomweb is busy. Try again in a moment."
+msgstr ""
+
+#: includes/class-auth.php:561
+msgid "ecomweb sent an unexpected answer. Try again."
+msgstr ""
+
+#: includes/class-connection.php:80
+msgid "Only the store owner or an admin can copy products"
+msgstr ""
+
+#: includes/class-connection.php:125
+#: includes/class-connection.php:203
+#: includes/class-preflight.php:99
+msgid "ecomweb sent an answer this plugin does not understand."
+msgstr ""
+
+#: includes/class-connection.php:187
+#: includes/class-copy-runner.php:109
+#: includes/class-preflight.php:60
+msgid "Choose an ecomweb store first."
+msgstr ""
+
+#: includes/class-copy-runner.php:214
+#: includes/class-messages.php:88
+msgid "The copy stopped unexpectedly on this site. Copy again; products already copied are skipped."
+msgstr ""
+
+#: includes/class-copy-runner.php:273
+msgid "This site is no longer connected to that ecomweb store. Choose the store again."
+msgstr ""
+
+#: includes/class-copy-runner.php:391
+msgid "ecomweb took too long to copy a batch."
+msgstr ""
+
+#: includes/class-copy-runner.php:441
+msgid "ecomweb did not report a result for this product."
+msgstr ""
+
+#: includes/class-messages.php:30
+msgid "On sale in WooCommerce; the regular price was not copied"
+msgstr ""
+
+#. translators: %s: the regular price.
+#: includes/class-messages.php:33
+msgid "On sale in WooCommerce; regular price %s was not copied"
+msgstr ""
+
+#: includes/class-messages.php:35
+msgid "An image could not be copied."
+msgstr ""
+
+#: includes/class-messages.php:37
+msgid "Only the first 20 images were copied."
+msgstr ""
+
+#: includes/class-messages.php:39
+msgid "Choose a product category for it in ecomweb."
+msgstr ""
+
+#: includes/class-messages.php:41
+msgid "Its URL slug was taken in ecomweb, so a suffix was added."
+msgstr ""
+
+#: includes/class-messages.php:43
+msgid "Some description markup (scripts, styles, forms or embeds) was removed."
+msgstr ""
+
+#: includes/class-messages.php:45
+msgid "A variation removed in WooCommerce was set to inactive in ecomweb."
+msgstr ""
+
+#: includes/class-messages.php:61
+msgid "This product can't be copied: grouped and external products, and variable products without variations, aren't supported."
+msgstr ""
+
+#: includes/class-messages.php:63
+msgid "ecomweb supports up to 3 variation attributes; this product has more."
+msgstr ""
+
+#: includes/class-messages.php:65
+msgid "Too many variations for ecomweb once “Any” values are expanded."
+msgstr ""
+
+#: includes/class-messages.php:67
+msgid "A variation uses “Any” for an attribute that has no values."
+msgstr ""
+
+#: includes/class-messages.php:69
+msgid "ecomweb couldn't copy this product. Try again later."
+msgstr ""
+
+#. translators: %s: the reason ecomweb gave.
+#: includes/class-messages.php:72
+msgid "ecomweb rejected this batch: %s"
+msgstr ""
+
+#: includes/class-messages.php:74
+msgid "Your ecomweb plan's product limit was reached. Upgrade, then copy again."
+msgstr ""
+
+#: includes/class-messages.php:76
+msgid "The store currency no longer matches WooCommerce."
+msgstr ""
+
+#: includes/class-messages.php:78
+msgid "This site's connection was removed in ecomweb. Choose the store again."
+msgstr ""
+
+#: includes/class-messages.php:82
+msgid "You no longer have access to this store in ecomweb."
+msgstr ""
+
+#: includes/class-messages.php:84
+msgid "ecomweb can't be reached right now. Copy again later; products already copied are skipped."
+msgstr ""
+
+#: includes/class-messages.php:86
+msgid "ecomweb took too long to answer. Copy again later; products already copied are skipped."
+msgstr ""
+
+#: includes/class-messages.php:90
+msgid "ecomweb is still busy with another copy of this site. Copy again later; products already copied are skipped."
+msgstr ""
+
+#: includes/class-messages.php:92
+msgid "ecomweb is limiting requests right now. Copy again later; products already copied are skipped."
+msgstr ""
+
+#: includes/class-plugin.php:197
+msgid "ecomweb for WooCommerce needs WooCommerce 8.0 or later."
+msgstr ""
+
+#: includes/class-products-list.php:95
+#: includes/class-products-list.php:101
+#: includes/class-products-list.php:118
+msgid "Copied"
+msgstr ""
+
+#: includes/class-products-list.php:117
+msgid "ecomweb: all"
+msgstr ""
+
+#: includes/class-products-list.php:119
+msgid "Not copied"
+msgstr ""
+
+#: includes/class-products-list.php:174
+msgid "Copy to ecomweb"
+msgstr ""
+
+#: includes/class-upload-image-resolver.php:102
+msgid "An image could not be copied because it is missing or is not an image."
+msgstr ""
+
+#: includes/class-upload-image-resolver.php:106
+msgid "An image could not be copied because its file could not be read."
+msgstr ""
+
+#: includes/class-upload-image-resolver.php:109
+msgid "An image could not be copied because it is larger than 10 MB."
+msgstr ""
+
+#: includes/class-upload-image-resolver.php:112
+#: includes/class-upload-image-resolver.php:137
+msgid "An image could not be uploaded."
+msgstr ""
+
+#: includes/views/page-confirm.php:18
+#: includes/views/page-confirm.php:23
+#: includes/views/page-confirm.php:147
+#: includes/views/page-confirm.php:153
+msgid "Cancel"
+msgstr ""
+
+#: includes/views/page-confirm.php:22
+#: includes/views/page-confirm.php:152
+#: includes/views/page-pick-store.php:31
+#: includes/views/page-pick-store.php:36
+#: includes/views/page-pick-store.php:60
+msgid "Refresh"
+msgstr ""
+
+#. translators: 1: products selected, 2: new, 3: already in ecomweb, 4: deleted in ecomweb.
+#: includes/views/page-confirm.php:35
+msgid "%1$d products selected: %2$d new, %3$d already in ecomweb, %4$d deleted in ecomweb."
+msgstr ""
+
+#: includes/views/page-confirm.php:43
+msgid "Products deleted in ecomweb are left out."
+msgstr ""
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:51
+msgid "%d products can't be copied (grouped or external)."
+msgstr ""
+
+#. translators: 1: ecomweb store currency, 2: WooCommerce currency.
+#: includes/views/page-confirm.php:62
+msgid "Your ecomweb store uses %1$s and WooCommerce uses %2$s. ecomweb doesn't convert prices: make the currencies match, then try again."
+msgstr ""
+
+#. translators: 1: plan product limit, 2: products in the store now, 3: products that fit, 4: products to create.
+#: includes/views/page-confirm.php:77
+msgid "Your plan allows %1$d products and the store has %2$d, so %3$d of these %4$d fit."
+msgstr ""
+
+#. translators: 1: image storage used, in MB. 2: image storage limit, in MB.
+#: includes/views/page-confirm.php:94
+msgid "Your store has used %1$s MB of %2$s MB of image storage. Images beyond that will fail to copy."
+msgstr ""
+
+#: includes/views/page-confirm.php:111
+msgid "Overwrite products already copied"
+msgstr ""
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:121
+msgid "Yes, overwrite %d products in ecomweb. Their ecomweb status stays as it is."
+msgstr ""
+
+#. translators: %d: number of products.
+#: includes/views/page-confirm.php:134
+msgid "Copy the first %d"
+msgstr ""
+
+#: includes/views/page-confirm.php:139
+#: includes/views/page-confirm.php:141
+msgid "Start copying"
+msgstr ""
+
+#: includes/views/page-confirm.php:145
+msgid "Upgrade your plan"
+msgstr ""
+
+#: includes/views/page-connected.php:36
+msgid "Created"
+msgstr ""
+
+#: includes/views/page-connected.php:37
+msgid "Updated"
+msgstr ""
+
+#: includes/views/page-connected.php:38
+msgid "Skipped"
+msgstr ""
+
+#: includes/views/page-connected.php:39
+msgid "Failed"
+msgstr ""
+
+#: includes/views/page-connected.php:46
+msgid "Signed in to ecomweb"
+msgstr ""
+
+#. translators: %s: the merchant's ecomweb email.
+#: includes/views/page-connected.php:49
+#: includes/views/page-pick-store.php:18
+msgid "Signed in as %s"
+msgstr ""
+
+#: includes/views/page-connected.php:53
+msgid "Everyone who can manage WooCommerce on this site can copy products as this ecomweb account."
+msgstr ""
+
+#. translators: %s: store name.
+#: includes/views/page-connected.php:62
+#: includes/views/page-connected.php:75
+msgid "Store: %s"
+msgstr ""
+
+#: includes/views/page-connected.php:82
+msgid "Images: this site uploads them to ecomweb (ecomweb can't reach this site)."
+msgstr ""
+
+#: includes/views/page-connected.php:84
+msgid "Images: ecomweb downloads them from this site."
+msgstr ""
+
+#: includes/views/page-connected.php:92
+msgid "Recheck images"
+msgstr ""
+
+#: includes/views/page-connected.php:97
+msgid "Change store"
+msgstr ""
+
+#: includes/views/page-connected.php:99
+#: includes/views/page-pick-store.php:21
+msgid "Disconnect from ecomweb? Copied products stay in ecomweb."
+msgstr ""
+
+#: includes/views/page-connected.php:102
+#: includes/views/page-pick-store.php:24
+msgid "Disconnect"
+msgstr ""
+
+#: includes/views/page-connected.php:111
+msgid "Copy all products not copied yet"
+msgstr ""
+
+#. translators: 1: products handled so far, 2: products in this copy.
+#: includes/views/page-connected.php:123
+msgid "Copying %1$d of %2$d…"
+msgstr ""
+
+#. translators: 1: when the copy finished, 2: created, 3: updated, 4: skipped (already copied), 5: failed, 6: not supported.
+#: includes/views/page-connected.php:136
+msgid "Last copy finished %1$s: %2$d created, %3$d updated, %4$d skipped (already copied), %5$d failed, %6$d not supported."
+msgstr ""
+
+#: includes/views/page-connected.php:150
+msgid "The last copy was cancelled."
+msgstr ""
+
+#: includes/views/page-connected.php:159
+msgid "Product"
+msgstr ""
+
+#: includes/views/page-connected.php:160
+msgid "Result"
+msgstr ""
+
+#: includes/views/page-connected.php:161
+msgid "Details"
+msgstr ""
+
+#: includes/views/page-connected.php:189
+msgid "Open in ecomweb"
+msgstr ""
+
+#: includes/views/page-connected.php:201
+msgid "Recreate these sales as promotions in ecomweb"
+msgstr ""
+
+#: includes/views/page-pick-store.php:33
+msgid "You don't have an ecomweb store yet."
+msgstr ""
+
+#: includes/views/page-pick-store.php:35
+msgid "Create a store"
+msgstr ""
+
+#: includes/views/page-pick-store.php:40
+msgid "Products copied to your previous store will be copied again to the new one."
+msgstr ""
+
+#: includes/views/page-pick-store.php:45
+msgid "Choose the store to copy your products to"
+msgstr ""
+
+#: includes/views/page-pick-store.php:59
+msgid "Use this store"
+msgstr ""
+
+#: includes/views/page-signed-out.php:17
+msgid "Sign in with your ecomweb account to copy your WooCommerce products into an ecomweb store."
+msgstr ""
+
+#: includes/views/page-signed-out.php:18
+msgid "Sign in with ecomweb"
+msgstr ""
+
+#: includes/views/page-signed-out.php:19
+#: includes/views/page-signing-in.php:35
+msgid "ecomweb will show your web host's location, not yours."
+msgstr ""
+
+#. translators: %s: the sign-in code, in bold.
+#: includes/views/page-signing-in.php:22
+msgid "Your code: %s"
+msgstr ""
+
+#: includes/views/page-signing-in.php:32
+msgid "Check that ecomweb shows the same code, then approve."
+msgstr ""
+
+#: includes/views/page-signing-in.php:33
+msgid "Open ecomweb"
+msgstr ""
