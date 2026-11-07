@@ -465,6 +465,36 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Copy selected saves the ticked products as an explicit selection, counts the unsupported
+	 * ones and opens the confirm screen.
+	 */
+	public function test_prepare_copy_selected_saves_explicit_selection() {
+		$ids     = $this->products( 2 );
+		$grouped = new WC_Product_Grouped();
+		$grouped->set_name( 'Set' );
+		$grouped->save();
+		$this->request( 'ecomweb_prepare_copy_selected', array( 'product_ids' => array( (string) $ids[0], (string) $ids[1], (string) $grouped->get_id(), 'x' ) ) );
+		$location = $this->redirect_of( 'handle_prepare_copy_selected' );
+
+		$this->assertStringContainsString( 'view=confirm', $location );
+		$selection = Selection::get( $this->admin );
+		$this->assertTrue( $selection['explicit'] );
+		$this->assertSame( $ids, $selection['ids'] );
+		$this->assertSame( 1, $selection['not_supported'] );
+	}
+
+	/**
+	 * Copy selected with nothing ticked goes back with a notice and saves nothing.
+	 */
+	public function test_prepare_copy_selected_without_products() {
+		$this->request( 'ecomweb_prepare_copy_selected' );
+		$location = $this->redirect_of( 'handle_prepare_copy_selected' );
+
+		$this->assertStringContainsString( 'notice=no_selection', $location );
+		$this->assertNull( Selection::get( $this->admin ) );
+	}
+
+	/**
 	 * Overwrite needs the second checkbox.
 	 */
 	public function test_start_refuses_overwrite_without_confirmation() {
@@ -610,8 +640,9 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 		$this->answer( array_fill_keys( $ids, 'new' ) );
 
 		foreach ( array(
-			'handle_start_copy'       => 'ecomweb_start_copy',
-			'handle_prepare_copy_all' => 'ecomweb_prepare_copy_all',
+			'handle_start_copy'            => 'ecomweb_start_copy',
+			'handle_prepare_copy_all'      => 'ecomweb_prepare_copy_all',
+			'handle_prepare_copy_selected' => 'ecomweb_prepare_copy_selected',
 		) as $handler => $action ) { // phpcs:ignore Generic.Arrays.MultipleStatementAlignment
 			$this->request( $action, array(), false );
 			try {

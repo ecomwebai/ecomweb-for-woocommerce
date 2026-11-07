@@ -9,6 +9,7 @@ use Ecomweb\Woo\Admin_Page;
 use Ecomweb\Woo\Auth;
 use Ecomweb\Woo\Copy_State;
 use Ecomweb\Woo\Plugin;
+use Ecomweb\Woo\Product_Meta;
 use Ecomweb\Woo\Session_Store;
 
 /**
@@ -367,5 +368,89 @@ class Test_Connected_Page extends WP_UnitTestCase {
 		$this->assertStringContainsString( '&lt;img src=x onerror=alert(1)&gt;', $html );
 		$this->assertStringNotContainsString( '<b>raw</b>', $html );
 		$this->assertStringNotContainsString( 'javascript:', $html );
+	}
+
+	/**
+	 * The product list: a checkbox per product, unsupported ones disabled, the copied state, and
+	 * Copy selected posting to its own action.
+	 */
+	public function test_product_list_lists_products_with_checkboxes() {
+		$tee = new WC_Product_Simple();
+		$tee->set_name( 'Tee' );
+		$tee->set_sku( 'TEE-1' );
+		$tee->set_regular_price( '100' );
+		$tee->save();
+		$copied = new WC_Product_Simple();
+		$copied->set_name( 'Mug' );
+		$copied->save();
+		update_post_meta( $copied->get_id(), Product_Meta::PRODUCT_ID, 'p9' );
+		update_post_meta( $copied->get_id(), Product_Meta::CONNECTION_ID, 'c1' );
+		update_post_meta( $copied->get_id(), Product_Meta::PRODUCT_URL, 'https://ecomweb.app/p/9' );
+		$grouped = new WC_Product_Grouped();
+		$grouped->set_name( 'Set' );
+		$grouped->save();
+
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'value="ecomweb_prepare_copy_selected"', $html );
+		$this->assertMatchesRegularExpression( '/name="product_ids\[\]" value="' . $tee->get_id() . '" id="ecomweb-product-' . $tee->get_id() . '">/', $html );
+		$this->assertMatchesRegularExpression( '/name="product_ids\[\]" value="' . $grouped->get_id() . '"[^>]*disabled/', $html );
+		$this->assertStringContainsString( 'SKU: TEE-1', $html );
+		$this->assertStringContainsString( 'href="https://ecomweb.app/p/9"', $html );
+		$this->assertStringContainsString( 'Can&#039;t be copied', $html );
+		$this->assertStringContainsString( '3 products', $html );
+	}
+
+	/**
+	 * The Copied and Not copied filters and the search narrow the list.
+	 */
+	public function test_product_list_filters_and_search() {
+		$tee = new WC_Product_Simple();
+		$tee->set_name( 'Blue Tee' );
+		$tee->save();
+		$mug = new WC_Product_Simple();
+		$mug->set_name( 'Mug' );
+		$mug->save();
+		update_post_meta( $mug->get_id(), Product_Meta::PRODUCT_ID, 'p9' );
+		update_post_meta( $mug->get_id(), Product_Meta::CONNECTION_ID, 'c1' );
+
+		$_GET['copied'] = 'yes';
+		$copied         = $this->render();
+		$_GET['copied'] = 'no';
+		$not_copied     = $this->render();
+		unset( $_GET['copied'] );
+		$_GET['s'] = 'blue';
+		$searched  = $this->render();
+		unset( $_GET['s'] );
+
+		$this->assertStringContainsString( 'value="' . $mug->get_id() . '"', $copied );
+		$this->assertStringNotContainsString( 'value="' . $tee->get_id() . '"', $copied );
+		$this->assertStringContainsString( 'value="' . $tee->get_id() . '"', $not_copied );
+		$this->assertStringNotContainsString( 'value="' . $mug->get_id() . '"', $not_copied );
+		$this->assertStringContainsString( 'value="' . $tee->get_id() . '"', $searched );
+		$this->assertStringNotContainsString( 'value="' . $mug->get_id() . '"', $searched );
+	}
+
+	/**
+	 * While a copy runs, nothing in the list can be ticked.
+	 */
+	public function test_product_list_disabled_while_running() {
+		$tee = new WC_Product_Simple();
+		$tee->set_name( 'Tee' );
+		$tee->save();
+		update_option(
+			'ecomweb_copy_state',
+			array(
+				'status' => 'running',
+				'total'  => 1,
+				'queue'  => array( $tee->get_id() ),
+			),
+			false
+		);
+
+		$html = $this->render();
+
+		$this->assertMatchesRegularExpression( '/id="ecomweb-check-all"[^>]*disabled/', $html );
+		$this->assertMatchesRegularExpression( '/value="' . $tee->get_id() . '"[^>]*disabled/', $html );
 	}
 }
