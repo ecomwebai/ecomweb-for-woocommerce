@@ -2,7 +2,7 @@
 # Builds build/ecomweb-for-woocommerce-<version>.zip, with the top folder ecomweb-for-woocommerce/.
 #
 # Fails unless the plugin header Version, the readme Stable tag and ECOMWEB_WOO_VERSION agree.
-# Compiles the .mo files with WP-CLI inside wp-env. Only git-tracked files under the paths in
+# Only git-tracked files under the paths in
 # SHIP go in (their working-tree content), so untracked or hidden files such as .DS_Store,
 # .wp-env.override.json or .claude/ never reach the zip. Fails if a hidden file got in anyway.
 set -euo pipefail
@@ -23,11 +23,10 @@ if [ -z "$HEADER_VERSION" ] || [ "$HEADER_VERSION" != "$STABLE_TAG" ] || [ "$HEA
 fi
 VERSION="$HEADER_VERSION"
 
-# The .mo files are build output: compile them from the .po files inside wp-env.
-npx wp-env run cli --env-cwd="wp-content/plugins/$SLUG" wp i18n make-mo languages
-
-# What the plugin ships. Everything else (tests, bin, vendor, dev config) stays out.
-SHIP=( "$MAIN" uninstall.php readme.txt LICENSE includes assets languages )
+# What the plugin ships. Everything else (tests, bin, vendor, dev config) stays out. languages/
+# stays out too: wordpress.org serves translations from translate.wordpress.org, and the vi .po
+# in the repo is only the source to import there.
+SHIP=( "$MAIN" uninstall.php readme.txt LICENSE includes assets )
 
 DEST="build/$SLUG"
 rm -rf build

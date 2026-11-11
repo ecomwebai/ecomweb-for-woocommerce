@@ -19,7 +19,6 @@ Moving from WooCommerce to [EcomWeb](https://ecomweb.app)? EcomWeb for WooCommer
 * Simple and variable products, with prices, stock, SKUs, weights, images, categories, tags and attributes.
 * Copying again is safe. Products already copied are skipped, unless you tick **Overwrite products already copied** and confirm.
 * A progress view and a list of products that need attention after each copy.
-* English and Vietnamese.
 
 Nothing is sent to EcomWeb until you click **Sign in with EcomWeb**.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Checks bin/build-zip.sh: an untracked hidden file in the tree (.DS_Store, .wp-env.override.json,
 # .claude/) or an untracked PHP file never reaches the zip, and what ships is exactly the plugin.
-# Needs wp-env running (the build compiles the .mo files in it). Run with `npm run test:build`.
+# Run with `npm run test:build`.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -40,13 +40,13 @@ if printf '%s\n' "$LIST" | grep -E '(^|/)\.[^/]' >/dev/null; then
 	printf '%s\n' "$LIST" | grep -E '(^|/)\.[^/]' >&2
 	FAIL=1
 fi
-for FILE in ecomweb-for-woocommerce.php uninstall.php readme.txt LICENSE includes/class-plugin.php includes/views/page-connected.php assets/js/admin.js assets/css/admin.css languages/ecomweb-for-woocommerce-vi.mo languages/ecomweb-for-woocommerce-vi.po languages/ecomweb-for-woocommerce.pot; do
+for FILE in ecomweb-for-woocommerce.php uninstall.php readme.txt LICENSE includes/class-plugin.php includes/views/page-connected.php assets/js/admin.js assets/css/admin.css; do
 	if ! printf '%s\n' "$LIST" | grep -qxF "ecomweb-for-woocommerce/$FILE"; then
 		echo "FAIL: $FILE is missing from the zip." >&2
 		FAIL=1
 	fi
 done
-if printf '%s\n' "$LIST" | grep -E '^ecomweb-for-woocommerce/(tests|bin|vendor|node_modules|build)/' >/dev/null; then
+if printf '%s\n' "$LIST" | grep -E '^ecomweb-for-woocommerce/(tests|bin|vendor|node_modules|build|languages)/' >/dev/null; then
 	echo "FAIL: dev folders in the zip." >&2
 	FAIL=1
 fi

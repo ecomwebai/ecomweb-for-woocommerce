@@ -144,8 +144,6 @@ class Plugin {
 			return;
 		}
 
-		add_action( 'init', array( $this, 'load_textdomain' ) );
-
 		( new Ajax( $this->auth() ) )->register();
 		( new Admin_Page( $this->auth(), $this->connection() ) )->register();
 		$this->connection()->listen();
@@ -217,14 +215,5 @@ class Plugin {
 		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', ECOMWEB_WOO_FILE, true );
 		}
-	}
-
-	/**
-	 * Load translations.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain(): void {
-		load_plugin_textdomain( 'ecomweb-for-woocommerce', false, dirname( plugin_basename( ECOMWEB_WOO_FILE ) ) . '/languages' );
 	}
 }

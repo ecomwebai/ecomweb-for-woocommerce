@@ -84,7 +84,6 @@ class Test_Plugin extends WP_UnitTestCase {
 		$this->assertFalse( $plugin->requirements_met() );
 		$plugin->boot();
 		$this->assertNotFalse( has_action( 'admin_notices', array( $plugin, 'requirements_notice' ) ) );
-		$this->assertFalse( has_action( 'init', array( $plugin, 'load_textdomain' ) ) );
 		$this->assertNotFalse( has_action( 'before_woocommerce_init', array( $plugin, 'declare_hpos_compatibility' ) ) );
 
 		ob_start();
@@ -114,12 +113,11 @@ class Test_Plugin extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Loads textdomain when requirements met.
+	 * No requirements notice when requirements met.
 	 */
-	public function test_loads_textdomain_when_requirements_met() {
+	public function test_no_notice_when_requirements_met() {
 		$plugin = new Plugin();
 		$plugin->boot();
-		$this->assertNotFalse( has_action( 'init', array( $plugin, 'load_textdomain' ) ) );
 		$this->assertFalse( has_action( 'admin_notices', array( $plugin, 'requirements_notice' ) ) );
 	}
 }
