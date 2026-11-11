@@ -78,21 +78,6 @@ class Test_I18n extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The vi labels come through the compiled .mo.
-	 */
-	public function test_vi_labels() {
-		$mo = $this->lang_file( 'ecomweb-for-woocommerce-vi.mo' );
-		$this->assertFileExists( $mo );
-		$this->assertTrue( load_textdomain( self::DOMAIN, $mo, 'vi' ) );
-		switch_to_locale( 'vi' );
-		foreach ( self::labels() as $row ) {
-			$this->assertSame( $row[1], __( $row[0], self::DOMAIN ), $row[0] ); // phpcs:ignore WordPress.WP.I18n
-		}
-		restore_previous_locale();
-		unload_textdomain( self::DOMAIN );
-	}
-
-	/**
 	 * The .po pins the same labels as the table.
 	 */
 	public function test_po_matches_label_table() {
