@@ -20,6 +20,14 @@ if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
+cli=$(dirname "$0")/downloads.mjs
+
+# 0. the notes exist, checked before anything is uploaded (a published zip is never replaced)
+if [ -z "$(node "$cli" notes --from "$notes_from" --format "$notes_format" --version "$version")" ]; then
+  echo "no release notes for $version in $notes_from" >&2
+  exit 1
+fi
+
 export AWS_ACCESS_KEY_ID=$R2_DOWNLOADS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$R2_DOWNLOADS_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=auto
@@ -28,7 +36,6 @@ export AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED
 export AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED
 bucket=$R2_DOWNLOADS_BUCKET
 base_url=https://downloads.ecomweb.app
-cli=$(dirname "$0")/downloads.mjs
 
 s3() { aws --endpoint-url "$R2_DOWNLOADS_ENDPOINT" "$@"; }
 

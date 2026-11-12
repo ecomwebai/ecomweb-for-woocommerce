@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -132,4 +132,18 @@ test("CLI action", () => {
     "--versions", join(dir, "none.json"), "--version", "1.0.0", "--zip-exists", "true",
   ]).toString();
   assert.equal(out.trim(), "resume");
+});
+
+test("CLI notes prints the notes, fails when they are missing", () => {
+  const dir = mkdtempSync(join(tmpdir(), "dl-"));
+  const notes = join(dir, "CHANGELOG.md");
+  writeFileSync(notes, "## 1.0.2 - 2026-11-20\n\n- dated\n\n## 1.0.1\n\n- second\n");
+  const run = (version) =>
+    execFileSync("node", [
+      join(here, "downloads.mjs"), "notes",
+      "--from", notes, "--format", "markdown", "--version", version,
+    ], { stdio: "pipe" }).toString();
+  assert.equal(run("1.0.1"), "- second\n");
+  assert.throws(() => run("1.0.2"), (e) => e.status === 1 && /no notes for 1\.0\.2/.test(e.stderr));
+  assert.throws(() => run("9.9.9"), (e) => e.status === 1);
 });

@@ -120,12 +120,20 @@ function main(argv) {
       "notes-from": { type: "string" },
       "notes-format": { type: "string" },
       reason: { type: "string" },
+      from: { type: "string" },
+      format: { type: "string" },
     },
   });
   const need = (k) => {
     if (o[k] === undefined) throw new Error(`missing --${k}`);
     return o[k];
   };
+  if (cmd === "notes") {
+    // Checks the changelog before anything is uploaded; exits 1 if the version has no notes.
+    const text = readFileSync(need("from"), "utf8");
+    process.stdout.write(extractNotes(text, need("format"), need("version")) + "\n");
+    return;
+  }
   const product = need("product");
   let file;
   try {
