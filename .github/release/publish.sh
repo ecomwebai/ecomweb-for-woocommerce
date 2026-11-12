@@ -23,6 +23,9 @@ fi
 export AWS_ACCESS_KEY_ID=$R2_DOWNLOADS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=$R2_DOWNLOADS_SECRET_ACCESS_KEY
 export AWS_DEFAULT_REGION=auto
+# aws CLI >= 2.23 sends CRC checksums by default, which has broken R2 before.
+export AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED
+export AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED
 bucket=$R2_DOWNLOADS_BUCKET
 base_url=https://downloads.ecomweb.app
 cli=$(dirname "$0")/downloads.mjs

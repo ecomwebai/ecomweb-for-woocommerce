@@ -14,6 +14,12 @@ Zips are published to https://downloads.ecomweb.app by `.github/workflows/releas
    run died after the zip upload but before `versions.json`, re-run the workflow and it
    resumes with the stored zip.
 
+If only `gh release create` failed, `versions.json` is already updated and a re-run stops at
+"already on downloads.ecomweb.app". Create the release by hand: download the zip from
+`https://downloads.ecomweb.app/woocommerce/X.Y.Z/ecomweb-for-woocommerce-X.Y.Z.zip`, copy the
+`notes` of that version from `https://downloads.ecomweb.app/woocommerce/versions.json`, then
+`gh release create X.Y.Z <zip> --title X.Y.Z --notes "<notes>"`.
+
 Two actions stay manual:
 
 - Uploading the zip to wordpress.org.
