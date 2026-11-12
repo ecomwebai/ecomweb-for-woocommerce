@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_call:
 
 jobs:
   test:
@@ -31,6 +33,7 @@ jobs:
           npx wp-env start
           npm run test:php
           npm run test:js
+          npm run test:release
 
       - name: Build the zip and check what it holds
         run: npm run test:build
