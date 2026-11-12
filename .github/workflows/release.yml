@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Edit versions.json on downloads.ecomweb.app
+        type: choice
+        required: true
+        options: [set-store-version, yank]
+      version:
+        description: Version, X.Y.Z
+        type: string
+        required: true
+      reason:
+        description: Reason (required for yank)
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: downloads-woocommerce
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    if: github.event_name == 'push'
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ecomweb-for-woocommerce
+          path: dist
+
+      - name: Check the zip matches the tag
+        run: |
+          zip=$(ls dist/ecomweb-for-woocommerce-*.zip)
+          [ "$(echo "$zip" | wc -l)" -eq 1 ] || { echo "expected exactly one zip" >&2; exit 1; }
+          [ "$zip" = "dist/ecomweb-for-woocommerce-$GITHUB_REF_NAME.zip" ] || {
+            echo "zip $zip does not match tag $GITHUB_REF_NAME" >&2; exit 1; }
+          echo "ZIP=$zip" >> "$GITHUB_ENV"
+
+      - name: Publish to downloads.ecomweb.app
+        env:
+          R2_DOWNLOADS_ENDPOINT: ${{ secrets.R2_DOWNLOADS_ENDPOINT }}
+          R2_DOWNLOADS_ACCESS_KEY_ID: ${{ secrets.R2_DOWNLOADS_ACCESS_KEY_ID }}
+          R2_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.R2_DOWNLOADS_SECRET_ACCESS_KEY }}
+          R2_DOWNLOADS_BUCKET: ${{ secrets.R2_DOWNLOADS_BUCKET }}
+        run: |
+          export RELEASE_NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          bash .github/release/publish.sh woocommerce "$GITHUB_REF_NAME" "$ZIP" readme.txt wp-readme
+          echo "RELEASE_NOTES_FILE=$RELEASE_NOTES_FILE" >> "$GITHUB_ENV"
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "$ZIP" --title "$GITHUB_REF_NAME" --notes-file "$RELEASE_NOTES_FILE"
+
+  edit:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Edit versions.json
+        env:
+          R2_DOWNLOADS_ENDPOINT: ${{ secrets.R2_DOWNLOADS_ENDPOINT }}
+          R2_DOWNLOADS_ACCESS_KEY_ID: ${{ secrets.R2_DOWNLOADS_ACCESS_KEY_ID }}
+          R2_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.R2_DOWNLOADS_SECRET_ACCESS_KEY }}
+          R2_DOWNLOADS_BUCKET: ${{ secrets.R2_DOWNLOADS_BUCKET }}
+          ACTION: ${{ inputs.action }}
+          VERSION: ${{ inputs.version }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          export AWS_ACCESS_KEY_ID=$R2_DOWNLOADS_ACCESS_KEY_ID
+          export AWS_SECRET_ACCESS_KEY=$R2_DOWNLOADS_SECRET_ACCESS_KEY
+          export AWS_DEFAULT_REGION=auto
+          export AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED
+          export AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED
+          work=$(mktemp -d)
+          key=woocommerce/versions.json
+          aws --endpoint-url "$R2_DOWNLOADS_ENDPOINT" s3 cp "s3://$R2_DOWNLOADS_BUCKET/$key" "$work/versions.json" --only-show-errors
+          case "$ACTION" in
+            set-store-version)
+              node .github/release/downloads.mjs set-store --product woocommerce --versions "$work/versions.json" --version "$VERSION" > "$work/new.json" ;;
+            yank)
+              node .github/release/downloads.mjs yank --product woocommerce --versions "$work/versions.json" --version "$VERSION" --reason "$REASON" --date "$(date -u +%F)" > "$work/new.json" ;;
+            *) echo "unknown action $ACTION" >&2; exit 1 ;;
+          esac
+          aws --endpoint-url "$R2_DOWNLOADS_ENDPOINT" s3api put-object --bucket "$R2_DOWNLOADS_BUCKET" --key "$key" --body "$work/new.json" --content-type application/json --cache-control 'public, max-age=60' > /dev/null
