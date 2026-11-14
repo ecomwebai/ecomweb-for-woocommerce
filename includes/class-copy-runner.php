@@ -93,9 +93,11 @@ class Copy_Runner {
 	 * @param int[] $queue         Product IDs to send, in order.
 	 * @param bool  $overwrite     Overwrite products already copied.
 	 * @param int   $not_supported Products left out before the start.
+	 * @param int[] $slots         Products of the queue that each hold one of the plan's free slots.
+	 * @param int[] $reserve       Products to create, in order, when a slot is freed by a failure.
 	 * @return array|\WP_Error The new state.
 	 */
-	public function start( array $queue, bool $overwrite, int $not_supported ) {
+	public function start( array $queue, bool $overwrite, int $not_supported, array $slots = array(), array $reserve = array() ) {
 		$token = Lock::acquire( self::LOCK, self::LOCK_TTL, self::LOCK_TIMEOUT );
 		if ( null === $token ) {
 			return self::running_error();
@@ -109,16 +111,7 @@ class Copy_Runner {
 				return new \WP_Error( 'ecomweb_not_connected', __( 'Choose an EcomWeb store first.', 'ecomweb-for-woocommerce' ) );
 			}
 
-			$ids   = array_values(
-				array_unique(
-					array_filter(
-						array_map( 'intval', $queue ),
-						function ( $id ) {
-							return $id > 0;
-						}
-					)
-				)
-			);
+			$ids   = self::ids( $queue );
 			$state = array(
 				'id'            => wp_generate_uuid4(),
 				'status'        => 'running',
@@ -130,6 +123,10 @@ class Copy_Runner {
 				'total'         => count( $ids ),
 				'queue'         => $ids,
 				'single'        => array(),
+				'slots'         => array_values( array_intersect( self::ids( $slots ), $ids ) ),
+				'reserve'       => array_values( array_diff( self::ids( $reserve ), $ids ) ),
+				'resend'        => array(),
+				'resent'        => array(),
 				'in_flight'     => null,
 				'retry'         => self::no_retry(),
 				'counts'        => array(
@@ -295,22 +292,33 @@ class Copy_Runner {
 		$products   = array();
 		$ids        = array();
 		$warnings   = array();
+		$assets     = array();
 
 		while ( empty( $products ) && ! empty( $next['queue'] ) ) {
 			foreach ( self::next_ids( $next ) as $id ) {
 				$product = wc_get_product( $id );
 				$payload = $product instanceof \WC_Product ? $serializer->serialize( $product, $resolver ) : null;
 				if ( null === $payload ) {
-					// Gone or no longer supported: leaves the total (W26).
 					$next['queue']  = array_values( array_diff( $next['queue'], array( $id ) ) );
 					$next['single'] = self::without( $next['single'] ?? array(), array( $id ) );
-					$next['total']  = max( 0, (int) $next['total'] - 1 );
+					if ( in_array( (int) $id, (array) ( $next['resend'] ?? array() ), true ) ) {
+						// Already counted when it was copied: just don't send it again.
+						$next['resend'] = self::without( $next['resend'], array( $id ) );
+						continue;
+					}
+					// Gone or no longer supported: leaves the total (W26).
+					$next['total'] = max( 0, (int) $next['total'] - 1 );
 					++$next['counts']['not_supported'];
+					$next = self::free_slot( $next, (int) $id );
 					continue;
 				}
 				$products[] = $payload;
 				$ids[]      = (int) $id;
-				$local      = array_merge( $serializer->warnings( $id ), $resolver->warnings( $id ) );
+				$sent       = self::asset_ids( $payload );
+				if ( ! empty( $sent ) ) {
+					$assets[ $id ] = $sent;
+				}
+				$local = array_merge( $serializer->warnings( $id ), $resolver->warnings( $id ) );
 				if ( ! empty( $local ) ) {
 					$warnings[ $id ] = $local;
 				}
@@ -332,12 +340,14 @@ class Copy_Runner {
 			$this->advance( $next );
 			return;
 		}
+		// A batch sent again after a missing asset updates the products this copy just created.
+		$resend = ! empty( array_intersect( $ids, (array) ( $next['resend'] ?? array() ) ) );
 
 		$response = $this->api->post(
 			Api_Client::store_path( $next['store_ref'], '/integrations/woocommerce/products/batch' ),
 			array(
 				'connection_id' => $next['connection_id'],
-				'overwrite'     => (bool) $next['overwrite'],
+				'overwrite'     => $resend || (bool) $next['overwrite'],
 				'products'      => $products,
 			),
 			self::BATCH_TIMEOUT
@@ -354,9 +364,12 @@ class Copy_Runner {
 				'product_ids'    => $ids,
 				'submitted_at'   => time(),
 				'local_warnings' => $warnings,
+				'assets'         => $assets,
+				'resend'         => $resend,
 			);
 			$next['queue']     = array_values( array_diff( $next['queue'], $ids ) );
 			$next['single']    = self::without( $next['single'] ?? array(), $ids );
+			$next['resend']    = self::without( $next['resend'] ?? array(), $ids );
 			$next['retry']     = self::no_retry();
 			if ( $this->commit( $next ) ) {
 				self::schedule( self::POLL_HOOK, $next['id'], self::POLL_DELAY );
@@ -434,6 +447,8 @@ class Copy_Runner {
 		$in_flight = $state['in_flight'];
 		$local     = $in_flight['local_warnings'] ?? array();
 		$pending   = array_flip( array_map( 'intval', $in_flight['product_ids'] ) );
+		$assets    = (array) ( $in_flight['assets'] ?? array() );
+		$resend    = ! empty( $in_flight['resend'] );
 
 		foreach ( $results as $result ) {
 			$id = is_array( $result ) && isset( $result['wc_product_id'] ) ? (int) $result['wc_product_id'] : 0;
@@ -444,20 +459,47 @@ class Copy_Runner {
 
 			$kind = in_array( $result['result'] ?? null, self::RESULTS, true ) ? $result['result'] : 'failed';
 			Product_Meta::apply_result( $result, $state['connection_id'] );
-			++$state['counts'][ $kind ];
 
 			$warnings = array_merge( self::warnings( $result['warnings'] ?? array() ), $local[ $id ] ?? array() );
 			$error    = self::error( $result['error'] ?? null );
+			$url      = isset( $result['url'] ) && is_string( $result['url'] ) ? $result['url'] : null;
+			$stale    = self::drop_missing_assets( (array) ( $assets[ $id ] ?? array() ), $warnings, $state['connection_id'] );
+
+			if ( $resend ) {
+				// Counted the first time. A failed resend leaves that result's issue as it was.
+				if ( 'failed' !== $kind && empty( $warnings ) && null === $error ) {
+					unset( $state['issues'][ $id ] );
+				} elseif ( 'failed' !== $kind ) {
+					$state['issues'][ $id ] = self::issue( $id, (string) ( $state['issues'][ $id ]['result'] ?? $kind ), $url, $warnings, $error );
+				}
+				continue;
+			}
+
+			++$state['counts'][ $kind ];
 			if ( ! empty( $warnings ) || null !== $error ) {
-				$url                    = isset( $result['url'] ) && is_string( $result['url'] ) ? $result['url'] : null;
 				$state['issues'][ $id ] = self::issue( $id, $kind, $url, $warnings, $error );
+			}
+			if ( 'created' === $kind ) {
+				$state['slots'] = self::without( (array) ( $state['slots'] ?? array() ), array( $id ) );
+			} else {
+				$state = self::free_slot( $state, $id );
+			}
+			if ( $stale && in_array( $kind, array( 'created', 'updated' ), true ) && ! in_array( $id, (array) ( $state['resent'] ?? array() ), true ) ) {
+				// Send it once more: the dropped cache entry makes the resolver upload the image again.
+				$state['queue'][]  = $id;
+				$state['resend'][] = $id;
+				$state['resent'][] = $id;
 			}
 		}
 
 		$missing = $job_error ?? self::error_item( 'INTERNAL', __( 'EcomWeb did not report a result for this product.', 'ecomweb-for-woocommerce' ) );
 		foreach ( array_keys( $pending ) as $id ) {
+			if ( $resend ) {
+				continue;
+			}
 			++$state['counts']['failed'];
 			$state['issues'][ $id ] = self::issue( $id, 'failed', null, $local[ $id ] ?? array(), $missing );
+			$state                  = self::free_slot( $state, $id );
 		}
 
 		$state['in_flight'] = null;
@@ -490,8 +532,14 @@ class Copy_Runner {
 	 */
 	private function reject_batch( array $state, array $ids, array $warnings, string $message ): void {
 		foreach ( $ids as $id ) {
+			if ( in_array( (int) $id, (array) ( $state['resend'] ?? array() ), true ) ) {
+				// Copied and counted already; only the second send was refused.
+				$state['resend'] = self::without( $state['resend'], array( $id ) );
+				continue;
+			}
 			++$state['counts']['failed'];
 			$state['issues'][ $id ] = self::issue( $id, 'failed', null, $warnings[ $id ] ?? array(), self::error_item( 'BATCH_REJECTED', $message ) );
+			$state                  = self::free_slot( $state, (int) $id );
 		}
 		$state['queue']  = array_values( array_diff( $state['queue'], $ids ) );
 		$state['single'] = self::without( $state['single'] ?? array(), $ids );
@@ -500,15 +548,114 @@ class Copy_Runner {
 	}
 
 	/**
-	 * The products for the next batch: the first product waiting to be sent on its own, else
-	 * the first BATCH_SIZE of the queue.
+	 * The products for the next batch: the first product waiting to be sent on its own, else up
+	 * to BATCH_SIZE products to send again (they go with overwrite), else the first BATCH_SIZE
+	 * of the queue.
 	 *
 	 * @param array $state State.
 	 * @return int[]
 	 */
 	private static function next_ids( array $state ): array {
 		$single = array_values( array_intersect( $state['queue'], (array) ( $state['single'] ?? array() ) ) );
-		return empty( $single ) ? array_slice( $state['queue'], 0, self::BATCH_SIZE ) : array( (int) $single[0] );
+		if ( ! empty( $single ) ) {
+			return array( (int) $single[0] );
+		}
+		$resend = array_values( array_intersect( $state['queue'], (array) ( $state['resend'] ?? array() ) ) );
+		return array_slice( empty( $resend ) ? $state['queue'] : $resend, 0, self::BATCH_SIZE );
+	}
+
+	/**
+	 * A product holding a plan slot didn't create a product: the slot goes to the next product of
+	 * the reserve, which joins the queue and the total.
+	 *
+	 * @param array $state State.
+	 * @param int   $id    Product ID.
+	 * @return array
+	 */
+	private static function free_slot( array $state, int $id ): array {
+		$slots = (array) ( $state['slots'] ?? array() );
+		if ( ! in_array( $id, $slots, true ) ) {
+			return $state;
+		}
+		$state['slots'] = self::without( $slots, array( $id ) );
+		$reserve        = (array) ( $state['reserve'] ?? array() );
+		if ( empty( $reserve ) ) {
+			return $state;
+		}
+		$next             = (int) array_shift( $reserve );
+		$state['reserve'] = array_values( $reserve );
+		$state['queue'][] = $next;
+		$state['slots'][] = $next;
+		$state['total']   = (int) $state['total'] + 1;
+		return $state;
+	}
+
+	/**
+	 * The uploaded assets a payload sends: asset ID => attachment ID.
+	 *
+	 * @param array $payload Serialised product.
+	 * @return array
+	 */
+	private static function asset_ids( array $payload ): array {
+		$images = (array) ( $payload['images'] ?? array() );
+		foreach ( (array) ( $payload['variations'] ?? array() ) as $variation ) {
+			if ( is_array( $variation ) && is_array( $variation['image'] ?? null ) ) {
+				$images[] = $variation['image'];
+			}
+		}
+		$out = array();
+		foreach ( $images as $image ) {
+			if ( is_array( $image ) && isset( $image['asset_id'], $image['attachment_id'] ) && is_string( $image['asset_id'] ) && '' !== $image['asset_id'] ) {
+				$out[ $image['asset_id'] ] = (int) $image['attachment_id'];
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Drops the cached asset of every image the API reported as failed by its asset ID (an asset
+	 * deleted in ecomweb), so the next send uploads it again. The API names the asset in the
+	 * IMAGE_FAILED message; it has no structured field for it.
+	 *
+	 * @param array  $assets        Asset ID => attachment ID, as sent.
+	 * @param array  $warnings      `{code, message}` items of the result.
+	 * @param string $connection_id Connection ID.
+	 * @return bool Whether any was dropped.
+	 */
+	private static function drop_missing_assets( array $assets, array $warnings, string $connection_id ): bool {
+		$dropped = false;
+		foreach ( $warnings as $warning ) {
+			if ( 'IMAGE_FAILED' !== ( $warning['code'] ?? '' ) ) {
+				continue;
+			}
+			foreach ( $assets as $asset_id => $attachment_id ) {
+				if ( preg_match( '/(?<![\\w-])' . preg_quote( (string) $asset_id, '/' ) . '(?![\\w-])/', (string) $warning['message'] ) ) {
+					// Only while it still holds that asset: a newer upload may have replaced it.
+					delete_post_meta( (int) $attachment_id, Upload_Image_Resolver::META_KEY . $connection_id, (string) $asset_id );
+					$dropped = true;
+				}
+			}
+		}
+		return $dropped;
+	}
+
+	/**
+	 * Positive, unique product IDs.
+	 *
+	 * @param array $ids IDs.
+	 * @return int[]
+	 */
+	private static function ids( array $ids ): array {
+		return array_values(
+			array_unique(
+				array_filter(
+					array_map( 'intval', $ids ),
+					function ( $id ) {
+						return $id > 0;
+					}
+				)
+			)
+		);
 	}
 
 	/**

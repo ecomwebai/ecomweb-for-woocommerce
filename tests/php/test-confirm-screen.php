@@ -319,6 +319,32 @@ class Test_Confirm_Screen extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Copy the first X: the products past the cap are handed to the copy as its reserve.
+	 */
+	public function test_start_limited_to_fits_saves_slots_and_reserve() {
+		$ids = $this->products( 3 );
+		Selection::save( $this->admin, $ids, false, 0 );
+		$this->answer(
+			array_fill_keys( $ids, 'new' ),
+			array(
+				'plan' => array(
+					'limit'     => 20,
+					'current'   => 18,
+					'new_count' => 3,
+					'fits'      => 2,
+				),
+			)
+		);
+		$this->request( 'ecomweb_start_copy', array( 'limit_to_fits' => '1' ) );
+		$this->redirect_of( 'handle_start_copy' );
+
+		$state = get_option( 'ecomweb_copy_state' );
+		$this->assertSame( array( $ids[0], $ids[1] ), array_map( 'intval', $state['queue'] ) );
+		$this->assertSame( array( $ids[0], $ids[1] ), array_map( 'intval', $state['slots'] ) );
+		$this->assertSame( array( $ids[2] ), array_map( 'intval', $state['reserve'] ) );
+	}
+
+	/**
 	 * No room and Overwrite not ticked: refused with the plan-cap message, not "already in EcomWeb".
 	 */
 	public function test_start_with_no_room_without_overwrite_is_refused() {
