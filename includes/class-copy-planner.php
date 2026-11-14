@@ -24,7 +24,7 @@ class Copy_Planner {
 	 * @param bool  $overwrite       Also queue products already copied.
 	 * @param bool  $include_deleted Also create products deleted in ecomweb.
 	 * @param bool  $limit_to_fits   Cut the products to create to what the plan allows.
-	 * @return array queue, creates, fits, over_cap, overwrite_count, already_copied, deleted, currency_blocked.
+	 * @return array queue, slots, reserve, creates, fits, over_cap, overwrite_count, already_copied, deleted, currency_blocked.
 	 */
 	public static function plan( array $preflight, bool $overwrite, bool $include_deleted, bool $limit_to_fits ): array {
 		$new     = array();
@@ -54,7 +54,11 @@ class Copy_Planner {
 		$current = (int) ( $preflight['plan']['current'] ?? 0 );
 		$fits    = -1 === $limit ? count( $creates ) : max( 0, min( count( $creates ), $limit - $current ) );
 
-		$queue = $limit_to_fits ? array_slice( $creates, 0, $fits ) : $creates;
+		// Limited to what fits, the queued creates hold the plan's free slots and the others wait
+		// as the reserve: the runner gives a failed create's slot to the next one.
+		$slots   = $limit_to_fits ? array_slice( $creates, 0, $fits ) : array();
+		$reserve = $limit_to_fits ? array_slice( $creates, $fits ) : array();
+		$queue   = $limit_to_fits ? $slots : $creates;
 		if ( $overwrite ) {
 			$queue = array_merge( $queue, $copied );
 		}
@@ -62,6 +66,8 @@ class Copy_Planner {
 
 		return array(
 			'queue'            => array_values( $queue ),
+			'slots'            => array_values( $slots ),
+			'reserve'          => array_values( $reserve ),
 			'creates'          => count( $creates ),
 			'fits'             => $fits,
 			'over_cap'         => $fits < count( $creates ),
