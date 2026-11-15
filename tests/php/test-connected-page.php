@@ -105,18 +105,19 @@ class Test_Connected_Page extends WP_UnitTestCase {
 		Copy_State::put(
 			array_merge(
 				array(
-					'status'      => 'completed',
-					'total'       => 45,
-					'finished_at' => time(),
-					'counts'      => array(
+					'status'        => 'completed',
+					'connection_id' => 'c1',
+					'total'         => 45,
+					'finished_at'   => time(),
+					'counts'        => array(
 						'created'       => 30,
 						'updated'       => 5,
 						'skipped'       => 4,
 						'failed'        => 3,
 						'not_supported' => 3,
 					),
-					'issues'      => array(),
-					'error'       => null,
+					'issues'        => array(),
+					'error'         => null,
 				),
 				$over
 			)
@@ -220,6 +221,47 @@ class Test_Connected_Page extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Last copy finished ', $html );
 		$this->assertStringNotContainsString( 'Stop copy', $html );
 		$this->assertDoesNotMatchRegularExpression( '/<input[^>]*value="Copy all products not copied yet"[^>]*disabled/', $html );
+	}
+
+	/**
+	 * A finished copy from another connection (the store was changed) is not shown: its results
+	 * and links belong to the other store.
+	 */
+	public function test_finished_copy_of_another_connection_is_hidden() {
+		$this->state(
+			array(
+				'connection_id' => 'c0',
+				'issues'        => array(
+					7 => array(
+						'name'     => 'Old store tee',
+						'result'   => 'failed',
+						'url'      => null,
+						'warnings' => array(),
+						'error'    => array(
+							'code'    => 'INTERNAL',
+							'message' => 'x',
+						),
+					),
+				),
+			)
+		);
+		$html = $this->render();
+		$this->assertStringNotContainsString( 'Last copy finished ', $html );
+		$this->assertStringNotContainsString( 'Old store tee', $html );
+	}
+
+	/**
+	 * A running copy is shown whatever its connection, so the page never offers a second copy
+	 * while one runs.
+	 */
+	public function test_running_copy_of_another_connection_is_still_shown() {
+		$this->state(
+			array(
+				'status'        => 'running',
+				'connection_id' => 'c0',
+			)
+		);
+		$this->assertStringContainsString( 'Stop copy', $this->render() );
 	}
 
 	/**

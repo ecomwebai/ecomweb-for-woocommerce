@@ -16,6 +16,7 @@ use Ecomweb\Woo\Lock;
 use Ecomweb\Woo\Plugin;
 use Ecomweb\Woo\Product_Meta;
 use Ecomweb\Woo\Session_Store;
+use Ecomweb\Woo\Upload_Image_Resolver;
 use PHPUnit\Framework\AssertionFailedError;
 
 /**
@@ -1417,6 +1418,190 @@ class Test_Copy_Runner extends WP_UnitTestCase {
 				'transient' => 0,
 			),
 			$retry['tries']
+		);
+	}
+
+	/**
+	 * A create that fails frees its slot: the next product of the reserve joins the queue, so a
+	 * capped copy still fills the plan (backlog 2026-11-08-woo-failed-product-uses-cap-slot).
+	 */
+	public function test_failed_create_frees_its_slot_for_the_reserve() {
+		list( $p1, $p2, $p3, $p4 ) = $this->products( 4 );
+		$this->accepted( 'j1' );
+		$this->completed(
+			'j1',
+			array(
+				$this->result( $p1, 'created' ),
+				$this->result( $p2, 'failed' ),
+			)
+		);
+		$state = $this->runner()->start( array( $p1, $p2 ), false, 0, array( $p1, $p2 ), array( $p3, $p4 ) );
+		$id    = $state['id'];
+
+		$this->send( $id );
+		$this->poll( $id );
+
+		$state = $this->state();
+		$this->assertSame( 'running', $state['status'] );
+		$this->assertSame( array( $p3 ), $state['queue'] );
+		$this->assertSame( array( $p3 ), $state['slots'] );
+		$this->assertSame( array( $p4 ), $state['reserve'] );
+		$this->assertSame( 3, $state['total'] );
+		$this->assertSame( 1, $state['counts']['created'] );
+		$this->assertSame( 1, $state['counts']['failed'] );
+
+		$this->accepted( 'j2' );
+		$this->send( $id );
+		$ids = array_column( $this->body( $this->fake->calls( self::BATCH )[1] )['products'], 'id' );
+		$this->assertSame( array( $p3 ), $ids );
+	}
+
+	/**
+	 * Created products keep their slots, and a failed product that holds no slot (an overwrite)
+	 * takes nothing from the reserve.
+	 */
+	public function test_created_and_overwrite_failures_dont_top_up() {
+		list( $p1, $p2, $p3 ) = $this->products( 3 );
+		$this->accepted( 'j1' );
+		$this->completed(
+			'j1',
+			array(
+				$this->result( $p1, 'created' ),
+				$this->result( $p2, 'failed' ),
+			)
+		);
+		$state = $this->runner()->start( array( $p1, $p2 ), true, 0, array( $p1 ), array( $p3 ) );
+
+		$this->send( $state['id'] );
+		$this->poll( $state['id'] );
+
+		$state = $this->state();
+		$this->assertSame( 'completed', $state['status'] );
+		$this->assertSame( array( $p3 ), $state['reserve'] );
+		$this->assertSame( 2, $state['total'] );
+	}
+
+	/**
+	 * A create that drops out before sending (deleted meanwhile) frees its slot too.
+	 */
+	public function test_create_gone_before_send_frees_its_slot() {
+		list( $p1, $p2 ) = $this->products( 2 );
+		$gone            = 999999;
+		$this->accepted( 'j1' );
+		$state = $this->runner()->start( array( $gone, $p1 ), false, 0, array( $gone, $p1 ), array( $p2 ) );
+
+		$this->send( $state['id'] );
+
+		$state = $this->state();
+		$this->assertSame( array( $p2 ), $state['queue'] );
+		$this->assertSame( 2, $state['total'] );
+		$this->assertSame( 1, $state['counts']['not_supported'] );
+		$this->assertSame( array(), $state['reserve'] );
+	}
+
+	/**
+	 * Upload mode: the API reports a cached asset as missing (deleted in ecomweb). The cache entry
+	 * is dropped and the product is sent once more, with a fresh upload and overwrite, without
+	 * counting it twice (backlog 2026-11-08-woo-cached-asset-deleted-in-ecomweb).
+	 */
+	public function test_missing_cached_asset_is_dropped_and_uploaded_again() {
+		$this->connect( 'upload' );
+		$att       = Product_Factory::attachment( 'tee-front.png' );
+		list( $p ) = $this->products( 1, array( 'image_id' => $att ) );
+		update_post_meta( $att, Upload_Image_Resolver::META_KEY . 'c1', 'as_old' );
+		$this->fake->on( 'POST', self::UPLOAD, 201, array( 'asset' => array( 'id' => 'as_new' ) ) );
+		$this->accepted( 'j1' );
+		$this->completed(
+			'j1',
+			array(
+				$this->result( $p, 'created', array( 'warnings' => array( $this->missing( 'as_old' ) ) ) ),
+			)
+		);
+		$id = $this->start( array( $p ) );
+
+		$this->send( $id );
+		$this->assertSame( 0, $this->fake->count( self::UPLOAD ) );
+		$this->poll( $id );
+
+		$state = $this->state();
+		$this->assertSame( 'running', $state['status'] );
+		$this->assertSame( '', get_post_meta( $att, Upload_Image_Resolver::META_KEY . 'c1', true ) );
+		$this->assertSame( array( $p ), $state['queue'] );
+
+		$this->accepted( 'j2' );
+		$this->completed( 'j2', array( $this->result( $p, 'updated' ) ) );
+		$this->send( $id );
+		$this->assertSame( 1, $this->fake->count( self::UPLOAD ) );
+		$body = $this->body( $this->fake->calls( self::BATCH )[1] );
+		$this->assertTrue( $body['overwrite'] );
+		$this->assertSame( 'as_new', $body['products'][0]['images'][0]['asset_id'] );
+		$this->poll( $id );
+
+		$state = $this->state();
+		$this->assertSame( 'completed', $state['status'] );
+		$this->assertSame( 1, $state['counts']['created'] );
+		$this->assertSame( 0, $state['counts']['updated'] );
+		$this->assertSame( 1, $state['total'] );
+		$this->assertArrayNotHasKey( $p, $state['issues'] );
+		$this->assertSame( 'as_new', get_post_meta( $att, Upload_Image_Resolver::META_KEY . 'c1', true ) );
+	}
+
+	/**
+	 * A product is sent again at most once; when the image fails again its issue stays.
+	 */
+	public function test_missing_asset_resend_happens_once() {
+		$this->connect( 'upload' );
+		$att       = Product_Factory::attachment( 'tee-front.png' );
+		list( $p ) = $this->products( 1, array( 'image_id' => $att ) );
+		update_post_meta( $att, Upload_Image_Resolver::META_KEY . 'c1', 'as_old' );
+		$this->fake->on( 'POST', self::UPLOAD, 201, array( 'asset' => array( 'id' => 'as_new' ) ) );
+		$this->accepted( 'j1' );
+		$this->completed( 'j1', array( $this->result( $p, 'created', array( 'warnings' => array( $this->missing( 'as_old' ) ) ) ) ) );
+		$id = $this->start( array( $p ) );
+		$this->send( $id );
+		$this->poll( $id );
+
+		$this->accepted( 'j2' );
+		$this->completed( 'j2', array( $this->result( $p, 'updated', array( 'warnings' => array( $this->missing( 'as_new' ) ) ) ) ) );
+		$this->send( $id );
+		$this->poll( $id );
+
+		$state = $this->state();
+		$this->assertSame( 'completed', $state['status'] );
+		$this->assertSame( 2, $this->fake->count( self::BATCH ) );
+		$this->assertSame( 1, $state['counts']['created'] );
+		$this->assertSame( 'created', $state['issues'][ $p ]['result'] );
+		$this->assertSame( 'IMAGE_FAILED', $state['issues'][ $p ]['warnings'][0]['code'] );
+	}
+
+	/**
+	 * An IMAGE_FAILED warning that names no asset this copy sent leaves the cache alone.
+	 */
+	public function test_other_image_warning_keeps_the_cache() {
+		$this->connect( 'upload' );
+		$att       = Product_Factory::attachment( 'tee-front.png' );
+		list( $p ) = $this->products( 1, array( 'image_id' => $att ) );
+		update_post_meta( $att, Upload_Image_Resolver::META_KEY . 'c1', 'as_old' );
+		$this->accepted( 'j1' );
+		$this->completed( 'j1', array( $this->result( $p, 'created', array( 'warnings' => array( $this->missing( 'as_old2' ) ) ) ) ) );
+		$id = $this->start( array( $p ) );
+		$this->send( $id );
+		$this->poll( $id );
+
+		$this->assertSame( 'completed', $this->state()['status'] );
+		$this->assertSame( 'as_old', get_post_meta( $att, Upload_Image_Resolver::META_KEY . 'c1', true ) );
+	}
+
+	/**
+	 * The API's warning for an asset_id it can't find.
+	 *
+	 * @param string $asset_id Asset ID.
+	 * @return array
+	 */
+	private function missing( string $asset_id ): array {
+		return array(
+			'code'    => 'IMAGE_FAILED',
+			'message' => 'Image ' . $asset_id . ' could not be copied: it is not an asset of this store',
 		);
 	}
 }

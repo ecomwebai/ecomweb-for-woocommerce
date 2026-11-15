@@ -230,7 +230,7 @@ class Admin_Page {
 	private function render_connected(): void {
 		$email      = $this->auth->email();
 		$connection = (array) $this->connection->current();
-		$state      = Copy_State::get();
+		$state      = Copy_State::for_connection( (string) ( $connection['connection_id'] ?? '' ) );
 		$list_args  = Product_Picker::request();
 		$products   = Product_Picker::page( (string) ( $connection['connection_id'] ?? '' ), $list_args );
 		require ECOMWEB_WOO_DIR . 'includes/views/page-connected.php';
@@ -424,7 +424,8 @@ class Admin_Page {
 	}
 
 	/**
-	 * Back to the store picker. Only the connection is dropped: sign-in and copied-product meta stay.
+	 * Back to the store picker. The connection and the last copy's results (they belong to the old
+	 * store) are dropped: sign-in and copied-product meta stay.
 	 *
 	 * @return void
 	 */
@@ -434,6 +435,7 @@ class Admin_Page {
 			$this->finish( 'copy_running' );
 		}
 		$this->connection->forget();
+		Copy_State::clear();
 		$this->finish( 'changed_store' );
 	}
 
@@ -546,7 +548,7 @@ class Admin_Page {
 			$this->refuse( __( 'Nothing to copy: every selected product is already in EcomWeb.', 'ecomweb-for-woocommerce' ) );
 		}
 
-		$started = Plugin::instance()->runner()->start( $plan['queue'], $overwrite, $selection['not_supported'] );
+		$started = Plugin::instance()->runner()->start( $plan['queue'], $overwrite, $selection['not_supported'], $plan['slots'], $plan['reserve'] );
 		if ( is_wp_error( $started ) ) {
 			if ( 'ecomweb_copy_running' === $started->get_error_code() ) {
 				$this->finish( 'copy_running' );

@@ -2,7 +2,7 @@
 //
 // Edits the per-product versions.json published to R2 for downloads.ecomweb.app.
 // Dependency-free ESM, Node >= 20.
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 
@@ -183,7 +183,16 @@ function main(argv) {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Compare real paths: through a symlink (macOS /var -> /private/var) the strings differ.
+const isMain = () => {
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+
+if (process.argv[1] && isMain()) {
   try {
     main(process.argv.slice(2));
   } catch (e) {

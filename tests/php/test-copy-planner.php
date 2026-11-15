@@ -188,4 +188,38 @@ class Test_Copy_Planner extends WP_UnitTestCase {
 		$this->assertTrue( Copy_Planner::plan( $this->preflight( array( 1 => 'new' ), -1, 0, false ), false, false, false )['currency_blocked'] );
 		$this->assertFalse( Copy_Planner::plan( $this->preflight( array( 1 => 'new' ) ), false, false, false )['currency_blocked'] );
 	}
+
+	/**
+	 * Limited to what fits: the queued creates hold the slots, the rest wait as the reserve that
+	 * the runner draws from when a create fails.
+	 */
+	public function test_limit_to_fits_returns_slots_and_reserve() {
+		$plan = Copy_Planner::plan(
+			$this->preflight(
+				array(
+					4 => 'new',
+					1 => 'new',
+					3 => 'new',
+					2 => 'copied',
+				),
+				20,
+				18
+			),
+			true,
+			false,
+			true
+		);
+		$this->assertSame( array( 1, 2, 3 ), $plan['queue'] );
+		$this->assertSame( array( 1, 3 ), $plan['slots'] );
+		$this->assertSame( array( 4 ), $plan['reserve'] );
+	}
+
+	/**
+	 * Without the cap applied nothing is held back, so nothing tops up.
+	 */
+	public function test_no_reserve_without_limit_to_fits() {
+		$plan = Copy_Planner::plan( $this->preflight( array( 1 => 'new' ), 20, 0 ), false, false, false );
+		$this->assertSame( array(), $plan['slots'] );
+		$this->assertSame( array(), $plan['reserve'] );
+	}
 }

@@ -301,6 +301,24 @@ class Test_Admin_Actions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Change store also drops the last finished copy: its results and links belong to the old store.
+	 */
+	public function test_change_store_clears_last_copy() {
+		$this->connect();
+		Copy_State::put(
+			array(
+				'id'            => 'x',
+				'status'        => 'completed',
+				'connection_id' => 'c1',
+			)
+		);
+		$this->request( 'ecomweb_change_store' );
+		$this->redirect_of( 'handle_change_store' );
+
+		$this->assertNull( Copy_State::get() );
+	}
+
+	/**
 	 * Disconnect signs out, forgets the connection, and keeps the site UUID and product meta.
 	 */
 	public function test_disconnect_logs_out_and_keeps_meta() {
