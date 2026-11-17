@@ -4,7 +4,7 @@ Tags: woocommerce, migration, products, import, ecomweb
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,10 +83,18 @@ EcomWeb Privacy Policy: https://ecomweb.app/pages/privacy-policy
 
 == Changelog ==
 
+= 1.0.1 =
+* Images that were deleted in EcomWeb after an earlier copy are uploaded again instead of failing.
+* When your plan limits how many products can be copied, products that failed no longer use up a place; the copy fills the limit with the next products.
+* Changing the store clears the results of the copy to the previous store.
+
 = 1.0.0 =
 * First release.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Fixes re-copying products whose images were deleted in EcomWeb, and copies with a plan limit.
 
 = 1.0.0 =
 First release.
