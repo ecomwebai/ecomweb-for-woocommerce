@@ -3,17 +3,20 @@ name: Release
 on:
   push:
     tags: ['[0-9]*.[0-9]*.[0-9]*']
+  # Daily: copy the version wordpress.org serves into versions.json (store.version).
+  schedule:
+    - cron: '23 3 * * *'
   workflow_dispatch:
     inputs:
       action:
         description: Edit versions.json on downloads.ecomweb.app
         type: choice
         required: true
-        options: [set-store-version, yank]
+        options: [set-store-version, yank, sync-store-version]
       version:
-        description: Version, X.Y.Z
+        description: Version, X.Y.Z (not used by sync-store-version)
         type: string
-        required: true
+        required: false
       reason:
         description: Reason (required for yank)
         type: string
@@ -71,8 +74,68 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" "$ZIP" --title "$GITHUB_REF_NAME" --notes-file "$RELEASE_NOTES_FILE"
 
+  # Commits the published zip's files to wordpress.org SVN (trunk/ and tags/X.Y.Z/). With
+  # Release Confirmation on, wordpress.org holds the version until the owner confirms it in the
+  # Release Management dashboard; the daily sync below then records it on downloads.ecomweb.app.
+  wordpress-org:
+    if: github.event_name == 'push'
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ecomweb-for-woocommerce
+          path: dist
+
+      - name: Unzip the release
+        id: unzip
+        env:
+          SVN_SECRETS_SET: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_PASSWORD != '' }}
+        run: |
+          [ "$SVN_SECRETS_SET" = true ] || { echo "SVN_USERNAME or SVN_PASSWORD is not set (ecomweb-k8s ci_secrets)" >&2; exit 1; }
+          if curl -sfI --max-time 30 -o /dev/null "https://plugins.svn.wordpress.org/ecomweb-for-woocommerce/tags/$GITHUB_REF_NAME/"; then
+            echo "tags/$GITHUB_REF_NAME is already in wordpress.org SVN; nothing to deploy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          unzip -q "dist/ecomweb-for-woocommerce-$GITHUB_REF_NAME.zip" -d "$RUNNER_TEMP/wporg"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to wordpress.org
+        if: steps.unzip.outputs.skip == 'false'
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: ecomweb-for-woocommerce
+          VERSION: ${{ github.ref_name }}
+          BUILD_DIR: ${{ runner.temp }}/wporg/ecomweb-for-woocommerce
+
+  sync-store:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.action == 'sync-store-version')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Record the version wordpress.org serves
+        env:
+          R2_DOWNLOADS_ENDPOINT: ${{ secrets.R2_DOWNLOADS_ENDPOINT }}
+          R2_DOWNLOADS_ACCESS_KEY_ID: ${{ secrets.R2_DOWNLOADS_ACCESS_KEY_ID }}
+          R2_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.R2_DOWNLOADS_SECRET_ACCESS_KEY }}
+          R2_DOWNLOADS_BUCKET: ${{ secrets.R2_DOWNLOADS_BUCKET }}
+        run: |
+          live=$(curl -fsS --max-time 30 --retry 3 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=ecomweb-for-woocommerce' | jq -r '.version // empty')
+          [ -n "$live" ] || { echo "wordpress.org returned no version" >&2; exit 1; }
+          bash .github/release/edit-versions.sh woocommerce sync-store "$live"
+
   edit:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && inputs.action != 'sync-store-version'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -91,19 +154,8 @@ jobs:
           VERSION: ${{ inputs.version }}
           REASON: ${{ inputs.reason }}
         run: |
-          export AWS_ACCESS_KEY_ID=$R2_DOWNLOADS_ACCESS_KEY_ID
-          export AWS_SECRET_ACCESS_KEY=$R2_DOWNLOADS_SECRET_ACCESS_KEY
-          export AWS_DEFAULT_REGION=auto
-          export AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED
-          export AWS_RESPONSE_CHECKSUM_VALIDATION=WHEN_REQUIRED
-          work=$(mktemp -d)
-          key=woocommerce/versions.json
-          aws --endpoint-url "$R2_DOWNLOADS_ENDPOINT" s3 cp "s3://$R2_DOWNLOADS_BUCKET/$key" "$work/versions.json" --only-show-errors
           case "$ACTION" in
-            set-store-version)
-              node .github/release/downloads.mjs set-store --product woocommerce --versions "$work/versions.json" --version "$VERSION" > "$work/new.json" ;;
-            yank)
-              node .github/release/downloads.mjs yank --product woocommerce --versions "$work/versions.json" --version "$VERSION" --reason "$REASON" --date "$(date -u +%F)" > "$work/new.json" ;;
+            set-store-version) bash .github/release/edit-versions.sh woocommerce set-store "$VERSION" ;;
+            yank) bash .github/release/edit-versions.sh woocommerce yank "$VERSION" "$REASON" ;;
             *) echo "unknown action $ACTION" >&2; exit 1 ;;
           esac
-          aws --endpoint-url "$R2_DOWNLOADS_ENDPOINT" s3api put-object --bucket "$R2_DOWNLOADS_BUCKET" --key "$key" --body "$work/new.json" --content-type application/json --cache-control 'public, max-age=60' > /dev/null

@@ -54,6 +54,17 @@ export function setStoreVersion(file, version) {
   return { ...file, store: { version } };
 }
 
+// What to do with versions.json given the version live in the store: "set" it as the store
+// version, leave it ("same"), or skip because downloads.ecomweb.app doesn't list it ("unlisted")
+// or has yanked it ("yanked"). A lower version than store.version (a store rollback) is "set".
+export function storeAction(file, version) {
+  assertVersion(version);
+  const entry = file.versions.find((v) => v.version === version);
+  if (!entry) return "unlisted";
+  if (entry.yanked) return "yanked";
+  return file.store?.version === version ? "same" : "set";
+}
+
 export function yankVersion(file, version, reason, date) {
   assertVersion(version);
   if (!isListed(file, version)) throw new Error(`version ${version} not listed`);
@@ -172,6 +183,9 @@ function main(argv) {
       );
       break;
     }
+    case "store-action":
+      process.stdout.write(storeAction(file, need("version")) + "\n");
+      break;
     case "set-store":
       print(setStoreVersion(file, need("version")));
       break;
