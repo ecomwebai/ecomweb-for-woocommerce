@@ -12,6 +12,7 @@ import {
   addVersion,
   setStoreVersion,
   yankVersion,
+  storeAction,
   extractNotes,
 } from "./downloads.mjs";
 
@@ -157,4 +158,28 @@ test("CLI runs when called through a symlinked path", () => {
     "--versions", join(dir, "none.json"), "--version", "1.0.0", "--zip-exists", "true",
   ]).toString();
   assert.equal(out.trim(), "resume");
+});
+
+test("storeAction", () => {
+  const two = addVersion(one, entry("1.0.1"));
+  assert.equal(storeAction(two, "1.0.1"), "set");
+  assert.equal(storeAction(setStoreVersion(two, "1.0.1"), "1.0.1"), "same");
+  // A rollback in the store is still what merchants get.
+  assert.equal(storeAction(setStoreVersion(two, "1.0.1"), "1.0.0"), "set");
+  assert.equal(storeAction(two, "2.0.0"), "unlisted");
+  assert.equal(storeAction(yankVersion(two, "1.0.1", "bad", "2026-11-17"), "1.0.1"), "yanked");
+  assert.throws(() => storeAction(two, "v1"), /invalid version/);
+});
+
+test("CLI store-action", () => {
+  const dir = mkdtempSync(join(tmpdir(), "dl-"));
+  const versions = join(dir, "versions.json");
+  writeFileSync(versions, JSON.stringify(one));
+  const run = (version) =>
+    execFileSync("node", [
+      join(here, "downloads.mjs"), "store-action", "--product", "woo",
+      "--versions", versions, "--version", version,
+    ]).toString().trim();
+  assert.equal(run("1.0.0"), "set");
+  assert.equal(run("1.0.9"), "unlisted");
 });

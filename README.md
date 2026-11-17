@@ -20,12 +20,18 @@ If only `gh release create` failed, `versions.json` is already updated and a re-
 `notes` of that version from `https://downloads.ecomweb.app/woocommerce/versions.json`, then
 `gh release create X.Y.Z <zip> --title X.Y.Z --notes "<notes>"`.
 
-Two actions stay manual:
+After `publish`, the `wordpress-org` job commits the same zip's files to wordpress.org SVN
+(`trunk/` and `tags/X.Y.Z/`) with `10up/action-wordpress-plugin-deploy`, as `SVN_USERNAME` with
+`SVN_PASSWORD` (both from the ecomweb-k8s vault, `ci_secrets`). A version already in SVN is
+skipped, so re-running is safe. Release Confirmation is on for the plugin: wordpress.org holds
+each version until a committer confirms it in the Release Management dashboard (an email
+links there). Until then the listing keeps the previous version.
 
-- Uploading the zip to wordpress.org.
-- Telling the downloads page which version is live in the store: run the **Release**
-  workflow by hand (`set-store-version`, version X.Y.Z) once the store has accepted it.
-  The same workflow with `yank` and a reason withdraws a bad version.
+The downloads page's store version (`store.version` in `versions.json`) follows wordpress.org
+on its own: the `sync-store` job runs daily, reads the version the plugin API serves, and sets
+it if downloads.ecomweb.app lists it and it isn't yanked. To run it now, start the **Release**
+workflow by hand with `sync-store-version`. The same workflow with `set-store-version` sets a
+version directly, and `yank` with a reason withdraws a bad version.
 
 ### Testing `publish.sh` locally
 
