@@ -33,6 +33,11 @@ it if downloads.ecomweb.app lists it and it isn't yanked. To run it now, start t
 workflow by hand with `sync-store-version`. The same workflow with `set-store-version` sets a
 version directly, and `yank` with a reason withdraws a bad version.
 
+All runs of the Release workflow share one concurrency group, so two never edit
+`versions.json` at once. GitHub keeps only one waiting run per group: if a release is running
+and two more runs queue (a second tag and the daily sync, say), the older waiting one is
+cancelled. Push tags one at a time, and re-run a cancelled release.
+
 ### Testing `publish.sh` locally
 
 Needs Docker, the aws CLI, Node 20+ and a built zip in `build/`.

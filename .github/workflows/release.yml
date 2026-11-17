@@ -81,6 +81,7 @@ jobs:
     if: github.event_name == 'push'
     needs: publish
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -93,7 +94,7 @@ jobs:
           SVN_SECRETS_SET: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_PASSWORD != '' }}
         run: |
           [ "$SVN_SECRETS_SET" = true ] || { echo "SVN_USERNAME or SVN_PASSWORD is not set (ecomweb-k8s ci_secrets)" >&2; exit 1; }
-          if curl -sfI -o /dev/null "https://plugins.svn.wordpress.org/ecomweb-for-woocommerce/tags/$GITHUB_REF_NAME/"; then
+          if curl -sfI --max-time 30 -o /dev/null "https://plugins.svn.wordpress.org/ecomweb-for-woocommerce/tags/$GITHUB_REF_NAME/"; then
             echo "tags/$GITHUB_REF_NAME is already in wordpress.org SVN; nothing to deploy"
             echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
@@ -114,6 +115,7 @@ jobs:
   sync-store:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.action == 'sync-store-version')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -128,7 +130,7 @@ jobs:
           R2_DOWNLOADS_SECRET_ACCESS_KEY: ${{ secrets.R2_DOWNLOADS_SECRET_ACCESS_KEY }}
           R2_DOWNLOADS_BUCKET: ${{ secrets.R2_DOWNLOADS_BUCKET }}
         run: |
-          live=$(curl -fsS 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=ecomweb-for-woocommerce' | jq -r '.version // empty')
+          live=$(curl -fsS --max-time 30 --retry 3 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request%5Bslug%5D=ecomweb-for-woocommerce' | jq -r '.version // empty')
           [ -n "$live" ] || { echo "wordpress.org returned no version" >&2; exit 1; }
           bash .github/release/edit-versions.sh woocommerce sync-store "$live"
 
