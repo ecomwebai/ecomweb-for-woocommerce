@@ -170,7 +170,7 @@ class Test_Connection extends WP_UnitTestCase {
 				'site_url'             => get_option( 'home' ),
 				'woocommerce_currency' => 'VND',
 				'weight_unit'          => 'g',
-				'plugin_version'       => '1.0.0',
+				'plugin_version'       => ECOMWEB_WOO_VERSION,
 			),
 			json_decode( $call['body'], true )
 		);
