@@ -23,9 +23,14 @@ If only `gh release create` failed, `versions.json` is already updated and a re-
 After `publish`, the `wordpress-org` job commits the same zip's files to wordpress.org SVN
 (`trunk/` and `tags/X.Y.Z/`) with `10up/action-wordpress-plugin-deploy`, as `SVN_USERNAME` with
 `SVN_PASSWORD` (both from the ecomweb-k8s vault, `ci_secrets`). A version already in SVN is
-skipped, so re-running is safe. Release Confirmation is on for the plugin: wordpress.org holds
-each version until a committer confirms it in the Release Management dashboard (an email
-links there). Until then the listing keeps the previous version.
+skipped, so re-running is safe. Release Confirmation is off, so the listing shows the new
+version at once; wordpress.org then holds the update for about 6 hours before sites are offered
+it, while its moderators and scanners review it.
+
+The listing's icon and banners are in `.wordpress-org/` (`icon-128x128.png`,
+`icon-256x256.png`, `banner-772x250.png`, `banner-1544x500.png`). They are not in the zip;
+the same job copies the folder to SVN `assets/` on each release. To change them between
+releases, commit the files to SVN `assets/` by hand as well (no version bump needed).
 
 The downloads page's store version (`store.version` in `versions.json`) follows wordpress.org
 on its own: the `sync-store` job runs daily, reads the version the plugin API serves, and sets

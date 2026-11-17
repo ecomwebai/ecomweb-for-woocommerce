@@ -102,6 +102,14 @@ jobs:
           unzip -q "dist/ecomweb-for-woocommerce-$GITHUB_REF_NAME.zip" -d "$RUNNER_TEMP/wporg"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
+      # The listing images (icon, banner) live in .wordpress-org/; the deploy action syncs that
+      # folder to SVN assets/ from the workspace, not from the zip.
+      - uses: actions/checkout@v4
+        if: steps.unzip.outputs.skip == 'false'
+        with:
+          sparse-checkout: .wordpress-org
+          sparse-checkout-cone-mode: false
+
       - name: Deploy to wordpress.org
         if: steps.unzip.outputs.skip == 'false'
         uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
